@@ -1,0 +1,782 @@
+-- =====================================================
+-- MARDRI
+-- BANCO DE DADOS POSTGRESQL
+-- =====================================================
+
+
+-- =====================================================
+-- 1. USUÁRIO ADMINISTRADOR
+-- =====================================================
+
+CREATE TABLE usuarios_admin (
+    id BIGSERIAL PRIMARY KEY,
+
+    nome VARCHAR(100) NOT NULL,
+    sobrenome VARCHAR(100) NOT NULL,
+
+    email VARCHAR(255) NOT NULL UNIQUE,
+
+    senha_hash TEXT NOT NULL,
+
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- =====================================================
+-- 2. CLIENTES
+-- Tela Cadastro Usuários
+-- =====================================================
+
+CREATE TABLE clientes (
+    id BIGSERIAL PRIMARY KEY,
+
+    nome VARCHAR(100) NOT NULL,
+    sobrenome VARCHAR(100) NOT NULL,
+
+    telefone VARCHAR(20),
+
+    email VARCHAR(255),
+
+    cpf VARCHAR(11),
+
+    cep VARCHAR(8),
+
+    bairro VARCHAR(120),
+
+    rua VARCHAR(200),
+
+    numero_endereco VARCHAR(20),
+
+    complemento VARCHAR(120),
+
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE UNIQUE INDEX uq_clientes_cpf
+ON clientes(cpf)
+WHERE cpf IS NOT NULL;
+
+
+CREATE UNIQUE INDEX uq_clientes_email
+ON clientes(email)
+WHERE email IS NOT NULL;
+
+
+-- =====================================================
+-- 3. PRODUTOS DE ESTOQUE
+-- =====================================================
+
+CREATE TABLE produtos_estoque (
+    id BIGSERIAL PRIMARY KEY,
+
+    nome VARCHAR(200) NOT NULL,
+
+    codigo_barras VARCHAR(50) NOT NULL UNIQUE,
+
+    unidade VARCHAR(20) NOT NULL DEFAULT 'UN',
+
+    controla_validade BOOLEAN NOT NULL DEFAULT TRUE,
+
+    estoque_minimo NUMERIC(14,3) NOT NULL DEFAULT 0,
+
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- =====================================================
+-- 4. PRODUTOS DE VENDA
+--
+-- PRODUCAO = Trufa
+-- REVENDA = Salgadinho
+-- =====================================================
+
+CREATE TABLE produtos_venda (
+    id BIGSERIAL PRIMARY KEY,
+
+    produto_estoque_id BIGINT,
+
+    nome VARCHAR(150) NOT NULL,
+
+    sabor VARCHAR(120),
+
+    tipo VARCHAR(20) NOT NULL,
+
+    unidade VARCHAR(20) NOT NULL DEFAULT 'UN',
+
+    preco_venda NUMERIC(14,2) NOT NULL,
+
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_produto_venda_estoque
+        FOREIGN KEY (produto_estoque_id)
+        REFERENCES produtos_estoque(id),
+
+    CONSTRAINT ck_produto_venda_tipo
+        CHECK (tipo IN ('PRODUCAO', 'REVENDA')),
+
+    CONSTRAINT ck_produto_venda_preco
+        CHECK (preco_venda >= 0)
+);
+
+
+-- =====================================================
+-- 5. FICHA TÉCNICA
+-- Custo do produto
+-- =====================================================
+
+CREATE TABLE fichas_tecnicas (
+    id BIGSERIAL PRIMARY KEY,
+
+    produto_venda_id BIGINT NOT NULL,
+
+    nome VARCHAR(150) NOT NULL,
+
+    rendimento NUMERIC(14,3) NOT NULL DEFAULT 1,
+
+    ativa BOOLEAN NOT NULL DEFAULT TRUE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_ficha_produto
+        FOREIGN KEY (produto_venda_id)
+        REFERENCES produtos_venda(id),
+
+    CONSTRAINT ck_ficha_rendimento
+        CHECK (rendimento > 0)
+);
+
+
+-- =====================================================
+-- 6. ITENS DA FICHA TÉCNICA
+-- =====================================================
+
+CREATE TABLE itens_ficha_tecnica (
+    id BIGSERIAL PRIMARY KEY,
+
+    ficha_tecnica_id BIGINT NOT NULL,
+
+    produto_estoque_id BIGINT,
+
+    descricao VARCHAR(180),
+
+    quantidade NUMERIC(14,4) NOT NULL,
+
+    valor_unitario_manual NUMERIC(14,4),
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_item_ficha
+        FOREIGN KEY (ficha_tecnica_id)
+        REFERENCES fichas_tecnicas(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_item_ficha_estoque
+        FOREIGN KEY (produto_estoque_id)
+        REFERENCES produtos_estoque(id),
+
+    CONSTRAINT ck_item_ficha_quantidade
+        CHECK (quantidade > 0)
+);
+
+
+-- =====================================================
+-- 7. PEDIDOS
+-- =====================================================
+
+CREATE TABLE pedidos (
+    id BIGSERIAL PRIMARY KEY,
+
+    numero VARCHAR(12) NOT NULL UNIQUE,
+
+    cliente_id BIGINT,
+
+    nome_cliente_avulso VARCHAR(200),
+
+    status VARCHAR(30) NOT NULL DEFAULT 'ABERTO',
+
+    data_pedido TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    data_conclusao TIMESTAMP,
+
+    observacao TEXT,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_pedido_cliente
+        FOREIGN KEY (cliente_id)
+        REFERENCES clientes(id),
+
+    CONSTRAINT ck_pedido_status
+        CHECK (
+            status IN (
+                'ABERTO',
+                'EM_PROCESSO',
+                'CONCLUIDO',
+                'CANCELADO'
+            )
+        )
+);
+
+
+-- =====================================================
+-- 8. ITENS DO PEDIDO
+-- =====================================================
+
+CREATE TABLE itens_pedido (
+    id BIGSERIAL PRIMARY KEY,
+
+    pedido_id BIGINT NOT NULL,
+
+    produto_venda_id BIGINT NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL,
+
+    valor_unitario NUMERIC(14,2) NOT NULL,
+
+    tipo_desconto VARCHAR(20) NOT NULL DEFAULT 'NENHUM',
+
+    desconto NUMERIC(14,2) NOT NULL DEFAULT 0,
+
+    custo_unitario NUMERIC(14,4),
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_item_pedido
+        FOREIGN KEY (pedido_id)
+        REFERENCES pedidos(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_item_pedido_produto
+        FOREIGN KEY (produto_venda_id)
+        REFERENCES produtos_venda(id),
+
+    CONSTRAINT ck_item_pedido_quantidade
+        CHECK (quantidade > 0),
+
+    CONSTRAINT ck_item_pedido_tipo_desconto
+        CHECK (
+            tipo_desconto IN (
+                'NENHUM',
+                'VALOR',
+                'PERCENTUAL'
+            )
+        ),
+
+    CONSTRAINT ck_item_pedido_desconto
+        CHECK (desconto >= 0)
+);
+
+
+-- =====================================================
+-- 9. PAGAMENTOS
+-- =====================================================
+
+CREATE TABLE pagamentos (
+    id BIGSERIAL PRIMARY KEY,
+
+    pedido_id BIGINT NOT NULL UNIQUE,
+
+    forma VARCHAR(30),
+
+    valor NUMERIC(14,2) NOT NULL,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
+
+    data_pagamento TIMESTAMP,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_pagamento_pedido
+        FOREIGN KEY (pedido_id)
+        REFERENCES pedidos(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT ck_pagamento_status
+        CHECK (
+            status IN (
+                'PENDENTE',
+                'PAGO',
+                'ESTORNADO'
+            )
+        ),
+
+    CONSTRAINT ck_pagamento_valor
+        CHECK (valor >= 0)
+);
+
+
+-- =====================================================
+-- 10. COMPRAS
+-- =====================================================
+
+CREATE TABLE compras (
+    id BIGSERIAL PRIMARY KEY,
+
+    numero BIGSERIAL UNIQUE,
+
+    usuario_id BIGINT,
+
+    data_compra TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
+
+    desconto NUMERIC(14,2) NOT NULL DEFAULT 0,
+
+    observacao TEXT,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_compra_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuarios_admin(id),
+
+    CONSTRAINT ck_compra_status
+        CHECK (
+            status IN (
+                'ABERTA',
+                'CONFIRMADA',
+                'CANCELADA'
+            )
+        )
+);
+
+
+-- =====================================================
+-- 11. ITENS DAS COMPRAS
+-- =====================================================
+
+CREATE TABLE itens_compra (
+    id BIGSERIAL PRIMARY KEY,
+
+    compra_id BIGINT NOT NULL,
+
+    produto_estoque_id BIGINT NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL,
+
+    valor_unitario NUMERIC(14,4) NOT NULL,
+
+    validade DATE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_item_compra
+        FOREIGN KEY (compra_id)
+        REFERENCES compras(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_item_compra_produto
+        FOREIGN KEY (produto_estoque_id)
+        REFERENCES produtos_estoque(id),
+
+    CONSTRAINT ck_item_compra_quantidade
+        CHECK (quantidade > 0),
+
+    CONSTRAINT ck_item_compra_valor
+        CHECK (valor_unitario >= 0)
+);
+
+
+-- =====================================================
+-- 12. LOTES DO ESTOQUE
+-- =====================================================
+
+CREATE TABLE lotes_estoque (
+    id BIGSERIAL PRIMARY KEY,
+
+    item_compra_id BIGINT,
+
+    produto_estoque_id BIGINT NOT NULL,
+
+    quantidade_inicial NUMERIC(14,3) NOT NULL,
+
+    quantidade_atual NUMERIC(14,3) NOT NULL,
+
+    custo_unitario NUMERIC(14,4) NOT NULL,
+
+    validade DATE,
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_lote_item_compra
+        FOREIGN KEY (item_compra_id)
+        REFERENCES itens_compra(id),
+
+    CONSTRAINT fk_lote_produto
+        FOREIGN KEY (produto_estoque_id)
+        REFERENCES produtos_estoque(id),
+
+    CONSTRAINT ck_lote_quantidade
+        CHECK (
+            quantidade_inicial >= 0
+            AND quantidade_atual >= 0
+        )
+);
+
+
+-- =====================================================
+-- 13. MOVIMENTAÇÕES DE ESTOQUE
+-- =====================================================
+
+CREATE TABLE movimentacoes_estoque (
+    id BIGSERIAL PRIMARY KEY,
+
+    lote_id BIGINT NOT NULL,
+
+    tipo VARCHAR(30) NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL,
+
+    data_movimentacao TIMESTAMP
+        NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    origem_tipo VARCHAR(50),
+
+    origem_id BIGINT,
+
+    observacao VARCHAR(255),
+
+    CONSTRAINT fk_movimentacao_lote
+        FOREIGN KEY (lote_id)
+        REFERENCES lotes_estoque(id),
+
+    CONSTRAINT ck_movimentacao_tipo
+        CHECK (
+            tipo IN (
+                'ENTRADA_COMPRA',
+                'SAIDA_USO',
+                'SAIDA_PRODUCAO',
+                'SAIDA_VENDA',
+                'SAIDA_DESPERDICIO',
+                'AJUSTE_ENTRADA',
+                'AJUSTE_SAIDA'
+            )
+        ),
+
+    CONSTRAINT ck_movimentacao_quantidade
+        CHECK (quantidade > 0)
+);
+
+
+-- =====================================================
+-- 14. PRODUÇÕES
+-- =====================================================
+
+CREATE TABLE producoes (
+    id BIGSERIAL PRIMARY KEY,
+
+    ficha_tecnica_id BIGINT NOT NULL,
+
+    quantidade_produzida NUMERIC(14,3) NOT NULL,
+
+    custo_total NUMERIC(14,2) NOT NULL,
+
+    data_producao TIMESTAMP
+        NOT NULL
+        DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_producao_ficha
+        FOREIGN KEY (ficha_tecnica_id)
+        REFERENCES fichas_tecnicas(id),
+
+    CONSTRAINT ck_producao_quantidade
+        CHECK (quantidade_produzida > 0)
+);
+
+
+-- =====================================================
+-- 15. CONSUMO DOS INGREDIENTES NA PRODUÇÃO
+-- =====================================================
+
+CREATE TABLE consumos_producao (
+    id BIGSERIAL PRIMARY KEY,
+
+    producao_id BIGINT NOT NULL,
+
+    lote_id BIGINT NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL,
+
+    custo_unitario NUMERIC(14,4) NOT NULL,
+
+    CONSTRAINT fk_consumo_producao
+        FOREIGN KEY (producao_id)
+        REFERENCES producoes(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_consumo_lote
+        FOREIGN KEY (lote_id)
+        REFERENCES lotes_estoque(id),
+
+    CONSTRAINT ck_consumo_quantidade
+        CHECK (quantidade > 0)
+);
+
+
+-- =====================================================
+-- 16. DESPERDÍCIOS
+-- =====================================================
+
+CREATE TABLE desperdicios (
+    id BIGSERIAL PRIMARY KEY,
+
+    lote_id BIGINT NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL,
+
+    custo_unitario NUMERIC(14,4) NOT NULL,
+
+    motivo VARCHAR(255),
+
+    data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_desperdicio_lote
+        FOREIGN KEY (lote_id)
+        REFERENCES lotes_estoque(id),
+
+    CONSTRAINT ck_desperdicio_quantidade
+        CHECK (quantidade > 0)
+);
+
+
+-- =====================================================
+-- 17. DESPESAS EXTRAS
+-- =====================================================
+
+CREATE TABLE despesas_extras (
+    id BIGSERIAL PRIMARY KEY,
+
+    nome VARCHAR(200) NOT NULL,
+
+    quantidade NUMERIC(14,3) NOT NULL DEFAULT 1,
+
+    valor_unitario NUMERIC(14,2) NOT NULL,
+
+    categoria VARCHAR(100),
+
+    data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    observacao VARCHAR(255),
+
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT ck_despesa_quantidade
+        CHECK (quantidade > 0),
+
+    CONSTRAINT ck_despesa_valor
+        CHECK (valor_unitario >= 0)
+);
+
+Views
+
+Essas são importantes porque vão facilitar bastante o React.
+
+CREATE VIEW vw_pedidos_totais AS
+
+SELECT
+    p.id AS pedido_id,
+
+    p.numero,
+
+    COALESCE(
+        CONCAT(c.nome, ' ', c.sobrenome),
+        p.nome_cliente_avulso
+    ) AS cliente,
+
+    p.status,
+
+    p.data_pedido,
+
+    p.data_conclusao,
+
+    COALESCE(
+        SUM(ip.quantidade * ip.valor_unitario),
+        0
+    ) AS valor_bruto,
+
+    COALESCE(
+        SUM(
+            CASE
+
+                WHEN ip.tipo_desconto = 'VALOR'
+                THEN ip.desconto
+
+                WHEN ip.tipo_desconto = 'PERCENTUAL'
+                THEN
+                    (
+                        ip.quantidade
+                        * ip.valor_unitario
+                    )
+                    *
+                    (
+                        ip.desconto / 100
+                    )
+
+                ELSE 0
+
+            END
+        ),
+        0
+    ) AS desconto_total,
+
+    COALESCE(
+        SUM(
+
+            (ip.quantidade * ip.valor_unitario)
+
+            -
+
+            CASE
+
+                WHEN ip.tipo_desconto = 'VALOR'
+                THEN ip.desconto
+
+                WHEN ip.tipo_desconto = 'PERCENTUAL'
+                THEN
+                    (
+                        ip.quantidade
+                        * ip.valor_unitario
+                    )
+                    *
+                    (
+                        ip.desconto / 100
+                    )
+
+                ELSE 0
+
+            END
+        ),
+        0
+    ) AS valor_total
+
+FROM pedidos p
+
+LEFT JOIN clientes c
+ON c.id = p.cliente_id
+
+LEFT JOIN itens_pedido ip
+ON ip.pedido_id = p.id
+
+GROUP BY
+    p.id,
+    p.numero,
+    c.nome,
+    c.sobrenome,
+    p.nome_cliente_avulso,
+    p.status,
+    p.data_pedido,
+    p.data_conclusao;
+
+View das vendas
+
+Pedido somente vai aparecer em vendas quando estiver:
+
+CREATE VIEW vw_vendas AS
+
+SELECT
+
+    pt.pedido_id,
+
+    pt.numero,
+
+    pt.cliente,
+
+    pt.valor_bruto,
+
+    pt.desconto_total,
+
+    pt.valor_total,
+
+    pt.data_pedido,
+
+    pt.data_conclusao,
+
+    pg.data_pagamento,
+
+    pg.status AS status_pagamento
+
+FROM vw_pedidos_totais pt
+
+LEFT JOIN pagamentos pg
+ON pg.pedido_id = pt.pedido_id
+
+WHERE pt.status = 'CONCLUIDO';
+
+
+View do estoque
+
+Essa será muito útil para sua Tela Estoque.
+
+
+CREATE VIEW vw_estoque AS
+
+SELECT
+
+    le.id AS lote_id,
+
+    pe.id AS produto_id,
+
+    pe.nome,
+
+    pe.codigo_barras,
+
+    pe.unidade,
+
+    le.quantidade_atual,
+
+    le.custo_unitario,
+
+    (
+        le.quantidade_atual
+        *
+        le.custo_unitario
+    ) AS valor_total,
+
+    le.validade,
+
+    CASE
+
+        WHEN le.validade IS NULL
+        THEN 'SEM VALIDADE'
+
+        WHEN le.validade < CURRENT_DATE
+        THEN 'INVALIDO'
+
+        ELSE 'VALIDO'
+
+    END AS status
+
+FROM lotes_estoque le
+
+INNER JOIN produtos_estoque pe
+ON pe.id = le.produto_estoque_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd "\OneDrive\Documentos\MARDRI"
+.venv\Scripts\Activate
+python -m src.app
+admin@admin.com
+123456
