@@ -775,8 +775,10 @@ ON pe.id = le.produto_estoque_id;
 
 
 
-cd "\OneDrive\Documentos\MARDRI"
+cd "OneDrive/Documentos/lojaapi"
 .venv\Scripts\Activate
 python -m src.app
+cd "onedrive/documentos/lojaapi/frontend"
+npm run dev
 admin@admin.com
 123456

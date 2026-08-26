@@ -1,0 +1,95 @@
+.header {
+    height: 68px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding:
+        0
+        28px;
+
+    background:
+        var(--color-surface);
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.systemName {
+    color:
+        var(--color-text-light);
+
+    font-size: 13px;
+}
+
+
+.right {
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+}
+
+
+.date {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 12px;
+}
+
+
+.user {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.avatar {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+.user strong {
+    display: block;
+
+    font-size: 12px;
+}
+
+
+.user span {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
