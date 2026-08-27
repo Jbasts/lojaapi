@@ -1,0 +1,319 @@
+.page {
+    width: 100%;
+}
+
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+}
+
+
+.header h1 {
+    margin: 0;
+
+    font-size: 24px;
+}
+
+
+.header p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 13px;
+}
+
+
+.addButton {
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.searchBox {
+    max-width: 370px;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-text-light);
+}
+
+
+.searchBox input {
+    width: 100%;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+}
+
+
+.card,
+.formCard {
+    background:
+        var(--color-surface);
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+}
+
+
+.card {
+    margin-bottom: 22px;
+
+    overflow-x: auto;
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th,
+td {
+    padding: 13px 15px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    font-size: 12px;
+}
+
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.actions {
+    display: flex;
+
+    gap: 5px;
+}
+
+
+.actions button {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+}
+
+
+.empty {
+    padding: 30px;
+
+    text-align: center;
+
+    color:
+        var(--color-text-light);
+}
+
+
+.formCard {
+    padding: 22px;
+}
+
+
+.formCard h2 {
+    margin: 0 0 20px;
+
+    font-size: 16px;
+}
+
+
+.formGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 16px;
+}
+
+
+.formGrid div {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.formGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.formGrid input {
+    height: 38px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    outline: none;
+}
+
+
+.formGrid input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.required {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+.cancelButton,
+.saveButton {
+    min-width: 90px;
+    height: 36px;
+
+    border-radius: 5px;
+}
+
+
+.cancelButton {
+    border:
+        1px solid
+        var(--color-border);
+
+    background: white;
+}
+
+
+.saveButton {
+    border: 0;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.error,
+.success {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+
+.error {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+.success {
+    background: #e7f5ec;
+
+    color:
+        var(--color-success);
+}
+
+
+@media (max-width: 700px) {
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+}

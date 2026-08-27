@@ -5,6 +5,9 @@ from src.extensions import jwt, cors
 
 from src.routes.auth_routes import auth_bp
 from src.routes.usuario_routes import usuario_bp
+from src.routes.cliente_routes import cliente_bp
+from src.routes.produto_estoque_routes import produto_estoque_bp
+
 
 
 def create_app():
@@ -42,6 +45,16 @@ def create_app():
         url_prefix="/usuarios"
     )
 
+    app.register_blueprint(
+        cliente_bp,
+        url_prefix="/clientes"
+    )
+
+    app.register_blueprint(
+        produto_estoque_bp,
+        url_prefix="/produtos-estoque"
+    )
+    
     @app.route(
         "/",
         methods=["GET"]

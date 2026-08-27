@@ -763,8 +763,17 @@ ON pe.id = le.produto_estoque_id;
 
 
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_clientes_cpf
+ON clientes(cpf)
+WHERE cpf IS NOT NULL;
 
+CREATE UNIQUE INDEX IF NOT EXISTS uq_clientes_email_lower
+ON clientes(LOWER(email))
+WHERE email IS NOT NULL;
 
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_produtos_estoque_codigo_barras
+ON produtos_estoque(codigo_barras);
 
 
 

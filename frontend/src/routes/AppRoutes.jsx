@@ -20,6 +20,12 @@ import PrivateRoute
 import PagePlaceholder
     from "../components/PagePlaceholder/PagePlaceholder";
 
+import Usuarios
+    from "../pages/Usuarios/Usuarios";
+
+import ProdutosEstoque
+    from "../pages/ProdutosEstoque/ProdutosEstoque";
+
 
 function AppRoutes() {
 
@@ -147,10 +153,7 @@ function AppRoutes() {
                     <Route
                         path="/usuarios"
                         element={
-                            <PagePlaceholder
-                                titulo="Usuários"
-                                descricao="Cadastro dos clientes do sistema."
-                            />
+                            <Usuarios />
                         }
                     />
 
@@ -158,10 +161,7 @@ function AppRoutes() {
                     <Route
                         path="/produtos-estoque"
                         element={
-                            <PagePlaceholder
-                                titulo="Produtos de Estoque"
-                                descricao="Cadastro dos produtos utilizados no estoque."
-                            />
+                            <ProdutosEstoque />
                         }
                     />
 
