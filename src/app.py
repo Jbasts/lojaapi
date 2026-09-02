@@ -7,6 +7,13 @@ from src.routes.auth_routes import auth_bp
 from src.routes.usuario_routes import usuario_bp
 from src.routes.cliente_routes import cliente_bp
 from src.routes.produto_estoque_routes import produto_estoque_bp
+from src.routes.produto_venda_routes import produto_venda_bp
+from src.routes.custo_produto_routes import custo_produto_bp
+from src.routes.despesa_extra_routes import despesa_extra_bp
+from src.routes.compra_routes import compra_bp
+from src.routes.estoque_routes import estoque_bp
+
+
 
 
 
@@ -54,7 +61,32 @@ def create_app():
         produto_estoque_bp,
         url_prefix="/produtos-estoque"
     )
-    
+
+    app.register_blueprint(
+        produto_venda_bp,
+        url_prefix="/produtos-venda"
+    )
+
+    app.register_blueprint(
+        custo_produto_bp,
+        url_prefix="/custos-produtos"
+    )
+
+    app.register_blueprint(
+        despesa_extra_bp,
+        url_prefix="/despesas-extras"
+    )
+
+    app.register_blueprint(
+    compra_bp,
+    url_prefix="/compras"
+    )
+
+    app.register_blueprint(
+    estoque_bp,
+    url_prefix="/estoque"
+    )
+        
     @app.route(
         "/",
         methods=["GET"]

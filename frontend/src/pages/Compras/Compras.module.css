@@ -1,0 +1,341 @@
+.page {
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 22px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header p {
+    margin: 5px 0 0;
+    color: var(--color-text-light);
+    font-size: 13px;
+}
+
+.searchBox {
+    width: 390px;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 18px;
+    padding: 0 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+
+    background: var(--color-surface);
+}
+
+.searchBox input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+}
+
+.card,
+.formCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+}
+
+.card {
+    margin-bottom: 22px;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+
+    border-bottom:
+        1px solid var(--color-border);
+
+    text-align: left;
+    font-size: 11px;
+}
+
+.table th {
+    background: #faf8f6;
+    color: var(--color-text-light);
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+.actions button,
+.removeItem {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+    color: var(--color-primary);
+}
+
+.formCard {
+    padding: 22px;
+}
+
+.formHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.formHeader h2 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.barcodeArea {
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 450px)
+        auto;
+
+    gap: 10px;
+
+    align-items: end;
+
+    margin-bottom: 12px;
+}
+
+.barcodeArea div,
+.itemGrid div {
+    display: flex;
+    flex-direction: column;
+}
+
+.barcodeArea label,
+.itemGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.barcodeArea input,
+.itemGrid input {
+    height: 38px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+    outline: none;
+}
+
+.barcodeArea button,
+.addItem {
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 5px;
+
+    background: var(--color-primary);
+    color: white;
+}
+
+.productFound {
+    margin-bottom: 16px;
+
+    padding: 11px;
+
+    border-radius: 5px;
+
+    background: #f3ece6;
+
+    font-size: 11px;
+}
+
+.productFound strong {
+    margin-left: 5px;
+}
+
+.itemGrid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr auto;
+
+    gap: 12px;
+
+    align-items: end;
+
+    margin-bottom: 25px;
+}
+
+.itemsArea h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+.footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 30px;
+
+    margin-top: 20px;
+}
+
+.footer div {
+    display: flex;
+    flex-direction: column;
+
+    text-align: right;
+}
+
+.footer span {
+    color: var(--color-text-light);
+    font-size: 10px;
+}
+
+.footer strong {
+    margin-top: 4px;
+    font-size: 20px;
+}
+
+.saveButton {
+    height: 40px;
+
+    padding: 0 18px;
+
+    border: 0;
+    border-radius: 5px;
+
+    background: var(--color-primary);
+    color: white;
+}
+
+.cancelButton {
+    height: 34px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+}
+
+.details {
+    padding: 15px 25px !important;
+
+    background: #faf8f6;
+}
+
+.innerTable {
+    width: 100%;
+    border-collapse: collapse;
+
+    background: white;
+}
+
+.innerTable th,
+.innerTable td {
+    padding: 9px 12px;
+
+    border:
+        1px solid var(--color-border);
+
+    font-size: 10px;
+
+    text-align: left;
+}
+
+.empty {
+    padding: 30px !important;
+
+    text-align: center !important;
+
+    color: var(--color-text-light);
+}
+
+.error,
+.success {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+.error {
+    background: #fbe8e8;
+    color: var(--color-danger);
+}
+
+.success {
+    background: #e7f5ec;
+    color: var(--color-success);
+}
+
+@media (max-width: 900px) {
+
+    .itemGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .barcodeArea,
+    .itemGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -26,6 +26,20 @@ import Usuarios
 import ProdutosEstoque
     from "../pages/ProdutosEstoque/ProdutosEstoque";
 
+import ProdutosVenda
+    from "../pages/ProdutosVenda/ProdutosVenda";
+
+import CustosProdutos
+    from "../pages/CustosProdutos/CustosProdutos";
+
+import Despesas
+    from "../pages/Despesas/Despesas";
+
+import Compras
+    from "../pages/Compras/Compras";
+
+import Estoque
+    from "../pages/Estoque/Estoque";
 
 function AppRoutes() {
 
@@ -120,10 +134,7 @@ function AppRoutes() {
                     <Route
                         path="/compras"
                         element={
-                            <PagePlaceholder
-                                titulo="Compras"
-                                descricao="Registro das compras."
-                            />
+                            <Compras />
                         }
                     />
 
@@ -131,10 +142,7 @@ function AppRoutes() {
                     <Route
                         path="/estoque"
                         element={
-                            <PagePlaceholder
-                                titulo="Estoque"
-                                descricao="Controle de produtos e lotes."
-                            />
+                            <Estoque />
                         }
                     />
 
@@ -169,10 +177,7 @@ function AppRoutes() {
                     <Route
                         path="/produtos-venda"
                         element={
-                            <PagePlaceholder
-                                titulo="Produtos de Venda"
-                                descricao="Cadastro dos produtos comercializados."
-                            />
+                            <ProdutosVenda />
                         }
                     />
 
@@ -180,10 +185,7 @@ function AppRoutes() {
                     <Route
                         path="/custos-produtos"
                         element={
-                            <PagePlaceholder
-                                titulo="Custos dos Produtos"
-                                descricao="Composição e cálculo dos custos."
-                            />
+                            <CustosProdutos />
                         }
                     />
 
@@ -191,10 +193,7 @@ function AppRoutes() {
                     <Route
                         path="/despesas"
                         element={
-                            <PagePlaceholder
-                                titulo="Despesas Extras"
-                                descricao="Cadastro das despesas adicionais."
-                            />
+                            <Despesas />
                         }
                     />
 

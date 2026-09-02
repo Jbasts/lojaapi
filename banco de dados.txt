@@ -779,9 +779,183 @@ ON produtos_estoque(codigo_barras);
 
 
 
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_produtos_venda_nome_sabor_ativo
+ON produtos_venda (
+    LOWER(nome),
+    LOWER(COALESCE(sabor, ''))
+)
+WHERE ativo = TRUE;
 
 
+CREATE INDEX IF NOT EXISTS
+ix_produtos_venda_tipo
+ON produtos_venda(tipo);
 
+
+ALTER TABLE itens_ficha_tecnica
+ADD COLUMN IF NOT EXISTS unidade VARCHAR(20)
+NOT NULL DEFAULT 'UN';
+
+Agora adicione um índice garantindo somente uma ficha ativa por produto:
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_ficha_tecnica_ativa_produto
+ON fichas_tecnicas(produto_venda_id)
+WHERE ativa = TRUE;
+
+Também:
+
+CREATE INDEX IF NOT EXISTS
+ix_itens_ficha_tecnica_ficha
+ON itens_ficha_tecnica(ficha_tecnica_id);
+
+E:
+
+CREATE INDEX IF NOT EXISTS
+ix_itens_ficha_tecnica_produto_estoque
+ON itens_ficha_tecnica(produto_estoque_id);
+
+CREATE INDEX IF NOT EXISTS
+ix_despesas_extras_nome
+ON despesas_extras(LOWER(nome));
+
+
+CREATE INDEX IF NOT EXISTS
+ix_despesas_extras_data
+ON despesas_extras(data);
+
+
+-- Número automático da compra.
+CREATE SEQUENCE IF NOT EXISTS compras_numero_seq START 1;
+
+ALTER TABLE compras
+ADD COLUMN IF NOT EXISTS numero BIGINT;
+
+ALTER TABLE compras
+ALTER COLUMN numero
+SET DEFAULT nextval('compras_numero_seq');
+
+ALTER SEQUENCE compras_numero_seq
+OWNED BY compras.numero;
+
+UPDATE compras
+SET numero = nextval('compras_numero_seq')
+WHERE numero IS NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_compras_numero
+ON compras(numero);
+
+ALTER TABLE compras
+ALTER COLUMN numero SET NOT NULL;
+
+
+-- Um item comprado gera um lote.
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_lotes_item_compra
+ON lotes_estoque(item_compra_id)
+WHERE item_compra_id IS NOT NULL;
+
+
+CREATE INDEX IF NOT EXISTS
+ix_itens_compra_compra
+ON itens_compra(compra_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_lotes_produto_validade
+ON lotes_estoque(
+    produto_estoque_id,
+    validade
+);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_movimentacoes_lote
+ON movimentacoes_estoque(lote_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_compras_data
+ON compras(data_compra);
+
+ALTER TABLE movimentacoes_estoque
+ADD COLUMN IF NOT EXISTS usuario_id BIGINT
+REFERENCES usuarios_admin(id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_lotes_estoque_produto_saldo
+ON lotes_estoque(produto_estoque_id)
+WHERE quantidade_atual > 0;
+
+
+CREATE INDEX IF NOT EXISTS
+ix_movimentacoes_estoque_data
+ON movimentacoes_estoque(data_movimentacao);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_movimentacoes_estoque_tipo
+ON movimentacoes_estoque(tipo);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS lote_id BIGINT
+REFERENCES lotes_estoque(id);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS usuario_id BIGINT
+REFERENCES usuarios_admin(id);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS quantidade NUMERIC(14,3);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS custo_unitario NUMERIC(14,4);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS valor_total NUMERIC(14,2);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS motivo VARCHAR(50);
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS observacao TEXT;
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS data_desperdicio TIMESTAMP
+NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS atualizado_em TIMESTAMP;
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS cancelado_em TIMESTAMP;
+
+ALTER TABLE desperdicios
+ADD COLUMN IF NOT EXISTS ativo BOOLEAN
+NOT NULL DEFAULT TRUE;
+
+
+CREATE INDEX IF NOT EXISTS
+ix_desperdicios_lote
+ON desperdicios(lote_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_desperdicios_data
+ON desperdicios(data_desperdicio);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_desperdicios_motivo
+ON desperdicios(motivo);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_desperdicios_ativos
+ON desperdicios(ativo);
 
 
 cd "OneDrive/Documentos/lojaapi"
@@ -791,3 +965,11 @@ cd "onedrive/documentos/lojaapi/frontend"
 npm run dev
 admin@admin.com
 123456
+
+
+
+
+
+
+OBS: remover botar excluir dos usuários, pois ele não exclui do BANCO
+remover G e ML dos custos.
