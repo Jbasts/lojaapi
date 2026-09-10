@@ -1,7 +1,9 @@
 import api from "./api";
 
 
-export async function listarClientes(busca = "") {
+export async function listarClientes(
+    busca = ""
+) {
 
     const response = await api.get(
         "/clientes",
@@ -16,17 +18,9 @@ export async function listarClientes(busca = "") {
 }
 
 
-export async function buscarCliente(id) {
-
-    const response = await api.get(
-        `/clientes/${id}`
-    );
-
-    return response.data;
-}
-
-
-export async function criarCliente(dados) {
+export async function criarCliente(
+    dados
+) {
 
     const response = await api.post(
         "/clientes",
@@ -51,7 +45,9 @@ export async function atualizarCliente(
 }
 
 
-export async function excluirCliente(id) {
+export async function excluirCliente(
+    id
+) {
 
     const response = await api.delete(
         `/clientes/${id}`

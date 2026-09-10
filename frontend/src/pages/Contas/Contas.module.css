@@ -1,0 +1,909 @@
+.page {
+    width: 100%;
+}
+
+
+/* =========================
+   CABEÇALHO
+========================= */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+
+.header h1 {
+    margin: 0;
+
+    font-size: 24px;
+
+    color:
+        var(--color-text);
+}
+
+
+.header p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   ERRO
+========================= */
+
+.error {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border:
+        1px solid #f0cccc;
+
+    border-radius: 6px;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   ABAS DE PERÍODO
+========================= */
+
+.periodTabs {
+    display: flex;
+
+    gap: 6px;
+
+    margin-bottom: 12px;
+}
+
+
+.periodTabs button {
+    height: 36px;
+
+    padding: 0 17px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+    transition:
+        0.15s ease;
+}
+
+
+.periodTabs button:hover {
+    border-color:
+        var(--color-primary);
+
+    color:
+        var(--color-primary);
+}
+
+
+.periodTabs .activeTab {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodTabs .activeTab:hover {
+    color: white;
+}
+
+
+/* =========================
+   FILTRO DE DATA
+========================= */
+
+.periodFilter {
+    width: fit-content;
+
+    min-width: 170px;
+
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-primary);
+}
+
+
+.periodFilter input {
+    min-width: 125px;
+
+    height: 30px;
+
+    padding: 0;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   RESUMO
+========================= */
+
+.summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+
+.summaryCard {
+    min-height: 105px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 15px 17px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 1px 3px
+        rgba(0, 0, 0, 0.025);
+}
+
+
+.summaryCard svg {
+    margin-bottom: 9px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.summaryCard span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.summaryCard strong {
+    margin-top: 5px;
+
+    font-size: 18px;
+
+    color:
+        var(--color-text);
+}
+
+
+/* =========================
+   FILTROS
+========================= */
+
+.filters {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.searchBox {
+    width: 390px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-text-light);
+}
+
+
+.searchBox input {
+    width: 100%;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+.searchBox input::placeholder {
+    color: #aaa;
+}
+
+
+.filters select {
+    height: 40px;
+
+    padding: 0 11px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    outline: none;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   CARD DA TABELA
+========================= */
+
+.card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 1px 4px
+        rgba(0, 0, 0, 0.025);
+}
+
+
+.tableWrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+
+/* =========================
+   TABELAS
+========================= */
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th,
+td {
+    padding: 12px 13px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.2px;
+}
+
+
+.mainRow {
+    transition:
+        background 0.15s ease;
+}
+
+
+.mainRow:hover {
+    background: #fcfaf8;
+}
+
+
+.mainRow:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================
+   TIPO
+========================= */
+
+.entrada,
+.saida {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.entrada {
+    background: #e7f5ec;
+
+    color: #277347;
+}
+
+
+.saida {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+/* =========================
+   POSITIVO / NEGATIVO
+========================= */
+
+.positive {
+    color:
+        var(--color-success)
+        !important;
+}
+
+
+.negative {
+    color:
+        var(--color-danger)
+        !important;
+}
+
+
+/* =========================
+   CATEGORIA + SETA
+========================= */
+
+.categoryCell {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.expandButton {
+    width: 28px;
+    height: 28px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+
+.expandButton:hover {
+    border-color:
+        var(--color-secondary);
+
+    background:
+        var(--color-background);
+}
+
+
+.loadingDot {
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+
+/* =========================
+   DETALHES COMPRA
+========================= */
+
+.detailsRow > td {
+    padding: 0 !important;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    background: #faf8f6;
+}
+
+
+.purchaseDetails {
+    padding: 19px 25px 22px;
+}
+
+
+/* =========================
+   CABEÇALHO DO DETALHE
+========================= */
+
+.detailsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 14px;
+}
+
+
+.detailsHeader > div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.detailsHeader strong {
+    color:
+        var(--color-text);
+
+    font-size: 12px;
+}
+
+
+.detailsHeader span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.purchaseStatus {
+    display: inline-flex;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #e7f5ec;
+
+    color:
+        var(--color-success)
+        !important;
+
+    font-size: 9px
+        !important;
+
+    font-weight: 600;
+}
+
+
+/* =========================
+   TABELA DOS PRODUTOS
+========================= */
+
+.detailsTableWrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.detailsTable {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+.detailsTable th {
+    padding: 10px 12px;
+
+    background: #f7f4f1;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.detailsTable td {
+    padding: 10px 12px;
+
+    background: white;
+
+    font-size: 10px;
+}
+
+
+.detailsTable tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+.emptyDetails {
+    padding: 25px
+        !important;
+
+    text-align: center
+        !important;
+
+    color:
+        var(--color-text-light);
+}
+
+
+/* =========================
+   TOTAIS DA COMPRA
+========================= */
+
+.purchaseTotals {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 14px;
+}
+
+
+.purchaseTotals > div {
+    min-width: 135px;
+
+    padding: 11px 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.purchaseTotals span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.purchaseTotals strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--color-text);
+
+    font-size: 13px;
+}
+
+
+.totalFinal {
+    border-color:
+        rgba(
+            107,
+            62,
+            38,
+            0.25
+        )
+        !important;
+
+    background:
+        #fbf8f5
+        !important;
+}
+
+
+.totalFinal strong {
+    color:
+        var(--color-primary);
+}
+
+
+/* =========================
+   OBSERVAÇÃO
+========================= */
+
+.observation {
+    display: flex;
+
+    gap: 6px;
+
+    margin-top: 14px;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    font-size: 10px;
+}
+
+
+.observation strong {
+    color:
+        var(--color-text);
+}
+
+
+.observation span {
+    color:
+        var(--color-text-light);
+}
+
+
+/* =========================
+   TABELA VAZIA
+========================= */
+
+.empty {
+    padding: 38px
+        !important;
+
+    text-align: center
+        !important;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (
+    max-width: 1200px
+) {
+
+    .summary {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (
+    max-width: 850px
+) {
+
+    .filters {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .searchBox {
+        width: 100%;
+    }
+
+
+    .filters select {
+        width: 100%;
+    }
+
+
+    .purchaseTotals {
+        flex-wrap: wrap;
+    }
+}
+
+
+@media (
+    max-width: 650px
+) {
+
+    .summary {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .periodTabs {
+        width: 100%;
+    }
+
+
+    .periodTabs button {
+        flex: 1;
+    }
+
+
+    .detailsHeader {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .purchaseDetails {
+        padding: 15px;
+    }
+
+
+    .purchaseTotals {
+        flex-direction: column;
+    }
+
+
+    .purchaseTotals > div {
+        width: 100%;
+    }
+
+
+    .observation {
+        flex-direction: column;
+    }
+}
+
+
+@media (
+    max-width: 430px
+) {
+
+    .summary {
+        grid-template-columns:
+            1fr;
+    }
+}

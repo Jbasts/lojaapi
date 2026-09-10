@@ -1,0 +1,392 @@
+.page {
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 22px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header p {
+    margin: 5px 0 0;
+    color: var(--color-text-light);
+    font-size: 13px;
+}
+
+.summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(180px, 240px));
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.summary > div {
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+.summary svg {
+    margin-bottom: 10px;
+
+    color:
+        var(--color-danger);
+}
+
+.summary span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+.summary strong {
+    margin-top: 5px;
+
+    font-size: 18px;
+}
+
+.filters {
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.searchBox {
+    width: 390px;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+.searchBox input {
+    width: 100%;
+
+    border: 0;
+    outline: none;
+
+    background: transparent;
+}
+
+.filters select {
+    height: 39px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+.card,
+.formCard {
+    border:
+        1px solid var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+.card {
+    margin-bottom: 22px;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+
+    border-bottom:
+        1px solid var(--color-border);
+
+    white-space: nowrap;
+
+    text-align: left;
+
+    font-size: 10px;
+}
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+}
+
+.actions {
+    display: flex;
+
+    gap: 5px;
+}
+
+.actions button {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+}
+
+.empty {
+    padding: 30px;
+
+    text-align: center;
+
+    color:
+        var(--color-text-light);
+}
+
+.formCard {
+    padding: 22px;
+}
+
+.formCard h2 {
+    margin: 0 0 20px;
+
+    font-size: 17px;
+}
+
+.barcode {
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px, 450px)
+        auto;
+
+    align-items: end;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+}
+
+.barcode div,
+.formGrid div {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.barcode label,
+.formGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.barcode input,
+.formGrid input,
+.formGrid select {
+    height: 38px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+}
+
+.barcode button {
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 5px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+.productFound {
+    margin-bottom: 18px;
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    background: #f7f2ee;
+
+    font-size: 11px;
+}
+
+.formGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+}
+
+.observation {
+    grid-column:
+        1 / -1;
+}
+
+.formActions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+.cancelButton,
+.saveButton {
+    height: 37px;
+
+    min-width: 90px;
+
+    border-radius: 5px;
+}
+
+.cancelButton {
+    border:
+        1px solid var(--color-border);
+
+    background: white;
+}
+
+.saveButton {
+    border: 0;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+.error,
+.success {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+.error {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+.success {
+    background: #e7f5ec;
+
+    color:
+        var(--color-success);
+}
+
+@media (max-width: 900px) {
+
+    .formGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .observation {
+        grid-column:
+            1 / -1;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .summary,
+    .formGrid,
+    .barcode {
+        grid-template-columns: 1fr;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+
+    .observation {
+        grid-column: auto;
+    }
+}

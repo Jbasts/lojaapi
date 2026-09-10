@@ -1,0 +1,686 @@
+.page {
+    width: 100%;
+}
+
+
+.header {
+    margin-bottom: 20px;
+}
+
+
+.header h1 {
+    margin: 0;
+
+    font-size: 24px;
+}
+
+
+.header p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 13px;
+}
+
+
+.periodTabs {
+    display: flex;
+
+    gap: 5px;
+
+    margin-bottom: 12px;
+}
+
+
+.periodTabs button {
+    height: 35px;
+
+    padding: 0 16px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.periodTabs .activeTab {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodFilter {
+    width: fit-content;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    padding: 0 11px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.periodFilter input {
+    height: 30px;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+}
+
+
+.summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+
+.summary > div {
+    min-height: 100px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+
+.summary svg {
+    margin-bottom: 10px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.summary span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.summary strong {
+    margin-top: 5px;
+
+    font-size: 18px;
+}
+
+
+.filters {
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.searchBox {
+    width: 430px;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.searchBox input {
+    width: 100%;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+}
+
+
+.filters select {
+    height: 39px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.card {
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th,
+td {
+    padding: 11px 12px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+}
+
+
+.pago,
+.pendente {
+    display: inline-flex;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.pago {
+    background: #e7f5ec;
+
+    color: #277347;
+}
+
+
+.pendente {
+    background: #f6eedf;
+
+    color: #98701f;
+}
+
+
+.empty {
+    padding: 35px !important;
+
+    text-align: center !important;
+
+    color:
+        var(--color-text-light);
+}
+
+
+.error {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 12px;
+}
+
+.pedidoRow {
+    transition:
+        background 0.15s ease;
+}
+
+
+.pedidoRow:hover {
+    background: #fcfaf8;
+}
+
+
+.expandButton {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+}
+
+
+.expandButton:hover {
+    background: #f7f3ef;
+}
+
+
+.itemCount {
+    display: inline-flex;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    background: #f3efeb;
+
+    color:
+        var(--color-primary);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.detailsRow > td {
+    padding: 0 !important;
+
+    background: #faf8f6;
+}
+
+
+.detailsContainer {
+    padding: 18px 25px 22px;
+}
+
+
+.detailsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+}
+
+
+.detailsHeader > div:first-child {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.detailsHeader strong {
+    font-size: 12px;
+}
+
+
+.detailsHeader span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.paymentInfo {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.paymentInfo strong {
+    color:
+        var(--color-primary);
+}
+
+
+.detailsTableWrapper {
+    overflow-x: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.detailsTable th,
+.detailsTable td {
+    padding: 10px 12px;
+
+    font-size: 10px;
+}
+
+
+.detailsTable tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+.detailsTotals {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 14px;
+}
+
+
+.detailsTotals > div {
+    min-width: 125px;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+}
+
+
+.detailsTotals span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.detailsTotals strong {
+    font-size: 13px;
+}
+
+.expandButton {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+}
+
+
+.itemCount {
+    display: inline-flex;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    background: #f3efeb;
+
+    color:
+        var(--color-primary);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.detailsRow > td {
+    padding: 0 !important;
+
+    background: #faf8f6;
+}
+
+
+.detailsContainer {
+    padding: 18px 25px 22px;
+}
+
+
+.detailsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 14px;
+}
+
+
+.detailsHeader > div:first-child {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.detailsHeader span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.paymentInfo {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.detailsTableWrapper {
+    overflow-x: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.detailsTable {
+    width: 100%;
+}
+
+
+.detailsTotals {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 14px;
+}
+
+
+.detailsTotals > div {
+    min-width: 135px;
+
+    padding: 11px 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+}
+
+
+.detailsTotals span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.detailsTotals strong {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+
+    .detailsHeader {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+
+    .detailsTotals {
+        flex-direction: column;
+    }
+
+
+    .detailsTotals > div {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1100px) {
+
+    .summary {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .summary {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .filters {
+        flex-direction: column;
+    }
+
+
+    .searchBox {
+        width: 100%;
+    }
+}

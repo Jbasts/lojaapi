@@ -3,26 +3,28 @@
 }
 
 
-.titleArea {
+/* CABEÇALHO */
+
+.header {
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
 
-    margin-bottom: 25px;
+    gap: 15px;
+
+    margin-bottom: 20px;
 }
 
 
-.titleArea h1 {
+.header h1 {
     margin: 0;
 
     font-size: 24px;
 }
 
 
-.titleArea p {
-    margin:
-        5px
-        0
-        0;
+.header p {
+    margin: 5px 0 0;
 
     color:
         var(--color-text-light);
@@ -31,8 +33,97 @@
 }
 
 
-.message {
-    padding: 25px;
+.monthFilter {
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-primary);
+}
+
+
+.monthFilter input {
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+
+    font-size: 11px;
+}
+
+
+/* AVISOS */
+
+.error,
+.warning {
+    margin-bottom: 16px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+}
+
+
+.error {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+.warning {
+    border:
+        1px solid #ead7a6;
+
+    background: #fff8e8;
+
+    color: #80621c;
+}
+
+
+/* CARDS PRINCIPAIS */
+
+.mainCards {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap: 13px;
+
+    margin-bottom: 13px;
+}
+
+
+.mainCard {
+    min-height: 135px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 16px;
 
     border:
         1px solid
@@ -43,9 +134,565 @@
 
     background:
         var(--color-surface);
+}
+
+
+.iconBox {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 8px;
+
+    background: #f7f3ef;
+
+    color:
+        var(--color-primary);
+}
+
+
+.mainCard > span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.mainCard > strong {
+    margin-top: 4px;
+
+    font-size: 21px;
+}
+
+
+.mainCard small {
+    margin-top: auto;
+
+    padding-top: 7px;
 
     color:
         var(--color-text-light);
 
+    font-size: 9px;
+}
+
+
+/* CARDS SECUNDÁRIOS */
+
+.secondaryCards {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0, 1fr)
+        );
+
+    gap: 13px;
+
+    margin-bottom: 22px;
+}
+
+
+.secondaryCards > div {
+    min-height: 85px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.secondaryCards svg {
+    margin-bottom: 6px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.secondaryCards span {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.secondaryCards strong {
+    margin-top: 4px;
+
     font-size: 14px;
+}
+
+
+/* GRID */
+
+.gridTwo {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.4fr)
+        minmax(320px, 0.8fr);
+
+    gap: 14px;
+
+    margin-bottom: 14px;
+}
+
+
+/* CARD */
+
+.card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+
+.cardHeader {
+    padding: 14px 16px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.cardHeader h2 {
+    margin: 0;
+
+    font-size: 13px;
+}
+
+
+.cardHeader p {
+    margin: 4px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+/* LEGENDA */
+
+.chartLegend {
+    display: flex;
+
+    gap: 16px;
+
+    padding:
+        12px 16px
+        2px;
+}
+
+
+.chartLegend span {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.chartLegend i {
+    width: 8px;
+    height: 8px;
+
+    display: block;
+
+    border-radius: 50%;
+}
+
+
+.legendRevenue,
+.revenueBar {
+    background: #4b8666;
+}
+
+
+.legendExpense,
+.expenseBar {
+    background: #a85c57;
+}
+
+
+.legendProfit,
+.profitBar {
+    background: #7b604f;
+}
+
+
+.lossBar {
+    background: #c45151;
+}
+
+
+/* GRÁFICO */
+
+.chart {
+    padding: 14px 16px 18px;
+}
+
+
+.chartMonth {
+    display: grid;
+
+    grid-template-columns:
+        50px 1fr;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 11px;
+}
+
+
+.chartMonth:last-child {
+    margin-bottom: 0;
+}
+
+
+.chartMonthName {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.chartBars {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.barTrack {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #f3f0ed;
+}
+
+
+.revenueBar,
+.expenseBar,
+.profitBar,
+.lossBar {
+    height: 100%;
+
+    border-radius: 10px;
+
+    transition:
+        width 0.2s ease;
+}
+
+
+/* COMPOSIÇÃO */
+
+.expenseComposition {
+    padding: 18px;
+}
+
+
+.expenseItem {
+    margin-bottom: 22px;
+}
+
+
+.expenseItemHeader {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+
+    font-size: 10px;
+}
+
+
+.progressTrack {
+    width: 100%;
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #f2efec;
+}
+
+
+.purchaseProgress,
+.extraExpenseProgress {
+    height: 100%;
+
+    border-radius: 10px;
+}
+
+
+.purchaseProgress {
+    background: #846550;
+}
+
+
+.extraExpenseProgress {
+    background: #af8471;
+}
+
+
+.expenseItem small {
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 8px;
+}
+
+
+.expenseTotal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    font-size: 11px;
+}
+
+
+.expenseTotal strong {
+    font-size: 15px;
+}
+
+
+/* TABELA */
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th,
+td {
+    padding: 11px 13px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* PAGAMENTOS */
+
+.paymentsList {
+    padding: 0 15px;
+}
+
+
+.paymentRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 13px 0;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.paymentRow:last-child {
+    border-bottom: 0;
+}
+
+
+.paymentRow > div:first-child,
+.paymentMeta {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.paymentRow strong {
+    font-size: 10px;
+}
+
+
+.paymentRow span {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.paymentMeta {
+    text-align: right;
+}
+
+
+/* GERAL */
+
+.positive {
+    color:
+        var(--color-success)
+        !important;
+}
+
+
+.negative {
+    color:
+        var(--color-danger)
+        !important;
+}
+
+
+.empty {
+    padding: 30px
+        !important;
+
+    text-align: center
+        !important;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+/* RESPONSIVO */
+
+@media (
+    max-width: 1150px
+) {
+
+    .mainCards,
+    .secondaryCards {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .gridTwo {
+        grid-template-columns:
+            1fr;
+    }
+}
+
+
+@media (
+    max-width: 650px
+) {
+
+    .header {
+        flex-direction: column;
+    }
+
+
+    .monthFilter {
+        width: 100%;
+    }
+
+
+    .mainCards,
+    .secondaryCards {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .paymentRow {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .paymentMeta {
+        text-align: left;
+    }
 }

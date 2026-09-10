@@ -958,6 +958,243 @@ ix_desperdicios_ativos
 ON desperdicios(ativo);
 
 
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS numero BIGINT;
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS cliente_id BIGINT
+REFERENCES clientes(id);
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS usuario_id BIGINT
+REFERENCES usuarios_admin(id);
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS data_pedido TIMESTAMP
+NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS status VARCHAR(20)
+NOT NULL DEFAULT 'ABERTO';
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS concluido_em TIMESTAMP;
+
+ALTER TABLE pedidos
+ADD COLUMN IF NOT EXISTS cancelado_em TIMESTAMP;
+
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS pedido_id BIGINT
+REFERENCES pedidos(id);
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS produto_venda_id BIGINT
+REFERENCES produtos_venda(id);
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS quantidade NUMERIC(14,3);
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS valor_unitario NUMERIC(14,2);
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS desconto_tipo VARCHAR(20)
+NOT NULL DEFAULT 'NENHUM';
+
+ALTER TABLE itens_pedido
+ADD COLUMN IF NOT EXISTS desconto_valor NUMERIC(14,2)
+NOT NULL DEFAULT 0;
+
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_pedidos_numero
+ON pedidos(numero);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_pedidos_cliente
+ON pedidos(cliente_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_pedidos_data
+ON pedidos(data_pedido);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_pedidos_status
+ON pedidos(status);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_itens_pedido_pedido
+ON itens_pedido(pedido_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_itens_pedido_produto
+ON itens_pedido(produto_venda_id);
+
+DROP CREATE VIEW vw_vendas;
+CREATE VIEW vw_vendas AS
+
+SELECT
+    p.id AS pedido_id,
+    p.numero AS numero_pedido,
+
+    c.id AS cliente_id,
+
+    CONCAT(
+        c.nome,
+        ' ',
+        c.sobrenome
+    ) AS cliente,
+
+    pv.id AS produto_id,
+    pv.nome AS produto,
+    pv.sabor,
+
+    ip.quantidade,
+    ip.valor_unitario,
+
+    ip.desconto_tipo,
+    ip.desconto_valor,
+
+    (
+        ip.quantidade
+        *
+        ip.valor_unitario
+    ) AS valor_bruto,
+
+    CASE
+
+        WHEN ip.desconto_tipo = 'PERCENTUAL'
+        THEN
+            (
+                ip.quantidade
+                *
+                ip.valor_unitario
+            )
+            *
+            (
+                ip.desconto_valor / 100
+            )
+
+        WHEN ip.desconto_tipo = 'VALOR'
+        THEN ip.desconto_valor
+
+        ELSE 0
+
+    END AS valor_desconto,
+
+    (
+        ip.quantidade
+        *
+        ip.valor_unitario
+    )
+    -
+    CASE
+
+        WHEN ip.desconto_tipo = 'PERCENTUAL'
+        THEN
+            (
+                ip.quantidade
+                *
+                ip.valor_unitario
+            )
+            *
+            (
+                ip.desconto_valor / 100
+            )
+
+        WHEN ip.desconto_tipo = 'VALOR'
+        THEN ip.desconto_valor
+
+        ELSE 0
+
+    END AS valor_final,
+
+    p.data_pedido,
+    p.concluido_em
+
+FROM pedidos p
+
+INNER JOIN clientes c
+    ON c.id = p.cliente_id
+
+INNER JOIN itens_pedido ip
+    ON ip.pedido_id = p.id
+
+INNER JOIN produtos_venda pv
+    ON pv.id = ip.produto_venda_id
+
+WHERE p.status = 'CONCLUIDO';
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS pedido_id BIGINT
+REFERENCES pedidos(id);
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS usuario_id BIGINT
+REFERENCES usuarios_admin(id);
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS data_pagamento TIMESTAMP;
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS status VARCHAR(20)
+NOT NULL DEFAULT 'PAGO';
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS observacao TEXT;
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS estornado_em TIMESTAMP;
+
+ALTER TABLE pagamentos
+ADD COLUMN IF NOT EXISTS criado_em TIMESTAMP
+NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+CREATE INDEX IF NOT EXISTS
+ix_pagamentos_pedido
+ON pagamentos(pedido_id);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_pagamentos_data
+ON pagamentos(data_pagamento);
+
+
+CREATE INDEX IF NOT EXISTS
+ix_pagamentos_status
+ON pagamentos(status);
+
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+uq_pagamento_ativo_pedido
+ON pagamentos(pedido_id)
+WHERE status = 'PAGO';
+
+ALTER TABLE clientes
+ADD COLUMN IF NOT EXISTS cidade VARCHAR(120);
+
+ALTER TABLE clientes
+ADD COLUMN IF NOT EXISTS estado VARCHAR(2);
+
+ALTER TABLE pagamentos
+DROP CONSTRAINT IF EXISTS pagamentos_pedido_id_key;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pagamentos_pedido_pago
+ON pagamentos (pedido_id)
+WHERE status = 'PAGO';
+
+CREATE INDEX IF NOT EXISTS ix_pagamentos_pedido_id
+ON pagamentos (pedido_id);
+
+
+
+
 cd "OneDrive/Documentos/lojaapi"
 .venv\Scripts\Activate
 python -m src.app
@@ -965,7 +1202,7 @@ cd "onedrive/documentos/lojaapi/frontend"
 npm run dev
 admin@admin.com
 123456
-
+pip install python-dateutil
 
 
 

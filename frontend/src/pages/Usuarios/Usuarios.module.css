@@ -336,6 +336,85 @@ tbody tr:hover {
         var(--color-success);
 }
 
+.cepInput {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+}
+
+
+.cepInput > svg:first-child {
+    position: absolute;
+
+    left: 11px;
+
+    color:
+        var(--color-text-light);
+
+    pointer-events: none;
+}
+
+
+.cepInput input {
+    width: 100%;
+
+    padding-left: 36px;
+    padding-right: 36px;
+}
+
+
+.cepLoading {
+    position: absolute;
+
+    right: 11px;
+
+    color:
+        var(--color-primary);
+
+    animation:
+        cepSpin 0.8s linear infinite;
+}
+
+
+.cepError {
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--color-danger);
+
+    font-size: 9px;
+}
+
+
+.cepSuccess {
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--color-success);
+
+    font-size: 9px;
+}
+
+
+@keyframes cepSpin {
+
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
 
 @media (
     max-width: 1200px

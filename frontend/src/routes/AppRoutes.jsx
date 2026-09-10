@@ -17,9 +17,6 @@ import MainLayout
 import PrivateRoute
     from "./PrivateRoute";
 
-import PagePlaceholder
-    from "../components/PagePlaceholder/PagePlaceholder";
-
 import Usuarios
     from "../pages/Usuarios/Usuarios";
 
@@ -41,6 +38,25 @@ import Compras
 import Estoque
     from "../pages/Estoque/Estoque";
 
+import Desperdicios
+    from "../pages/Desperdicios/Desperdicios";
+
+import Pedidos
+    from "../pages/Pedidos/Pedidos";
+
+import Pagamentos
+    from "../pages/Pagamentos/Pagamentos";
+
+import Vendas
+    from "../pages/Vendas/Vendas";
+
+import Contas
+    from "../pages/Contas/Contas";
+
+import Relatorios
+    from "../pages/Relatorios/Relatorios";
+
+
 function AppRoutes() {
 
     return (
@@ -56,7 +72,6 @@ function AppRoutes() {
                     }
                 />
 
-
                 <Route
                     element={
 
@@ -67,7 +82,6 @@ function AppRoutes() {
                         </PrivateRoute>
                     }
                 >
-
                     <Route
                         path="/dashboard"
                         element={
@@ -75,61 +89,40 @@ function AppRoutes() {
                         }
                     />
 
-
                     <Route
                         path="/vendas"
                         element={
-                            <PagePlaceholder
-                                titulo="Vendas"
-                                descricao="Gestão e consulta das vendas."
-                            />
+                            <Vendas />
                         }
                     />
-
 
                     <Route
                         path="/contas"
                         element={
-                            <PagePlaceholder
-                                titulo="Contas"
-                                descricao="Despesas, faturamento e lucro."
-                            />
+                            <Contas />
                         }
                     />
-
 
                     <Route
                         path="/relatorios"
                         element={
-                            <PagePlaceholder
-                                titulo="Relatórios"
-                                descricao="Relatórios do sistema."
-                            />
+                            <Relatorios />
                         }
                     />
-
 
                     <Route
                         path="/pedidos"
                         element={
-                            <PagePlaceholder
-                                titulo="Pedidos"
-                                descricao="Gerenciamento dos pedidos."
-                            />
+                            <Pedidos />
                         }
                     />
-
 
                     <Route
                         path="/pagamentos"
                         element={
-                            <PagePlaceholder
-                                titulo="Pagamentos"
-                                descricao="Controle dos pagamentos."
-                            />
+                            <Pagamentos />
                         }
                     />
-
 
                     <Route
                         path="/compras"
@@ -138,7 +131,6 @@ function AppRoutes() {
                         }
                     />
 
-
                     <Route
                         path="/estoque"
                         element={
@@ -146,17 +138,12 @@ function AppRoutes() {
                         }
                     />
 
-
                     <Route
                         path="/desperdicios"
                         element={
-                            <PagePlaceholder
-                                titulo="Desperdícios"
-                                descricao="Controle das perdas e desperdícios."
-                            />
+                            <Desperdicios />
                         }
                     />
-
 
                     <Route
                         path="/usuarios"
@@ -165,14 +152,12 @@ function AppRoutes() {
                         }
                     />
 
-
                     <Route
                         path="/produtos-estoque"
                         element={
                             <ProdutosEstoque />
                         }
                     />
-
 
                     <Route
                         path="/produtos-venda"
@@ -181,14 +166,12 @@ function AppRoutes() {
                         }
                     />
 
-
                     <Route
                         path="/custos-produtos"
                         element={
                             <CustosProdutos />
                         }
                     />
-
 
                     <Route
                         path="/despesas"
@@ -198,7 +181,6 @@ function AppRoutes() {
                     />
 
                 </Route>
-
 
                 <Route
                     path="*"
@@ -215,6 +197,5 @@ function AppRoutes() {
         </BrowserRouter>
     );
 }
-
 
 export default AppRoutes;

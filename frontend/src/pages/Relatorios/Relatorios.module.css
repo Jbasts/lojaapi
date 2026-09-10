@@ -1,0 +1,532 @@
+.page {
+    width: 100%;
+}
+
+
+.header {
+    margin-bottom: 20px;
+}
+
+
+.header h1 {
+    margin: 0;
+
+    font-size: 24px;
+}
+
+
+.header p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 13px;
+}
+
+
+/* PERÍODO */
+
+.periodTabs {
+    display: flex;
+
+    gap: 6px;
+
+    margin-bottom: 12px;
+}
+
+
+.periodTabs button {
+    height: 36px;
+
+    padding: 0 17px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    cursor: pointer;
+}
+
+
+.periodTabs .activeTab {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodFilter {
+    width: fit-content;
+
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+
+    color:
+        var(--color-primary);
+}
+
+
+.periodFilter input {
+    height: 30px;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+}
+
+
+/* AVISO */
+
+.warning {
+    margin-bottom: 20px;
+
+    padding: 12px 15px;
+
+    border:
+        1px solid #ead7a6;
+
+    border-radius: 6px;
+
+    background: #fff8e8;
+
+    color: #80621c;
+
+    font-size: 11px;
+}
+
+
+/* SEÇÕES */
+
+.sectionTitle {
+    margin:
+        25px 0
+        12px;
+}
+
+
+.sectionTitle h2 {
+    margin: 0;
+
+    font-size: 16px;
+}
+
+
+.sectionTitle p {
+    margin: 4px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+/* CARDS RESULTADO */
+
+.summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+
+.summaryCard {
+    min-height: 105px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 16px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+
+.summaryCard svg {
+    margin-bottom: 10px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.summaryCard span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.summaryCard strong {
+    margin-top: 5px;
+
+    font-size: 18px;
+}
+
+
+/* CARD */
+
+.card {
+    margin-bottom: 20px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
+}
+
+
+.cardHeader {
+    padding: 14px 16px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    background: #faf8f6;
+}
+
+
+.cardHeader h3 {
+    margin: 0;
+
+    font-size: 12px;
+}
+
+
+/* COMPOSIÇÃO */
+
+.resultList {
+    padding: 5px 18px;
+}
+
+
+.resultList > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 12px 0;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    font-size: 11px;
+}
+
+
+.resultList > div:last-child {
+    border-bottom: 0;
+}
+
+
+.resultTotal {
+    margin-top: 2px;
+
+    font-size: 13px
+        !important;
+}
+
+
+.resultTotal strong {
+    font-size: 16px;
+}
+
+
+/* FLUXO */
+
+.flowGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            minmax(0, 1fr)
+        );
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+
+.flowGrid > div {
+    display: flex;
+    flex-direction: column;
+
+    padding: 14px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.flowGrid svg {
+    margin-bottom: 8px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.flowGrid span {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.flowGrid strong {
+    margin-top: 4px;
+
+    font-size: 14px;
+}
+
+
+/* INDICADORES */
+
+.indicators {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            minmax(0, 1fr)
+        );
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+}
+
+
+.indicators > div {
+    padding: 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.indicators span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.indicators strong {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 16px;
+}
+
+
+/* TABELA */
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+th,
+td {
+    padding: 12px 13px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+
+th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.empty {
+    padding: 35px
+        !important;
+
+    text-align: center
+        !important;
+
+    color:
+        var(--color-text-light);
+}
+
+
+/* CORES */
+
+.positive {
+    color:
+        var(--color-success)
+        !important;
+}
+
+
+.negative {
+    color:
+        var(--color-danger)
+        !important;
+}
+
+
+.error {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 12px;
+}
+
+
+/* RESPONSIVO */
+
+@media (
+    max-width: 1100px
+) {
+
+    .flowGrid,
+    .indicators {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (
+    max-width: 750px
+) {
+
+    .summary {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .flowGrid,
+    .indicators {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (
+    max-width: 450px
+) {
+
+    .summary,
+    .flowGrid,
+    .indicators {
+        grid-template-columns:
+            1fr;
+    }
+}

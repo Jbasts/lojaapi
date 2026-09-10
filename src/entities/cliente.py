@@ -11,12 +11,14 @@ class Cliente:
         cep=None,
         bairro=None,
         rua=None,
+        cidade=None,
+        estado=None,
         numero_endereco=None,
         complemento=None,
         ativo=True,
-        criado_em=None
+        criado_em=None,
+        **kwargs
     ):
-
         self.id = id
         self.nome = nome
         self.sobrenome = sobrenome
@@ -26,11 +28,12 @@ class Cliente:
         self.cep = cep
         self.bairro = bairro
         self.rua = rua
+        self.cidade = cidade
+        self.estado = estado
         self.numero_endereco = numero_endereco
         self.complemento = complemento
         self.ativo = ativo
         self.criado_em = criado_em
-
 
     def to_dict(self):
 
@@ -44,12 +47,17 @@ class Cliente:
             "cep": self.cep,
             "bairro": self.bairro,
             "rua": self.rua,
+            "cidade": self.cidade,
+            "estado": self.estado,
             "numero_endereco": self.numero_endereco,
             "complemento": self.complemento,
             "ativo": self.ativo,
             "criado_em": (
                 self.criado_em.isoformat()
-                if self.criado_em
-                else None
+                if hasattr(
+                    self.criado_em,
+                    "isoformat"
+                )
+                else self.criado_em
             )
         }

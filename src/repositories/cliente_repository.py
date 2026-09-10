@@ -6,6 +6,10 @@ from src.entities.cliente import Cliente
 
 class ClienteRepository:
 
+    # ==========================================
+    # CONVERTER REGISTRO DO BANCO PARA ENTITY
+    # ==========================================
+
     @staticmethod
     def _converter_para_entity(registro):
 
@@ -22,12 +26,22 @@ class ClienteRepository:
             cep=registro["cep"],
             bairro=registro["bairro"],
             rua=registro["rua"],
-            numero_endereco=registro["numero_endereco"],
-            complemento=registro["complemento"],
+            cidade=registro["cidade"],
+            estado=registro["estado"],
+            numero_endereco=registro[
+                "numero_endereco"
+            ],
+            complemento=registro[
+                "complemento"
+            ],
             ativo=registro["ativo"],
             criado_em=registro["criado_em"]
         )
 
+
+    # ==========================================
+    # LISTAR
+    # ==========================================
 
     @staticmethod
     def listar(busca=None):
@@ -56,22 +70,47 @@ class ClienteRepository:
                             cep,
                             bairro,
                             rua,
+                            cidade,
+                            estado,
                             numero_endereco,
                             complemento,
                             ativo,
                             criado_em
+
                         FROM clientes
-                        WHERE ativo = TRUE
-                        AND (
-                            nome ILIKE %s
-                            OR sobrenome ILIKE %s
-                            OR email ILIKE %s
-                            OR telefone ILIKE %s
-                            OR cpf ILIKE %s
-                        )
-                        ORDER BY nome, sobrenome
+
+                        WHERE
+                            ativo = TRUE
+
+                            AND (
+                                nome ILIKE %s
+
+                                OR sobrenome
+                                    ILIKE %s
+
+                                OR email
+                                    ILIKE %s
+
+                                OR telefone
+                                    ILIKE %s
+
+                                OR cpf
+                                    ILIKE %s
+
+                                OR cidade
+                                    ILIKE %s
+
+                                OR estado
+                                    ILIKE %s
+                            )
+
+                        ORDER BY
+                            nome,
+                            sobrenome
                         """,
                         (
+                            termo,
+                            termo,
                             termo,
                             termo,
                             termo,
@@ -94,32 +133,53 @@ class ClienteRepository:
                             cep,
                             bairro,
                             rua,
+                            cidade,
+                            estado,
                             numero_endereco,
                             complemento,
                             ativo,
                             criado_em
+
                         FROM clientes
-                        WHERE ativo = TRUE
-                        ORDER BY nome, sobrenome
+
+                        WHERE
+                            ativo = TRUE
+
+                        ORDER BY
+                            nome,
+                            sobrenome
                         """
                     )
 
-                registros = cursor.fetchall()
+
+                registros = (
+                    cursor.fetchall()
+                )
+
 
                 return [
-                    ClienteRepository._converter_para_entity(
+                    ClienteRepository
+                    ._converter_para_entity(
                         registro
                     )
-                    for registro in registros
+                    for registro
+                    in registros
                 ]
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # BUSCAR POR ID
+    # ==========================================
+
     @staticmethod
-    def buscar_por_id(cliente_id):
+    def buscar_por_id(
+        cliente_id
+    ):
 
         connection = get_connection()
 
@@ -141,34 +201,57 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
                         complemento,
                         ativo,
                         criado_em
+
                     FROM clientes
-                    WHERE id = %s
+
+                    WHERE
+                        id = %s
+
                     LIMIT 1
                     """,
-                    (cliente_id,)
+                    (
+                        cliente_id,
+                    )
                 )
 
-                registro = cursor.fetchone()
 
-                return ClienteRepository._converter_para_entity(
-                    registro
+                registro = (
+                    cursor.fetchone()
                 )
+
+
+                return (
+                    ClienteRepository
+                    ._converter_para_entity(
+                        registro
+                    )
+                )
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # BUSCAR POR EMAIL
+    # ==========================================
+
     @staticmethod
-    def buscar_por_email(email):
+    def buscar_por_email(
+        email
+    ):
 
         if not email:
             return None
 
+
         connection = get_connection()
 
         try:
@@ -189,34 +272,59 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
                         complemento,
                         ativo,
                         criado_em
+
                     FROM clientes
-                    WHERE LOWER(email) = LOWER(%s)
+
+                    WHERE
+                        LOWER(email)
+                        =
+                        LOWER(%s)
+
                     LIMIT 1
                     """,
-                    (email,)
+                    (
+                        email,
+                    )
                 )
 
-                registro = cursor.fetchone()
 
-                return ClienteRepository._converter_para_entity(
-                    registro
+                registro = (
+                    cursor.fetchone()
                 )
+
+
+                return (
+                    ClienteRepository
+                    ._converter_para_entity(
+                        registro
+                    )
+                )
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # BUSCAR POR CPF
+    # ==========================================
+
     @staticmethod
-    def buscar_por_cpf(cpf):
+    def buscar_por_cpf(
+        cpf
+    ):
 
         if not cpf:
             return None
 
+
         connection = get_connection()
 
         try:
@@ -237,30 +345,54 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
                         complemento,
                         ativo,
                         criado_em
+
                     FROM clientes
-                    WHERE cpf = %s
+
+                    WHERE
+                        cpf = %s
+
                     LIMIT 1
                     """,
-                    (cpf,)
+                    (
+                        cpf,
+                    )
                 )
 
-                registro = cursor.fetchone()
 
-                return ClienteRepository._converter_para_entity(
-                    registro
+                registro = (
+                    cursor.fetchone()
                 )
+
+
+                return (
+                    ClienteRepository
+                    ._converter_para_entity(
+                        registro
+                    )
+                )
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # CRIAR
+    #
+    # AGORA RECEBE OBJETO Cliente
+    # ==========================================
+
     @staticmethod
-    def criar(cliente):
+    def criar(
+        cliente
+    ):
 
         connection = get_connection()
 
@@ -272,8 +404,7 @@ class ClienteRepository:
 
                 cursor.execute(
                     """
-                    INSERT INTO clientes
-                    (
+                    INSERT INTO clientes (
                         nome,
                         sobrenome,
                         telefone,
@@ -282,12 +413,13 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
-                        complemento,
-                        ativo
+                        complemento
                     )
-                    VALUES
-                    (
+
+                    VALUES (
                         %s,
                         %s,
                         %s,
@@ -298,8 +430,10 @@ class ClienteRepository:
                         %s,
                         %s,
                         %s,
-                        TRUE
+                        %s,
+                        %s
                     )
+
                     RETURNING
                         id,
                         nome,
@@ -310,6 +444,8 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
                         complemento,
                         ativo,
@@ -324,31 +460,52 @@ class ClienteRepository:
                         cliente.cep,
                         cliente.bairro,
                         cliente.rua,
+                        cliente.cidade,
+                        cliente.estado,
                         cliente.numero_endereco,
                         cliente.complemento
                     )
                 )
 
-                registro = cursor.fetchone()
+
+                registro = (
+                    cursor.fetchone()
+                )
+
 
                 connection.commit()
 
-                return ClienteRepository._converter_para_entity(
-                    registro
+
+                return (
+                    ClienteRepository
+                    ._converter_para_entity(
+                        registro
+                    )
                 )
+
 
         except Exception:
 
             connection.rollback()
+
             raise
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # ATUALIZAR
+    #
+    # AGORA RECEBE APENAS objeto Cliente
+    # ==========================================
+
     @staticmethod
-    def atualizar(cliente):
+    def atualizar(
+        cliente
+    ):
 
         connection = get_connection()
 
@@ -371,10 +528,13 @@ class ClienteRepository:
                         cep = %s,
                         bairro = %s,
                         rua = %s,
+                        cidade = %s,
+                        estado = %s,
                         numero_endereco = %s,
                         complemento = %s
 
-                    WHERE id = %s
+                    WHERE
+                        id = %s
 
                     RETURNING
                         id,
@@ -386,6 +546,8 @@ class ClienteRepository:
                         cep,
                         bairro,
                         rua,
+                        cidade,
+                        estado,
                         numero_endereco,
                         complemento,
                         ativo,
@@ -400,32 +562,58 @@ class ClienteRepository:
                         cliente.cep,
                         cliente.bairro,
                         cliente.rua,
+                        cliente.cidade,
+                        cliente.estado,
                         cliente.numero_endereco,
                         cliente.complemento,
                         cliente.id
                     )
                 )
 
-                registro = cursor.fetchone()
+
+                registro = (
+                    cursor.fetchone()
+                )
+
+
+                if not registro:
+
+                    connection.rollback()
+
+                    return None
+
 
                 connection.commit()
 
-                return ClienteRepository._converter_para_entity(
-                    registro
+
+                return (
+                    ClienteRepository
+                    ._converter_para_entity(
+                        registro
+                    )
                 )
+
 
         except Exception:
 
             connection.rollback()
+
             raise
+
 
         finally:
 
             connection.close()
 
 
+    # ==========================================
+    # DESATIVAR
+    # ==========================================
+
     @staticmethod
-    def desativar(cliente_id):
+    def desativar(
+        cliente_id
+    ):
 
         connection = get_connection()
 
@@ -436,22 +624,38 @@ class ClienteRepository:
                 cursor.execute(
                     """
                     UPDATE clientes
-                    SET ativo = FALSE
-                    WHERE id = %s
+
+                    SET
+                        ativo = FALSE
+
+                    WHERE
+                        id = %s
                     """,
-                    (cliente_id,)
+                    (
+                        cliente_id,
+                    )
                 )
 
-                alterados = cursor.rowcount
+
+                alterados = (
+                    cursor.rowcount
+                )
+
 
                 connection.commit()
 
-                return alterados > 0
+
+                return (
+                    alterados > 0
+                )
+
 
         except Exception:
 
             connection.rollback()
+
             raise
+
 
         finally:
 

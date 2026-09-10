@@ -12,8 +12,13 @@ from src.routes.custo_produto_routes import custo_produto_bp
 from src.routes.despesa_extra_routes import despesa_extra_bp
 from src.routes.compra_routes import compra_bp
 from src.routes.estoque_routes import estoque_bp
-
-
+from src.routes.desperdicio_routes import desperdicio_bp
+from src.routes.pedido_routes import pedido_bp
+from src.routes.pagamento_routes import pagamento_bp
+from src.routes.venda_routes import venda_bp
+from src.routes.conta_routes import conta_bp
+from src.routes.relatorio_routes import relatorio_bp
+from src.routes.dashboard_routes import dashboard_bp
 
 
 
@@ -86,7 +91,42 @@ def create_app():
     estoque_bp,
     url_prefix="/estoque"
     )
-        
+
+    app.register_blueprint(
+    desperdicio_bp,
+    url_prefix="/desperdicios"
+    )
+
+    app.register_blueprint(
+    pedido_bp,
+    url_prefix="/pedidos"
+    )
+
+    app.register_blueprint(
+    pagamento_bp,
+    url_prefix="/pagamentos"
+    )
+
+    app.register_blueprint(
+        venda_bp,
+        url_prefix="/vendas"
+    )
+
+    app.register_blueprint(
+        conta_bp,
+        url_prefix="/contas"
+    )
+
+    app.register_blueprint(
+    relatorio_bp,
+    url_prefix="/relatorios"
+    )
+
+    app.register_blueprint(
+        dashboard_bp,
+        url_prefix="/dashboard"
+    )
+
     @app.route(
         "/",
         methods=["GET"]
