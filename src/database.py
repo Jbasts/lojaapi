@@ -5,8 +5,34 @@ from src.config import Config
 
 def get_connection():
 
-    connection = psycopg2.connect(
-        Config.DATABASE_URL
-    )
+    # ==========================================
+    # PRODUÇÃO / DATABASE_URL
+    # ==========================================
 
-    return connection
+    if Config.DATABASE_URL:
+
+        return psycopg2.connect(
+            Config.DATABASE_URL
+        )
+
+
+    # ==========================================
+    # DESENVOLVIMENTO / CAMPOS SEPARADOS
+    # ==========================================
+
+    if not Config.DB_PASSWORD:
+
+        raise RuntimeError(
+            "Configuração do banco inválida: "
+            "DATABASE_URL ou DB_PASSWORD "
+            "não foi informado."
+        )
+
+
+    return psycopg2.connect(
+        host=Config.DB_HOST,
+        port=Config.DB_PORT,
+        dbname=Config.DB_NAME,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD
+    )
