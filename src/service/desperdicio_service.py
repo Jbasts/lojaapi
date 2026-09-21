@@ -1,3 +1,5 @@
+from datetime import date
+
 from decimal import (
     Decimal,
     InvalidOperation
@@ -123,9 +125,145 @@ class DesperdicioService:
 
 
     @staticmethod
+    def _intervalo_periodo(
+        periodo,
+        referencia
+    ):
+
+        periodo = str(
+            periodo
+            or "TOTAL"
+        ).upper().strip()
+
+
+        if periodo not in (
+            "TOTAL",
+            "MENSAL",
+            "ANUAL"
+        ):
+
+            raise ValueError(
+                "Período inválido."
+            )
+
+
+        if periodo == "TOTAL":
+
+            return (
+                None,
+                None
+            )
+
+
+        referencia = str(
+            referencia
+            or ""
+        ).strip()
+
+
+        try:
+
+            if periodo == "MENSAL":
+
+                if referencia:
+
+                    partes = (
+                        referencia.split("-")
+                    )
+
+                    if len(partes) != 2:
+
+                        raise ValueError
+
+                    ano = int(
+                        partes[0]
+                    )
+
+                    mes = int(
+                        partes[1]
+                    )
+
+                else:
+
+                    hoje = date.today()
+
+                    ano = hoje.year
+                    mes = hoje.month
+
+
+                data_inicio = date(
+                    ano,
+                    mes,
+                    1
+                )
+
+
+                if mes == 12:
+
+                    data_fim = date(
+                        ano + 1,
+                        1,
+                        1
+                    )
+
+                else:
+
+                    data_fim = date(
+                        ano,
+                        mes + 1,
+                        1
+                    )
+
+
+                return (
+                    data_inicio,
+                    data_fim
+                )
+
+
+            if referencia:
+
+                ano = int(
+                    referencia[:4]
+                )
+
+            else:
+
+                ano = (
+                    date.today().year
+                )
+
+
+            return (
+                date(
+                    ano,
+                    1,
+                    1
+                ),
+
+                date(
+                    ano + 1,
+                    1,
+                    1
+                )
+            )
+
+        except (
+            ValueError,
+            TypeError
+        ):
+
+            raise ValueError(
+                "Referência de período inválida."
+            )
+
+
+    @staticmethod
     def listar(
         busca=None,
-        motivo=None
+        motivo=None,
+        periodo="TOTAL",
+        referencia=None
     ):
 
         if motivo:
@@ -142,11 +280,29 @@ class DesperdicioService:
                 )
 
 
+        (
+            data_inicio,
+            data_fim
+        ) = (
+            DesperdicioService
+            ._intervalo_periodo(
+                periodo,
+                referencia
+            )
+        )
+
+
         registros = (
             DesperdicioRepository
             .listar(
-                busca,
-                motivo
+                busca=busca,
+                motivo=motivo,
+                data_inicio=(
+                    data_inicio
+                ),
+                data_fim=(
+                    data_fim
+                )
             )
         )
 

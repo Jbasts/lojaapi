@@ -21,6 +21,9 @@ import {
     buscarRelatorio
 } from "../../services/relatorioService";
 
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
+
 import styles
     from "./Relatorios.module.css";
 
@@ -130,7 +133,8 @@ function Relatorios() {
             quantidade_desperdicios: 0
         },
 
-        top_produtos: []
+        top_produtos: [],
+        menos_produtos: []
     });
 
 
@@ -138,6 +142,38 @@ function Relatorios() {
         erro,
         setErro
     ] = useState("");
+
+
+    // ==========================================
+    // PAGINAÇÃO - MAIS VENDIDOS
+    // ==========================================
+
+    const [
+        paginaMaisVendidos,
+        setPaginaMaisVendidos
+    ] = useState(1);
+
+
+    const [
+        itensMaisVendidos,
+        setItensMaisVendidos
+    ] = useState(6);
+
+
+    // ==========================================
+    // PAGINAÇÃO - MENOS VENDIDOS
+    // ==========================================
+
+    const [
+        paginaMenosVendidos,
+        setPaginaMenosVendidos
+    ] = useState(1);
+
+
+    const [
+        itensMenosVendidos,
+        setItensMenosVendidos
+    ] = useState(6);
 
 
     const referencia =
@@ -188,9 +224,24 @@ function Relatorios() {
                         );
 
 
-                    setRelatorio(
-                        dados
-                    );
+                    setRelatorio({
+
+                        ...dados,
+
+                        top_produtos:
+                            Array.isArray(
+                                dados.top_produtos
+                            )
+                                ? dados.top_produtos
+                                : [],
+
+                        menos_produtos:
+                            Array.isArray(
+                                dados.menos_produtos
+                            )
+                                ? dados.menos_produtos
+                                : []
+                    });
 
 
                 } catch (error) {
@@ -261,6 +312,26 @@ function Relatorios() {
     }
 
 
+    function resetarPaginacoes() {
+
+        setPaginaMaisVendidos(1);
+
+        setPaginaMenosVendidos(1);
+    }
+
+
+    function alterarPeriodo(
+        novoPeriodo
+    ) {
+
+        setPeriodo(
+            novoPeriodo
+        );
+
+        resetarPaginacoes();
+    }
+
+
     const resultado =
         relatorio.resultado;
 
@@ -271,6 +342,108 @@ function Relatorios() {
 
     const indicadores =
         relatorio.indicadores;
+
+
+    const topProdutos =
+        Array.isArray(
+            relatorio.top_produtos
+        )
+            ? relatorio.top_produtos
+            : [];
+
+
+    const menosProdutos =
+        Array.isArray(
+            relatorio.menos_produtos
+        )
+            ? relatorio.menos_produtos
+            : [];
+
+
+    // ==========================================
+    // PAGINAÇÃO - MAIS VENDIDOS
+    // ==========================================
+
+    const totalMaisVendidos =
+        topProdutos.length;
+
+
+    const totalPaginasMaisVendidos =
+        Math.max(
+            1,
+            Math.ceil(
+                totalMaisVendidos
+                /
+                itensMaisVendidos
+            )
+        );
+
+
+    const paginaMaisSegura =
+        Math.min(
+            paginaMaisVendidos,
+            totalPaginasMaisVendidos
+        );
+
+
+    const inicioMais =
+        (
+            paginaMaisSegura - 1
+        )
+        *
+        itensMaisVendidos;
+
+
+    const produtosMaisPaginados =
+        topProdutos.slice(
+            inicioMais,
+            inicioMais
+            +
+            itensMaisVendidos
+        );
+
+
+    // ==========================================
+    // PAGINAÇÃO - MENOS VENDIDOS
+    // ==========================================
+
+    const totalMenosVendidos =
+        menosProdutos.length;
+
+
+    const totalPaginasMenosVendidos =
+        Math.max(
+            1,
+            Math.ceil(
+                totalMenosVendidos
+                /
+                itensMenosVendidos
+            )
+        );
+
+
+    const paginaMenosSegura =
+        Math.min(
+            paginaMenosVendidos,
+            totalPaginasMenosVendidos
+        );
+
+
+    const inicioMenos =
+        (
+            paginaMenosSegura - 1
+        )
+        *
+        itensMenosVendidos;
+
+
+    const produtosMenosPaginados =
+        menosProdutos.slice(
+            inicioMenos,
+            inicioMenos
+            +
+            itensMenosVendidos
+        );
 
 
     return (
@@ -299,7 +472,11 @@ function Relatorios() {
             {
                 erro && (
 
-                    <div className={styles.error}>
+                    <div
+                        className={
+                            styles.error
+                        }
+                    >
                         {erro}
                     </div>
                 )
@@ -308,7 +485,11 @@ function Relatorios() {
 
             {/* PERÍODO */}
 
-            <div className={styles.periodTabs}>
+            <div
+                className={
+                    styles.periodTabs
+                }
+            >
 
                 <button
                     type="button"
@@ -318,7 +499,7 @@ function Relatorios() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "DIARIO"
                         )
                     }
@@ -335,7 +516,7 @@ function Relatorios() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "MENSAL"
                         )
                     }
@@ -352,7 +533,7 @@ function Relatorios() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "ANUAL"
                         )
                     }
@@ -363,7 +544,11 @@ function Relatorios() {
             </div>
 
 
-            <div className={styles.periodFilter}>
+            <div
+                className={
+                    styles.periodFilter
+                }
+            >
 
                 <CalendarDays
                     size={17}
@@ -378,10 +563,14 @@ function Relatorios() {
                             type="date"
                             value={dia}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setDia(
                                         event.target.value
-                                    )
+                                    );
+
+                                    resetarPaginacoes();
+                                }
                             }
                         />
                     )
@@ -396,10 +585,14 @@ function Relatorios() {
                             type="month"
                             value={mes}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setMes(
                                         event.target.value
-                                    )
+                                    );
+
+                                    resetarPaginacoes();
+                                }
                             }
                         />
                     )
@@ -416,10 +609,14 @@ function Relatorios() {
                             max="2100"
                             value={ano}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setAno(
                                         event.target.value
-                                    )
+                                    );
+
+                                    resetarPaginacoes();
+                                }
                             }
                         />
                     )
@@ -460,7 +657,11 @@ function Relatorios() {
 
             {/* RESULTADO */}
 
-            <div className={styles.sectionTitle}>
+            <div
+                className={
+                    styles.sectionTitle
+                }
+            >
 
                 <div>
 
@@ -478,11 +679,21 @@ function Relatorios() {
             </div>
 
 
-            <div className={styles.summary}>
+            <div
+                className={
+                    styles.summary
+                }
+            >
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
-                    <TrendingUp size={21} />
+                    <TrendingUp
+                        size={21}
+                    />
 
                     <span>
                         Faturamento
@@ -504,9 +715,15 @@ function Relatorios() {
                 </div>
 
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
-                    <ReceiptText size={21} />
+                    <ReceiptText
+                        size={21}
+                    />
 
                     <span>
                         Custo das vendas
@@ -524,9 +741,15 @@ function Relatorios() {
                 </div>
 
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
-                    <Wallet size={21} />
+                    <Wallet
+                        size={21}
+                    />
 
                     <span>
                         Despesas extras
@@ -544,9 +767,15 @@ function Relatorios() {
                 </div>
 
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
-                    <PackageX size={21} />
+                    <PackageX
+                        size={21}
+                    />
 
                     <span>
                         Desperdícios
@@ -568,7 +797,11 @@ function Relatorios() {
                 </div>
 
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
                     <CircleDollarSign
                         size={21}
@@ -580,8 +813,11 @@ function Relatorios() {
 
                     <strong
                         className={
-                            resultado.lucro >= 0
+                            resultado.lucro
+                            >= 0
+
                                 ? styles.positive
+
                                 : styles.negative
                         }
                     >
@@ -595,9 +831,15 @@ function Relatorios() {
                 </div>
 
 
-                <div className={styles.summaryCard}>
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
 
-                    <Percent size={21} />
+                    <Percent
+                        size={21}
+                    />
 
                     <span>
                         Margem
@@ -605,8 +847,11 @@ function Relatorios() {
 
                     <strong
                         className={
-                            resultado.lucro >= 0
+                            resultado.lucro
+                            >= 0
+
                                 ? styles.positive
+
                                 : styles.negative
                         }
                     >
@@ -625,9 +870,17 @@ function Relatorios() {
 
             {/* COMPOSIÇÃO DO LUCRO */}
 
-            <section className={styles.card}>
+            <section
+                className={
+                    styles.card
+                }
+            >
 
-                <div className={styles.cardHeader}>
+                <div
+                    className={
+                        styles.cardHeader
+                    }
+                >
 
                     <h3>
                         Composição do resultado
@@ -746,8 +999,11 @@ function Relatorios() {
 
                         <strong
                             className={
-                                resultado.lucro >= 0
+                                resultado.lucro
+                                >= 0
+
                                     ? styles.positive
+
                                     : styles.negative
                             }
                         >
@@ -767,7 +1023,11 @@ function Relatorios() {
 
             {/* FLUXO FINANCEIRO */}
 
-            <div className={styles.sectionTitle}>
+            <div
+                className={
+                    styles.sectionTitle
+                }
+            >
 
                 <div>
 
@@ -785,11 +1045,17 @@ function Relatorios() {
             </div>
 
 
-            <div className={styles.flowGrid}>
+            <div
+                className={
+                    styles.flowGrid
+                }
+            >
 
                 <div>
 
-                    <TrendingUp size={19} />
+                    <TrendingUp
+                        size={19}
+                    />
 
                     <span>
                         Entradas
@@ -812,7 +1078,9 @@ function Relatorios() {
 
                 <div>
 
-                    <ShoppingCart size={19} />
+                    <ShoppingCart
+                        size={19}
+                    />
 
                     <span>
                         Compras
@@ -831,7 +1099,9 @@ function Relatorios() {
 
                 <div>
 
-                    <Wallet size={19} />
+                    <Wallet
+                        size={19}
+                    />
 
                     <span>
                         Despesas extras
@@ -851,7 +1121,9 @@ function Relatorios() {
 
                 <div>
 
-                    <TrendingDown size={19} />
+                    <TrendingDown
+                        size={19}
+                    />
 
                     <span>
                         Saídas
@@ -885,7 +1157,9 @@ function Relatorios() {
                     <strong
                         className={
                             fluxo.saldo >= 0
+
                                 ? styles.positive
+
                                 : styles.negative
                         }
                     >
@@ -903,7 +1177,11 @@ function Relatorios() {
 
             {/* INDICADORES */}
 
-            <div className={styles.sectionTitle}>
+            <div
+                className={
+                    styles.sectionTitle
+                }
+            >
 
                 <div>
 
@@ -916,9 +1194,14 @@ function Relatorios() {
             </div>
 
 
-            <div className={styles.indicators}>
+            <div
+                className={
+                    styles.indicators
+                }
+            >
 
                 <div>
+
                     <span>
                         Pedidos pagos
                     </span>
@@ -929,10 +1212,12 @@ function Relatorios() {
                                 .pedidos_pagos
                         }
                     </strong>
+
                 </div>
 
 
                 <div>
+
                     <span>
                         Itens vendidos
                     </span>
@@ -943,10 +1228,12 @@ function Relatorios() {
                                 .itens_vendidos
                         }
                     </strong>
+
                 </div>
 
 
                 <div>
+
                     <span>
                         Compras
                     </span>
@@ -957,10 +1244,12 @@ function Relatorios() {
                                 .quantidade_compras
                         }
                     </strong>
+
                 </div>
 
 
                 <div>
+
                     <span>
                         Despesas
                     </span>
@@ -971,10 +1260,12 @@ function Relatorios() {
                                 .quantidade_despesas
                         }
                     </strong>
+
                 </div>
 
 
                 <div>
+
                     <span>
                         Desperdícios
                     </span>
@@ -985,129 +1276,376 @@ function Relatorios() {
                                 .quantidade_desperdicios
                         }
                     </strong>
+
                 </div>
 
             </div>
 
 
-            {/* TOP PRODUTOS */}
+            {/* RANKINGS */}
 
-            <section className={styles.card}>
+            <div
+                className={
+                    styles.sectionTitle
+                }
+            >
 
-                <div className={styles.cardHeader}>
+                <div>
 
-                    <h3>
-                        Produtos mais vendidos
-                    </h3>
+                    <h2>
+                        Produtos
+                    </h2>
+
+                    <p>
+                        Ranking dos produtos vendidos
+                        no período selecionado.
+                    </p>
 
                 </div>
 
-
-                <div className={styles.tableWrapper}>
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>Produto</th>
-                                <th>Sabor</th>
-                                <th>Quantidade</th>
-                                <th>Valor bruto</th>
-                            </tr>
-
-                        </thead>
+            </div>
 
 
-                        <tbody>
+            <div
+                className={
+                    styles.rankingsGrid
+                }
+            >
 
-                            {
-                                relatorio
-                                    .top_produtos
-                                    .length === 0
+                {/* MAIS VENDIDOS */}
 
-                                    ? (
+                <section
+                    className={`${styles.card} ${styles.rankingCard}`}
+                >
 
-                                        <tr>
+                    <div
+                        className={
+                            styles.cardHeader
+                        }
+                    >
 
-                                            <td
-                                                colSpan="4"
-                                                className={
-                                                    styles.empty
-                                                }
-                                            >
-                                                Nenhum produto
-                                                encontrado no período.
-                                            </td>
+                        <h3>
+                            Produtos mais vendidos
+                        </h3>
 
-                                        </tr>
-                                    )
+                    </div>
 
-                                    : relatorio
-                                        .top_produtos
-                                        .map(
-                                            (
-                                                produto,
-                                                indice
-                                            ) => (
 
-                                                <tr
-                                                    key={
-                                                        `${
-                                                            produto.produto
-                                                        }-${
-                                                            produto.sabor
-                                                        }-${indice}`
+                    <div
+                        className={
+                            styles.tableWrapper
+                        }
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>
+                                        Produto
+                                    </th>
+
+                                    <th>
+                                        Sabor
+                                    </th>
+
+                                    <th>
+                                        Quantidade
+                                    </th>
+
+                                    <th>
+                                        Valor bruto
+                                    </th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {
+                                    produtosMaisPaginados
+                                        .length
+                                    === 0
+
+                                        ? (
+
+                                            <tr>
+
+                                                <td
+                                                    colSpan="4"
+                                                    className={
+                                                        styles.empty
                                                     }
                                                 >
+                                                    Nenhum produto
+                                                    encontrado no período.
+                                                </td>
 
-                                                    <td>
-                                                        <strong>
+                                            </tr>
+                                        )
+
+                                        : produtosMaisPaginados
+                                            .map(
+                                                (
+                                                    produto,
+                                                    indice
+                                                ) => (
+
+                                                    <tr
+                                                        key={
+                                                            `mais-${
+                                                                produto.produto_id
+                                                                ?? produto.produto
+                                                            }-${
+                                                                produto.sabor
+                                                                ?? ""
+                                                            }-${indice}`
+                                                        }
+                                                    >
+
+                                                        <td>
+                                                            <strong>
+                                                                {
+                                                                    produto
+                                                                        .produto
+                                                                }
+                                                            </strong>
+                                                        </td>
+
+                                                        <td>
+                                                            {
+                                                                produto.sabor
+                                                                || "-"
+                                                            }
+                                                        </td>
+
+                                                        <td>
                                                             {
                                                                 produto
-                                                                    .produto
+                                                                    .quantidade
                                                             }
-                                                        </strong>
-                                                    </td>
+                                                        </td>
 
+                                                        <td>
+                                                            {
+                                                                moeda(
+                                                                    produto
+                                                                        .valor_bruto
+                                                                )
+                                                            }
+                                                        </td>
 
-                                                    <td>
-                                                        {
-                                                            produto.sabor
-                                                            || "-"
-                                                        }
-                                                    </td>
-
-
-                                                    <td>
-                                                        {
-                                                            produto
-                                                                .quantidade
-                                                        }
-                                                    </td>
-
-
-                                                    <td>
-                                                        {
-                                                            moeda(
-                                                                produto
-                                                                    .valor_bruto
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                </tr>
+                                                    </tr>
+                                                )
                                             )
-                                        )
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <Paginacao
+                        paginaAtual={
+                            paginaMaisSegura
+                        }
+                        totalItens={
+                            totalMaisVendidos
+                        }
+                        itensPorPagina={
+                            itensMaisVendidos
+                        }
+                        onPaginaChange={
+                            setPaginaMaisVendidos
+                        }
+                        onItensPorPaginaChange={
+                            (quantidade) => {
+
+                                setItensMaisVendidos(
+                                    quantidade
+                                );
+
+                                setPaginaMaisVendidos(
+                                    1
+                                );
                             }
+                        }
+                    />
 
-                        </tbody>
+                </section>
 
-                    </table>
 
-                </div>
+                {/* MENOS VENDIDOS */}
 
-            </section>
+                <section
+                    className={`${styles.card} ${styles.rankingCard}`}
+                >
+
+                    <div
+                        className={
+                            styles.cardHeader
+                        }
+                    >
+
+                        <h3>
+                            Produtos menos vendidos
+                        </h3>
+
+                    </div>
+
+
+                    <div
+                        className={
+                            styles.tableWrapper
+                        }
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>
+                                        Produto
+                                    </th>
+
+                                    <th>
+                                        Sabor
+                                    </th>
+
+                                    <th>
+                                        Quantidade
+                                    </th>
+
+                                    <th>
+                                        Valor bruto
+                                    </th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {
+                                    produtosMenosPaginados
+                                        .length
+                                    === 0
+
+                                        ? (
+
+                                            <tr>
+
+                                                <td
+                                                    colSpan="4"
+                                                    className={
+                                                        styles.empty
+                                                    }
+                                                >
+                                                    Nenhum produto
+                                                    encontrado no período.
+                                                </td>
+
+                                            </tr>
+                                        )
+
+                                        : produtosMenosPaginados
+                                            .map(
+                                                (
+                                                    produto,
+                                                    indice
+                                                ) => (
+
+                                                    <tr
+                                                        key={
+                                                            `menos-${
+                                                                produto.produto_id
+                                                                ?? produto.produto
+                                                            }-${
+                                                                produto.sabor
+                                                                ?? ""
+                                                            }-${indice}`
+                                                        }
+                                                    >
+
+                                                        <td>
+                                                            <strong>
+                                                                {
+                                                                    produto
+                                                                        .produto
+                                                                }
+                                                            </strong>
+                                                        </td>
+
+                                                        <td>
+                                                            {
+                                                                produto.sabor
+                                                                || "-"
+                                                            }
+                                                        </td>
+
+                                                        <td>
+                                                            {
+                                                                produto
+                                                                    .quantidade
+                                                            }
+                                                        </td>
+
+                                                        <td>
+                                                            {
+                                                                moeda(
+                                                                    produto
+                                                                        .valor_bruto
+                                                                )
+                                                            }
+                                                        </td>
+
+                                                    </tr>
+                                                )
+                                            )
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <Paginacao
+                        paginaAtual={
+                            paginaMenosSegura
+                        }
+                        totalItens={
+                            totalMenosVendidos
+                        }
+                        itensPorPagina={
+                            itensMenosVendidos
+                        }
+                        onPaginaChange={
+                            setPaginaMenosVendidos
+                        }
+                        onItensPorPaginaChange={
+                            (quantidade) => {
+
+                                setItensMenosVendidos(
+                                    quantidade
+                                );
+
+                                setPaginaMenosVendidos(
+                                    1
+                                );
+                            }
+                        }
+                    />
+
+                </section>
+
+            </div>
 
         </div>
     );

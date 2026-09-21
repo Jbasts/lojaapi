@@ -8,7 +8,8 @@ import {
     Pencil,
     Plus,
     Search,
-    Trash2
+    Trash2,
+    X
 } from "lucide-react";
 
 import {
@@ -17,6 +18,9 @@ import {
     excluirDespesaExtra,
     listarDespesasExtras
 } from "../../services/despesaExtraService";
+
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
 
 import styles
     from "./Despesas.module.css";
@@ -29,30 +33,170 @@ const formularioInicial = {
 };
 
 
+function dataLocalAtual() {
+
+    const agora =
+        new Date();
+
+
+    const ano =
+        agora.getFullYear();
+
+
+    const mes =
+        String(
+            agora.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const dia =
+        String(
+            agora.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+
 function Despesas() {
 
-    const [despesas, setDespesas] =
-        useState([]);
+    const [
+        despesas,
+        setDespesas
+    ] = useState([]);
 
-    const [busca, setBusca] =
-        useState("");
 
-    const [formulario, setFormulario] =
-        useState(formularioInicial);
+    const [
+        busca,
+        setBusca
+    ] = useState("");
+
+
+    const [
+        formulario,
+        setFormulario
+    ] = useState(
+        formularioInicial
+    );
+
 
     const [
         despesaEditando,
         setDespesaEditando
     ] = useState(null);
 
-    const [erro, setErro] =
-        useState("");
 
-    const [mensagem, setMensagem] =
-        useState("");
+    const [
+        modalFormularioAberto,
+        setModalFormularioAberto
+    ] = useState(false);
 
-    const [salvando, setSalvando] =
-        useState(false);
+
+    const [
+        despesaExcluir,
+        setDespesaExcluir
+    ] = useState(null);
+
+
+    const [
+        duplicadaPendente,
+        setDuplicadaPendente
+    ] = useState(null);
+
+
+    const [
+        erro,
+        setErro
+    ] = useState("");
+
+
+    const [
+        erroModal,
+        setErroModal
+    ] = useState("");
+
+
+    const [
+        mensagem,
+        setMensagem
+    ] = useState("");
+
+
+    const [
+        salvando,
+        setSalvando
+    ] = useState(false);
+
+
+    const [
+        excluindo,
+        setExcluindo
+    ] = useState(false);
+
+
+    const [
+        confirmandoDuplicada,
+        setConfirmandoDuplicada
+    ] = useState(false);
+
+
+    const [
+        periodo,
+        setPeriodo
+    ] = useState("TOTAL");
+
+
+    const hoje =
+        dataLocalAtual();
+
+
+    const [
+        diaFiltro,
+        setDiaFiltro
+    ] = useState(
+        hoje
+    );
+
+
+    const [
+        mesFiltro,
+        setMesFiltro
+    ] = useState(
+        hoje.slice(
+            0,
+            7
+        )
+    );
+
+
+    const [
+        anoFiltro,
+        setAnoFiltro
+    ] = useState(
+        hoje.slice(
+            0,
+            4
+        )
+    );
+
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
 
 
     async function carregarDespesas(
@@ -66,8 +210,11 @@ function Despesas() {
                     textoBusca
                 );
 
+
             setDespesas(
-                dados
+                Array.isArray(dados)
+                    ? dados
+                    : []
             );
 
         } catch {
@@ -80,36 +227,54 @@ function Despesas() {
     }
 
 
-    useEffect(() => {
+    useEffect(
+        () => {
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        carregarDespesas();
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            carregarDespesas();
 
-    }, []);
+        },
+        []
+    );
 
 
-    function handleChange(event) {
+    function handleChange(
+        event
+    ) {
 
         const {
             name,
             value
         } = event.target;
 
+
         setFormulario(
             (anterior) => ({
                 ...anterior,
-                [name]: value
+                [name]:
+                    value
             })
         );
     }
 
 
-    async function handleBusca(event) {
+    async function handleBusca(
+        event
+    ) {
 
         const valor =
             event.target.value;
 
-        setBusca(valor);
+
+        setBusca(
+            valor
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+
 
         await carregarDespesas(
             valor
@@ -117,11 +282,44 @@ function Despesas() {
     }
 
 
-    function editar(despesa) {
+    function limparFormulario() {
+
+        setDespesaEditando(
+            null
+        );
+
+
+        setFormulario(
+            formularioInicial
+        );
+
+
+        setErroModal("");
+    }
+
+
+    function abrirAdicionar() {
+
+        limparFormulario();
+
+        setErro("");
+
+        setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    function abrirEditar(
+        despesa
+    ) {
 
         setDespesaEditando(
             despesa.id
         );
+
 
         setFormulario({
             quantidade:
@@ -134,22 +332,69 @@ function Despesas() {
                 despesa.valor_unitario
         });
 
+
         setErro("");
+
         setMensagem("");
+
+        setErroModal("");
+
+        setModalFormularioAberto(
+            true
+        );
     }
 
 
-    function cancelar() {
+    function fecharFormulario() {
 
-        setDespesaEditando(
+        if (
+            salvando
+        ) {
+
+            return;
+        }
+
+
+        setModalFormularioAberto(
+            false
+        );
+
+
+        limparFormulario();
+    }
+
+
+    function abrirExcluir(
+        despesa
+    ) {
+
+        setErro("");
+
+        setMensagem("");
+
+        setErroModal("");
+
+        setDespesaExcluir(
+            despesa
+        );
+    }
+
+
+    function fecharExcluir() {
+
+        if (
+            excluindo
+        ) {
+
+            return;
+        }
+
+
+        setDespesaExcluir(
             null
         );
 
-        setFormulario(
-            formularioInicial
-        );
-
-        setErro("");
+        setErroModal("");
     }
 
 
@@ -172,7 +417,9 @@ function Despesas() {
         };
 
 
-        if (despesaEditando) {
+        if (
+            despesaEditando
+        ) {
 
             return atualizarDespesaExtra(
                 despesaEditando,
@@ -187,99 +434,87 @@ function Despesas() {
     }
 
 
-    async function handleSubmit(event) {
+    async function concluirSalvamento() {
+
+        setMensagem(
+            despesaEditando
+                ? "Despesa atualizada com sucesso."
+                : "Despesa cadastrada com sucesso."
+        );
+
+
+        setModalFormularioAberto(
+            false
+        );
+
+
+        limparFormulario();
+
+
+        setPaginaAtual(
+            1
+        );
+
+
+        await carregarDespesas(
+            busca
+        );
+    }
+
+
+    async function handleSubmit(
+        event
+    ) {
 
         event.preventDefault();
 
         setErro("");
+
+        setErroModal("");
+
         setMensagem("");
-        setSalvando(true);
+
+        setSalvando(
+            true
+        );
 
 
         try {
 
-            await enviar(false);
-
-
-            setMensagem(
-                despesaEditando
-                    ? "Despesa atualizada com sucesso."
-                    : "Despesa cadastrada com sucesso."
+            await enviar(
+                false
             );
 
 
-            setDespesaEditando(
-                null
-            );
-
-            setFormulario(
-                formularioInicial
-            );
-
-            await carregarDespesas(
-                busca
-            );
+            await concluirSalvamento();
 
         } catch (error) {
 
             if (
-                error.response?.status === 409
+                error.response?.status
+                === 409
                 &&
                 error.response?.data?.codigo
                 === "DESPESA_DUPLICADA"
             ) {
 
-                const confirmar =
-                    window.confirm(
+                setDuplicadaPendente({
+                    mensagem:
                         error.response
-                            .data
-                            .erro
-                    );
+                            ?.data
+                            ?.erro
+                        ||
+                        "Já existe uma despesa semelhante."
+                });
 
 
-                if (confirmar) {
-
-                    try {
-
-                        await enviar(true);
-
-
-                        setMensagem(
-                            despesaEditando
-                                ? "Despesa atualizada com sucesso."
-                                : "Despesa cadastrada com sucesso."
-                        );
-
-
-                        setDespesaEditando(
-                            null
-                        );
-
-                        setFormulario(
-                            formularioInicial
-                        );
-
-
-                        await carregarDespesas(
-                            busca
-                        );
-
-                    } catch (novoErro) {
-
-                        setErro(
-                            novoErro.response
-                                ?.data
-                                ?.erro
-                            ||
-                            "Não foi possível "
-                            + "salvar a despesa."
-                        );
-                    }
-                }
+                setModalFormularioAberto(
+                    false
+                );
 
             } else {
 
-                setErro(
+                setErroModal(
                     error.response
                         ?.data
                         ?.erro
@@ -291,35 +526,120 @@ function Despesas() {
 
         } finally {
 
-            setSalvando(false);
+            setSalvando(
+                false
+            );
         }
     }
 
 
-    async function remover(despesa) {
+    function cancelarDuplicada() {
 
-        const confirmar =
-            window.confirm(
-                `Deseja excluir `
-                + `"${despesa.nome}"?`
+        if (
+            confirmandoDuplicada
+        ) {
+
+            return;
+        }
+
+
+        setDuplicadaPendente(
+            null
+        );
+
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    async function confirmarDuplicada() {
+
+        try {
+
+            setConfirmandoDuplicada(
+                true
+            );
+
+            setErroModal("");
+
+
+            await enviar(
+                true
             );
 
 
-        if (!confirmar) {
+            setDuplicadaPendente(
+                null
+            );
+
+
+            await concluirSalvamento();
+
+        } catch (error) {
+
+            setErroModal(
+                error.response
+                    ?.data
+                    ?.erro
+                ||
+                "Não foi possível "
+                + "salvar a despesa."
+            );
+
+        } finally {
+
+            setConfirmandoDuplicada(
+                false
+            );
+        }
+    }
+
+
+    async function confirmarExclusao() {
+
+        if (
+            !despesaExcluir
+        ) {
+
             return;
         }
 
 
         try {
 
-            await excluirDespesaExtra(
-                despesa.id
+            setExcluindo(
+                true
             );
+
+            setErro("");
+
+            setErroModal("");
+
+            setMensagem("");
+
+
+            await excluirDespesaExtra(
+                despesaExcluir.id
+            );
+
 
             setMensagem(
                 "Despesa excluída "
                 + "com sucesso."
             );
+
+
+            setDespesaExcluir(
+                null
+            );
+
+
+            setPaginaAtual(
+                1
+            );
+
 
             await carregarDespesas(
                 busca
@@ -327,7 +647,7 @@ function Despesas() {
 
         } catch (error) {
 
-            setErro(
+            setErroModal(
                 error.response
                     ?.data
                     ?.erro
@@ -335,11 +655,19 @@ function Despesas() {
                 "Não foi possível "
                 + "excluir a despesa."
             );
+
+        } finally {
+
+            setExcluindo(
+                false
+            );
         }
     }
 
 
-    function moeda(valor) {
+    function moeda(
+        valor
+    ) {
 
         return Number(
             valor || 0
@@ -353,52 +681,258 @@ function Despesas() {
     }
 
 
-    function formatarData(data) {
+    function formatarData(
+        data
+    ) {
 
-        if (!data) {
+        if (
+            !data
+        ) {
+
             return "-";
         }
 
+
         const parteData =
-            data.substring(
+            String(
+                data
+            ).substring(
                 0,
                 10
             );
+
 
         const [
             ano,
             mes,
             dia
-        ] = parteData.split("-");
+        ] = parteData.split(
+            "-"
+        );
+
+
+        if (
+            !ano
+            ||
+            !mes
+            ||
+            !dia
+        ) {
+
+            return parteData;
+        }
+
 
         return `${dia}/${mes}/${ano}`;
     }
 
 
-    const total = useMemo(
-        () => {
+    const despesasFiltradas =
+        useMemo(
+            () => {
 
-            return despesas.reduce(
-                (soma, despesa) =>
-                    soma
-                    +
-                    Number(
-                        despesa.valor_total
-                        || 0
-                    ),
-                0
-            );
+                return despesas.filter(
+                    (despesa) => {
 
-        },
-        [despesas]
-    );
+                        const dataDespesa =
+                            String(
+                                despesa.data
+                                || ""
+                            ).substring(
+                                0,
+                                10
+                            );
+
+
+                        if (
+                            periodo
+                            === "TOTAL"
+                        ) {
+
+                            return true;
+                        }
+
+
+                        if (
+                            periodo
+                            === "DIA"
+                        ) {
+
+                            return (
+                                dataDespesa
+                                === diaFiltro
+                            );
+                        }
+
+
+                        if (
+                            periodo
+                            === "MENSAL"
+                        ) {
+
+                            return (
+                                dataDespesa.slice(
+                                    0,
+                                    7
+                                )
+                                === mesFiltro
+                            );
+                        }
+
+
+                        if (
+                            periodo
+                            === "ANUAL"
+                        ) {
+
+                            return (
+                                dataDespesa.slice(
+                                    0,
+                                    4
+                                )
+                                === anoFiltro
+                            );
+                        }
+
+
+                        return true;
+                    }
+                );
+
+            },
+            [
+                despesas,
+                periodo,
+                diaFiltro,
+                mesFiltro,
+                anoFiltro
+            ]
+        );
+
+
+    const total =
+        useMemo(
+            () => {
+
+                return despesasFiltradas.reduce(
+                    (
+                        soma,
+                        despesa
+                    ) =>
+                        soma
+                        +
+                        Number(
+                            despesa.valor_total
+                            || 0
+                        ),
+                    0
+                );
+
+            },
+            [
+                despesasFiltradas
+            ]
+        );
+
+
+    const totalItens =
+        despesasFiltradas.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const despesasPaginadas =
+        despesasFiltradas.slice(
+            indiceInicial,
+            indiceInicial
+            +
+            itensPorPagina
+        );
+
+
+    function alterarPeriodo(
+        novoPeriodo
+    ) {
+
+        setPeriodo(
+            novoPeriodo
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    const valorTotalFormulario =
+        (
+            Number(
+                formulario.quantidade
+            )
+            || 0
+        )
+        *
+        (
+            Number(
+                formulario.valor_unitario
+            )
+            || 0
+        );
 
 
     return (
 
-        <div className={styles.page}>
+        <div
+            className={
+                styles.page
+            }
+        >
 
-            <div className={styles.header}>
+            <div
+                className={
+                    styles.header
+                }
+            >
 
                 <div>
 
@@ -415,13 +949,18 @@ function Despesas() {
 
 
                 <button
+                    type="button"
                     className={
                         styles.addButton
                     }
-                    onClick={cancelar}
+                    onClick={
+                        abrirAdicionar
+                    }
                 >
 
-                    <Plus size={16} />
+                    <Plus
+                        size={16}
+                    />
 
                     Adicionar Despesa
 
@@ -430,7 +969,11 @@ function Despesas() {
             </div>
 
 
-            <div className={styles.topBar}>
+            <div
+                className={
+                    styles.topBar
+                }
+            >
 
                 <div
                     className={
@@ -438,14 +981,19 @@ function Despesas() {
                     }
                 >
 
-                    <Search size={17} />
+                    <Search
+                        size={17}
+                    />
+
 
                     <input
                         placeholder={
                             "Buscar despesa..."
                         }
                         value={busca}
-                        onChange={handleBusca}
+                        onChange={
+                            handleBusca
+                        }
                     />
 
                 </div>
@@ -458,11 +1006,15 @@ function Despesas() {
                 >
 
                     <span>
-                        Total listado
+                        Total do período
                     </span>
 
                     <strong>
-                        {moeda(total)}
+                        {
+                            moeda(
+                                total
+                            )
+                        }
                     </strong>
 
                 </div>
@@ -470,8 +1022,193 @@ function Despesas() {
             </div>
 
 
+            <div
+                className={
+                    styles.periodBar
+                }
+            >
+
+                <div
+                    className={
+                        styles.periodButtons
+                    }
+                >
+
+                    <button
+                        type="button"
+                        className={
+                            periodo
+                            === "TOTAL"
+                                ? styles.periodActive
+                                : styles.periodButton
+                        }
+                        onClick={() =>
+                            alterarPeriodo(
+                                "TOTAL"
+                            )
+                        }
+                    >
+                        Total
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            periodo
+                            === "DIA"
+                                ? styles.periodActive
+                                : styles.periodButton
+                        }
+                        onClick={() =>
+                            alterarPeriodo(
+                                "DIA"
+                            )
+                        }
+                    >
+                        Dia
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            periodo
+                            === "MENSAL"
+                                ? styles.periodActive
+                                : styles.periodButton
+                        }
+                        onClick={() =>
+                            alterarPeriodo(
+                                "MENSAL"
+                            )
+                        }
+                    >
+                        Mês
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            periodo
+                            === "ANUAL"
+                                ? styles.periodActive
+                                : styles.periodButton
+                        }
+                        onClick={() =>
+                            alterarPeriodo(
+                                "ANUAL"
+                            )
+                        }
+                    >
+                        Ano
+                    </button>
+
+                </div>
+
+
+                {
+                    periodo
+                    === "DIA"
+                    && (
+
+                        <input
+                            type="date"
+                            className={
+                                styles.referenceInput
+                            }
+                            value={
+                                diaFiltro
+                            }
+                            onChange={
+                                (event) => {
+
+                                    setDiaFiltro(
+                                        event.target.value
+                                    );
+
+                                    setPaginaAtual(
+                                        1
+                                    );
+                                }
+                            }
+                        />
+                    )
+                }
+
+
+                {
+                    periodo
+                    === "MENSAL"
+                    && (
+
+                        <input
+                            type="month"
+                            className={
+                                styles.referenceInput
+                            }
+                            value={
+                                mesFiltro
+                            }
+                            onChange={
+                                (event) => {
+
+                                    setMesFiltro(
+                                        event.target.value
+                                    );
+
+                                    setPaginaAtual(
+                                        1
+                                    );
+                                }
+                            }
+                        />
+                    )
+                }
+
+
+                {
+                    periodo
+                    === "ANUAL"
+                    && (
+
+                        <input
+                            type="number"
+                            className={
+                                styles.referenceInput
+                            }
+                            min="2000"
+                            max="2100"
+                            value={
+                                anoFiltro
+                            }
+                            onChange={
+                                (event) => {
+
+                                    setAnoFiltro(
+                                        event.target.value
+                                            .slice(
+                                                0,
+                                                4
+                                            )
+                                    );
+
+                                    setPaginaAtual(
+                                        1
+                                    );
+                                }
+                            }
+                        />
+                    )
+                }
+
+            </div>
+
+
             {
-                erro && (
+                erro
+                && (
 
                     <div
                         className={
@@ -485,7 +1222,8 @@ function Despesas() {
 
 
             {
-                mensagem && (
+                mensagem
+                && (
 
                     <div
                         className={
@@ -515,31 +1253,12 @@ function Despesas() {
                         <thead>
 
                             <tr>
-
-                                <th>
-                                    Qtd.
-                                </th>
-
-                                <th>
-                                    Nome
-                                </th>
-
-                                <th>
-                                    Valor unitário
-                                </th>
-
-                                <th>
-                                    Valor total
-                                </th>
-
-                                <th>
-                                    Data
-                                </th>
-
-                                <th>
-                                    Ações
-                                </th>
-
+                                <th>Qtd.</th>
+                                <th>Nome</th>
+                                <th>Valor unitário</th>
+                                <th>Valor total</th>
+                                <th>Data</th>
+                                <th>Ações</th>
                             </tr>
 
                         </thead>
@@ -548,7 +1267,9 @@ function Despesas() {
                         <tbody>
 
                             {
-                                despesas.length === 0
+                                despesasPaginadas.length
+                                === 0
+
                                     ? (
 
                                         <tr>
@@ -560,13 +1281,13 @@ function Despesas() {
                                                 }
                                             >
                                                 Nenhuma despesa
-                                                cadastrada.
+                                                encontrada.
                                             </td>
 
                                         </tr>
                                     )
 
-                                    : despesas.map(
+                                    : despesasPaginadas.map(
                                         (despesa) => (
 
                                             <tr
@@ -581,11 +1302,13 @@ function Despesas() {
                                                     }
                                                 </td>
 
+
                                                 <td>
                                                     {
                                                         despesa.nome
                                                     }
                                                 </td>
+
 
                                                 <td>
                                                     {
@@ -596,7 +1319,9 @@ function Despesas() {
                                                     }
                                                 </td>
 
+
                                                 <td>
+
                                                     <strong>
                                                         {
                                                             moeda(
@@ -605,7 +1330,9 @@ function Despesas() {
                                                             )
                                                         }
                                                     </strong>
+
                                                 </td>
+
 
                                                 <td>
                                                     {
@@ -614,6 +1341,7 @@ function Despesas() {
                                                         )
                                                     }
                                                 </td>
+
 
                                                 <td>
 
@@ -624,9 +1352,10 @@ function Despesas() {
                                                     >
 
                                                         <button
+                                                            type="button"
                                                             title="Editar"
                                                             onClick={() =>
-                                                                editar(
+                                                                abrirEditar(
                                                                     despesa
                                                                 )
                                                             }
@@ -638,9 +1367,10 @@ function Despesas() {
 
 
                                                         <button
+                                                            type="button"
                                                             title="Excluir"
                                                             onClick={() =>
-                                                                remover(
+                                                                abrirExcluir(
                                                                     despesa
                                                                 )
                                                             }
@@ -665,197 +1395,608 @@ function Despesas() {
 
                 </div>
 
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        setPaginaAtual
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
+
             </section>
 
 
-            <section
-                className={
-                    styles.formCard
-                }
-            >
-
-                <h2>
-
-                    {
-                        despesaEditando
-                            ? "Editar Despesa"
-                            : "Adicionar Despesa"
-                    }
-
-                </h2>
-
-
-                <form
-                    onSubmit={
-                        handleSubmit
-                    }
-                >
+            {
+                modalFormularioAberto
+                && (
 
                     <div
                         className={
-                            styles.formGrid
+                            styles.modalOverlay
                         }
                     >
 
-                        <div>
+                        <div
+                            className={
+                                styles.formModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
 
-                            <label>
-                                Quantidade *
-                            </label>
-
-                            <input
-                                type="number"
-                                name="quantidade"
-                                min="0.001"
-                                step="0.001"
-                                value={
-                                    formulario
-                                        .quantidade
+                            <div
+                                className={
+                                    styles.modalHeader
                                 }
-                                onChange={
-                                    handleChange
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        {
+                                            despesaEditando
+                                                ? "Editar Despesa"
+                                                : "Adicionar Despesa"
+                                        }
+                                    </h2>
+
+                                    <p>
+                                        {
+                                            despesaEditando
+                                                ? "Atualize os dados da despesa."
+                                                : "Cadastre uma nova despesa extra."
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharFormulario
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                    title="Fechar"
+                                >
+                                    <X
+                                        size={19}
+                                    />
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.modalBody
                                 }
-                                required
-                            />
+                            >
 
-                        </div>
+                                {
+                                    erroModal
+                                    && (
 
-
-                        <div>
-
-                            <label>
-                                Nome *
-                            </label>
-
-                            <input
-                                type="text"
-                                name="nome"
-                                placeholder={
-                                    "Ex.: Gás de cozinha"
-                                }
-                                value={
-                                    formulario.nome
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                required
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Valor unitário *
-                            </label>
-
-                            <input
-                                type="number"
-                                name="valor_unitario"
-                                min="0"
-                                step="0.01"
-                                placeholder="0,00"
-                                value={
-                                    formulario
-                                        .valor_unitario
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                required
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Valor total
-                            </label>
-
-                            <input
-                                value={
-                                    moeda(
-                                        (
-                                            Number(
-                                                formulario
-                                                    .quantidade
-                                            )
-                                            || 0
-                                        )
-                                        *
-                                        (
-                                            Number(
-                                                formulario
-                                                    .valor_unitario
-                                            )
-                                            || 0
-                                        )
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erroModal}
+                                        </div>
                                     )
                                 }
-                                disabled
-                            />
+
+
+                                <form
+                                    onSubmit={
+                                        handleSubmit
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.formGrid
+                                        }
+                                    >
+
+                                        <div>
+
+                                            <label>
+                                                Quantidade *
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                name="quantidade"
+                                                min="0.001"
+                                                step="0.001"
+                                                value={
+                                                    formulario
+                                                        .quantidade
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
+
+
+                                        <div
+                                            className={
+                                                styles.nameField
+                                            }
+                                        >
+
+                                            <label>
+                                                Nome *
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="nome"
+                                                placeholder={
+                                                    "Ex.: Gás de cozinha"
+                                                }
+                                                value={
+                                                    formulario.nome
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Valor unitário *
+                                            </label>
+
+                                            <input
+                                                type="number"
+                                                name="valor_unitario"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="0,00"
+                                                value={
+                                                    formulario
+                                                        .valor_unitario
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Valor total
+                                            </label>
+
+                                            <input
+                                                value={
+                                                    moeda(
+                                                        valorTotalFormulario
+                                                    )
+                                                }
+                                                disabled
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <p
+                                        className={
+                                            styles.info
+                                        }
+                                    >
+                                        A data será registrada
+                                        automaticamente pelo sistema.
+                                    </p>
+
+
+                                    <div
+                                        className={
+                                            styles.formActions
+                                        }
+                                    >
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.cancelButton
+                                            }
+                                            onClick={
+                                                fecharFormulario
+                                            }
+                                            disabled={
+                                                salvando
+                                            }
+                                        >
+                                            Cancelar
+                                        </button>
+
+
+                                        <button
+                                            type="submit"
+                                            className={
+                                                styles.saveButton
+                                            }
+                                            disabled={
+                                                salvando
+                                            }
+                                        >
+                                            {
+                                                salvando
+                                                    ? "Salvando..."
+                                                    : despesaEditando
+                                                        ? "Salvar alterações"
+                                                        : "Adicionar despesa"
+                                            }
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
 
                         </div>
 
                     </div>
+                )
+            }
 
 
-                    <p
-                        className={
-                            styles.info
-                        }
-                    >
-                        A data será registrada
-                        automaticamente pelo sistema.
-                    </p>
-
+            {
+                duplicadaPendente
+                && (
 
                     <div
                         className={
-                            styles.formActions
+                            styles.modalOverlay
                         }
                     >
 
-                        <button
-                            type="button"
+                        <div
                             className={
-                                styles.cancelButton
+                                styles.confirmModal
                             }
-                            onClick={
-                                cancelar
-                            }
-                        >
-                            Cancelar
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            className={
-                                styles.saveButton
-                            }
-                            disabled={
-                                salvando
-                            }
+                            role="dialog"
+                            aria-modal="true"
                         >
 
-                            {
-                                salvando
-                                    ? "Salvando..."
-                                    : "Salvar"
-                            }
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
 
-                        </button>
+                                <div>
+
+                                    <h2>
+                                        Despesa semelhante
+                                    </h2>
+
+                                    <p>
+                                        Confirme se deseja
+                                        continuar.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        cancelarDuplicada
+                                    }
+                                    disabled={
+                                        confirmandoDuplicada
+                                    }
+                                    title="Fechar"
+                                >
+                                    <X
+                                        size={19}
+                                    />
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erroModal
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erroModal}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    {
+                                        duplicadaPendente
+                                            .mensagem
+                                    }
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        formulario.nome
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    Valor total:{" "}
+                                    {
+                                        moeda(
+                                            valorTotalFormulario
+                                        )
+                                    }
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.confirmActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            cancelarDuplicada
+                                        }
+                                        disabled={
+                                            confirmandoDuplicada
+                                        }
+                                    >
+                                        Voltar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.saveButton
+                                        }
+                                        onClick={
+                                            confirmarDuplicada
+                                        }
+                                        disabled={
+                                            confirmandoDuplicada
+                                        }
+                                    >
+                                        {
+                                            confirmandoDuplicada
+                                                ? "Salvando..."
+                                                : "Salvar mesmo assim"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
+                )
+            }
 
-                </form>
 
-            </section>
+            {
+                despesaExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.confirmModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
+
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        Excluir Despesa
+                                    </h2>
+
+                                    <p>
+                                        Confirme a exclusão
+                                        deste lançamento.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharExcluir
+                                    }
+                                    disabled={
+                                        excluindo
+                                    }
+                                    title="Fechar"
+                                >
+                                    <X
+                                        size={19}
+                                    />
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erroModal
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erroModal}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    Deseja realmente excluir
+                                    a despesa:
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        despesaExcluir.nome
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    {
+                                        despesaExcluir.quantidade
+                                    }
+                                    {" × "}
+                                    {
+                                        moeda(
+                                            despesaExcluir
+                                                .valor_unitario
+                                        )
+                                    }
+                                    {" = "}
+                                    {
+                                        moeda(
+                                            despesaExcluir
+                                                .valor_total
+                                        )
+                                    }
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.confirmActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            fecharExcluir
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        Cancelar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.deleteButton
+                                        }
+                                        onClick={
+                                            confirmarExclusao
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        {
+                                            excluindo
+                                                ? "Excluindo..."
+                                                : "Excluir despesa"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
 
         </div>
     );

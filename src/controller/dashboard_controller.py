@@ -17,41 +17,44 @@ class DashboardController:
 
             data_referencia = (
                 request.args.get(
-                    "data"
+                    "data_referencia"
                 )
             )
 
 
-            dashboard = (
+            meses_grafico = (
+                request.args.get(
+                    "meses_grafico",
+                    "6"
+                )
+            )
+
+
+            ranking_periodo = (
+                request.args.get(
+                    "ranking_periodo",
+                    "MENSAL"
+                )
+            )
+
+
+            dados = (
                 DashboardService
                 .carregar(
-                    data_referencia
+                    data_referencia,
+                    meses_grafico,
+                    ranking_periodo
                 )
             )
 
 
             return jsonify(
-                dashboard
+                dados
             ), 200
 
 
-        except ValueError as erro:
+        except ValueError as error:
 
             return jsonify({
-                "erro":
-                    str(erro)
+                "erro": str(error)
             }), 400
-
-
-        except Exception as erro:
-
-            print(
-                "Erro ao carregar dashboard: "
-                f"{erro}"
-            )
-
-
-            return jsonify({
-                "erro":
-                    "Erro interno do servidor."
-            }), 500

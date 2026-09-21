@@ -8,6 +8,8 @@
     align-items: center;
     justify-content: space-between;
 
+    gap: 15px;
+
     margin-bottom: 22px;
 }
 
@@ -47,6 +49,8 @@
         var(--color-primary);
 
     color: white;
+
+    cursor: pointer;
 }
 
 
@@ -57,7 +61,7 @@
 
     gap: 15px;
 
-    margin-bottom: 18px;
+    margin-bottom: 12px;
 }
 
 
@@ -131,8 +135,87 @@
 }
 
 
-.card,
-.formCard {
+.periodBar {
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.periodButtons {
+    display: flex;
+
+    gap: 5px;
+}
+
+
+.periodButton,
+.periodActive {
+    height: 36px;
+
+    padding: 0 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 11px;
+}
+
+
+.periodButton {
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.periodActive {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.referenceInput {
+    height: 36px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    outline: none;
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+.card {
+    overflow: hidden;
+
     border:
         1px solid
         var(--color-border);
@@ -145,25 +228,20 @@
 }
 
 
-.card {
-    margin-bottom: 22px;
-}
-
-
 .tableWrapper {
     overflow-x: auto;
 }
 
 
-table {
+.card table {
     width: 100%;
 
     border-collapse: collapse;
 }
 
 
-th,
-td {
+.card th,
+.card td {
     padding: 13px 15px;
 
     border-bottom:
@@ -172,17 +250,24 @@ td {
 
     text-align: left;
 
+    white-space: nowrap;
+
     font-size: 12px;
 }
 
 
-th {
+.card th {
     background: #faf8f6;
 
     color:
         var(--color-text-light);
 
     font-size: 11px;
+}
+
+
+.card tbody tr:hover {
+    background: #fcfaf8;
 }
 
 
@@ -201,6 +286,8 @@ th {
     align-items: center;
     justify-content: center;
 
+    padding: 0;
+
     border:
         1px solid
         var(--color-border);
@@ -211,131 +298,26 @@ th {
 
     color:
         var(--color-primary);
+
+    cursor: pointer;
+}
+
+
+.actions button:hover {
+    border-color:
+        var(--color-primary);
+
+    background: #faf8f6;
 }
 
 
 .empty {
-    padding: 30px;
+    padding: 30px !important;
 
-    text-align: center;
-
-    color:
-        var(--color-text-light);
-}
-
-
-.formCard {
-    padding: 22px;
-}
-
-
-.formCard h2 {
-    margin: 0 0 20px;
-
-    font-size: 16px;
-}
-
-
-.formGrid {
-    display: grid;
-
-    grid-template-columns:
-        120px 2fr 1fr 1fr;
-
-    gap: 16px;
-}
-
-
-.formGrid div {
-    display: flex;
-
-    flex-direction: column;
-}
-
-
-.formGrid label {
-    margin-bottom: 6px;
-
-    font-size: 11px;
-
-    font-weight: 600;
-}
-
-
-.formGrid input {
-    height: 38px;
-
-    padding: 0 10px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    outline: none;
-}
-
-
-.formGrid input:focus {
-    border-color:
-        var(--color-primary);
-}
-
-
-.formGrid input:disabled {
-    background: #f7f5f3;
-
-    color:
-        var(--color-text);
-}
-
-
-.info {
-    margin-top: 12px;
+    text-align: center !important;
 
     color:
         var(--color-text-light);
-
-    font-size: 10px;
-}
-
-
-.formActions {
-    display: flex;
-    justify-content: flex-end;
-
-    gap: 8px;
-
-    margin-top: 18px;
-}
-
-
-.cancelButton,
-.saveButton {
-    min-width: 90px;
-    height: 36px;
-
-    border-radius: 5px;
-}
-
-
-.cancelButton {
-    border:
-        1px solid
-        var(--color-border);
-
-    background: white;
-}
-
-
-.saveButton {
-    border: 0;
-
-    background:
-        var(--color-primary);
-
-    color: white;
 }
 
 
@@ -367,13 +349,331 @@ th {
 }
 
 
+.modalOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background:
+        rgba(0, 0, 0, 0.45);
+}
+
+
+.formModal {
+    width:
+        min(
+            760px,
+            100%
+        );
+
+    max-height:
+        calc(100vh - 36px);
+
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.22);
+}
+
+
+.confirmModal {
+    width:
+        min(
+            470px,
+            100%
+        );
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.22);
+}
+
+
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 18px 20px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.modalHeader h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.modalHeader p {
+    margin: 4px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.closeModal {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.modalBody,
+.confirmBody {
+    padding: 20px;
+}
+
+
+.formGrid {
+    display: grid;
+
+    grid-template-columns:
+        120px
+        minmax(
+            0,
+            2fr
+        )
+        minmax(
+            0,
+            1fr
+        )
+        minmax(
+            0,
+            1fr
+        );
+
+    gap: 16px;
+}
+
+
+.formGrid > div {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.formGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.formGrid input {
+    width: 100%;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+}
+
+
+.formGrid input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.formGrid input:disabled {
+    background: #f7f5f3;
+
+    color:
+        var(--color-text);
+}
+
+
+.info {
+    margin-top: 12px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.formActions,
+.confirmActions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+.cancelButton,
+.saveButton,
+.deleteButton {
+    min-width: 105px;
+    height: 37px;
+
+    padding: 0 14px;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+
+.cancelButton {
+    border:
+        1px solid
+        var(--color-border);
+
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.saveButton {
+    border: 0;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.deleteButton {
+    border: 0;
+
+    background:
+        var(--color-danger);
+
+    color: white;
+}
+
+
+.confirmBody > p {
+    margin: 0 0 8px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.confirmBody > strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 15px;
+}
+
+
+.confirmBody > span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.cancelButton:disabled,
+.saveButton:disabled,
+.deleteButton:disabled,
+.closeModal:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
 @media (
-    max-width: 950px
+    max-width: 900px
 ) {
 
     .formGrid {
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(
+                2,
+                1fr
+            );
     }
 }
 
@@ -382,18 +682,79 @@ th {
     max-width: 650px
 ) {
 
+    .header,
     .topBar {
-        flex-direction: column;
         align-items: stretch;
+
+        flex-direction: column;
     }
 
 
+    .addButton,
     .searchBox {
         width: 100%;
     }
 
 
+    .addButton {
+        justify-content: center;
+    }
+
+
+    .totalCard {
+        min-width: 0;
+    }
+
+
+    .periodBar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .periodButtons {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                4,
+                1fr
+            );
+    }
+
+
+    .referenceInput {
+        width: 100%;
+    }
+
+
     .formGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .modalOverlay {
+        padding: 8px;
+    }
+
+
+    .formModal {
+        max-height:
+            calc(100vh - 16px);
+    }
+
+
+    .formActions,
+    .confirmActions {
+        flex-direction: column-reverse;
+    }
+
+
+    .cancelButton,
+    .saveButton,
+    .deleteButton {
+        width: 100%;
     }
 }

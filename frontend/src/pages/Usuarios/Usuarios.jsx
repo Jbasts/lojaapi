@@ -5,11 +5,12 @@ import {
 } from "react";
 
 import {
+    LoaderCircle,
     Pencil,
-    Trash2,
     Plus,
     Search,
-    LoaderCircle
+    Trash2,
+    X
 } from "lucide-react";
 
 import {
@@ -19,8 +20,11 @@ import {
     excluirCliente
 } from "../../services/clienteService";
 
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
 
-import styles from "./Usuarios.module.css";
+import styles
+    from "./Usuarios.module.css";
 
 
 const formularioInicial = {
@@ -41,40 +45,95 @@ const formularioInicial = {
 
 function Usuarios() {
 
-    const [clientes, setClientes] =
-        useState([]);
+    const [
+        clientes,
+        setClientes
+    ] = useState([]);
 
-    const [busca, setBusca] =
-        useState("");
 
-    const [formulario, setFormulario] =
-        useState(formularioInicial);
+    const [
+        busca,
+        setBusca
+    ] = useState("");
 
-    const [clienteEditando, setClienteEditando] =
-        useState(null);
 
-    const [erro, setErro] =
-        useState("");
+    const [
+        formulario,
+        setFormulario
+    ] = useState(
+        formularioInicial
+    );
 
-    const [mensagem, setMensagem] =
-        useState("");
 
-    const [carregando, setCarregando] =
-        useState(false);
+    const [
+        clienteEditando,
+        setClienteEditando
+    ] = useState(null);
 
-    const [buscandoCep, setBuscandoCep] =
-        useState(false);
 
-    const [erroCep, setErroCep] =
-        useState("");
+    const [
+        modalFormularioAberto,
+        setModalFormularioAberto
+    ] = useState(false);
+
+
+    const [
+        clienteExcluir,
+        setClienteExcluir
+    ] = useState(null);
+
+
+    const [
+        erro,
+        setErro
+    ] = useState("");
+
+
+    const [
+        mensagem,
+        setMensagem
+    ] = useState("");
+
+
+    const [
+        carregando,
+        setCarregando
+    ] = useState(false);
+
+
+    const [
+        excluindo,
+        setExcluindo
+    ] = useState(false);
+
+
+    const [
+        buscandoCep,
+        setBuscandoCep
+    ] = useState(false);
+
+
+    const [
+        erroCep,
+        setErroCep
+    ] = useState("");
+
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
+
 
     const numeroEnderecoRef =
         useRef(null);
 
-
-    // ======================================
-    // CLIENTES
-    // ======================================
 
     async function carregarClientes(
         textoBusca = ""
@@ -87,38 +146,55 @@ function Usuarios() {
                     textoBusca
                 );
 
+
             setClientes(
-                dados
+                Array.isArray(dados)
+                    ? dados
+                    : []
             );
 
-        // eslint-disable-next-line no-unused-vars
-        } catch (error) {
+        } catch {
 
             setErro(
-                "Não foi possível carregar os usuários."
+                "Não foi possível carregar "
+                + "os usuários."
             );
         }
     }
 
 
-    useEffect(() => {
+    useEffect(
+        () => {
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        carregarClientes();
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            carregarClientes();
 
-    }, []);
+        },
+        []
+    );
 
 
-    // ======================================
-    // FORMATAÇÃO DO CEP
-    // ======================================
+    function somenteNumeros(
+        valor
+    ) {
+
+        return String(
+            valor || ""
+        ).replace(
+            /\D/g,
+            ""
+        );
+    }
+
 
     function formatarCep(
         valor
     ) {
 
         const numeros =
-            valor
+            String(
+                valor || ""
+            )
                 .replace(
                     /\D/g,
                     ""
@@ -152,18 +228,13 @@ function Usuarios() {
     }
 
 
-    // ======================================
-    // CONSULTAR VIACEP
-    // ======================================
-
     async function consultarCep(
         cep
     ) {
 
         const cepNumerico =
-            cep.replace(
-                /\D/g,
-                ""
+            somenteNumeros(
+                cep
             );
 
 
@@ -230,7 +301,6 @@ function Usuarios() {
 
             setFormulario(
                 (anterior) => ({
-
                     ...anterior,
 
                     cep:
@@ -240,23 +310,19 @@ function Usuarios() {
 
                     rua:
                         dados.logradouro
-                        ||
-                        "",
+                        || "",
 
                     bairro:
                         dados.bairro
-                        ||
-                        "",
+                        || "",
 
                     cidade:
                         dados.localidade
-                        ||
-                        "",
+                        || "",
 
                     estado:
                         dados.uf
-                        ||
-                        ""
+                        || ""
                 })
             );
 
@@ -272,7 +338,6 @@ function Usuarios() {
                 100
             );
 
-
         } catch (error) {
 
             console.error(
@@ -282,9 +347,9 @@ function Usuarios() {
 
 
             setErroCep(
-                "Não foi possível consultar o CEP."
+                "Não foi possível consultar "
+                + "o CEP."
             );
-
 
         } finally {
 
@@ -295,18 +360,12 @@ function Usuarios() {
     }
 
 
-    // ======================================
-    // CONSULTAR AUTOMATICAMENTE
-    // QUANDO COMPLETAR 8 DÍGITOS
-    // ======================================
-
     useEffect(
         () => {
 
             const cepNumerico =
-                formulario.cep.replace(
-                    /\D/g,
-                    ""
+                somenteNumeros(
+                    formulario.cep
                 );
 
 
@@ -345,10 +404,6 @@ function Usuarios() {
         [formulario.cep]
     );
 
-
-    // ======================================
-    // CAMPOS DO FORMULÁRIO
-    // ======================================
 
     function handleChange(
         event
@@ -412,10 +467,6 @@ function Usuarios() {
     }
 
 
-    // ======================================
-    // BUSCA DE CLIENTES
-    // ======================================
-
     async function handleBusca(
         event
     ) {
@@ -423,9 +474,16 @@ function Usuarios() {
         const valor =
             event.target.value;
 
+
         setBusca(
             valor
         );
+
+
+        setPaginaAtual(
+            1
+        );
+
 
         await carregarClientes(
             valor
@@ -433,9 +491,53 @@ function Usuarios() {
     }
 
 
-    // ======================================
-    // EDITAR
-    // ======================================
+    function limparFormulario() {
+
+        setClienteEditando(
+            null
+        );
+
+        setFormulario(
+            formularioInicial
+        );
+
+        setErroCep("");
+    }
+
+
+    function abrirAdicionar() {
+
+        limparFormulario();
+
+        setErro("");
+
+        setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    function fecharFormulario() {
+
+        if (
+            carregando
+        ) {
+
+            return;
+        }
+
+
+        setModalFormularioAberto(
+            false
+        );
+
+        limparFormulario();
+
+        setErro("");
+    }
+
 
     function editar(
         cliente
@@ -447,7 +549,6 @@ function Usuarios() {
 
 
         setFormulario({
-
             nome:
                 cliente.nome
                 || "",
@@ -499,34 +600,151 @@ function Usuarios() {
 
 
         setErro("");
+
         setMensagem("");
+
         setErroCep("");
+
+        setModalFormularioAberto(
+            true
+        );
     }
 
 
-    // ======================================
-    // CANCELAR / NOVO
-    // ======================================
-
-    function cancelar() {
-
-        setClienteEditando(
-            null
-        );
-
-        setFormulario(
-            formularioInicial
-        );
+    function abrirExcluir(
+        cliente
+    ) {
 
         setErro("");
+
         setMensagem("");
-        setErroCep("");
+
+        setClienteExcluir(
+            cliente
+        );
     }
 
 
-    // ======================================
-    // SALVAR
-    // ======================================
+    function fecharExcluir() {
+
+        if (
+            excluindo
+        ) {
+
+            return;
+        }
+
+
+        setClienteExcluir(
+            null
+        );
+    }
+
+
+    async function validarDuplicados() {
+
+        const dados =
+            await listarClientes(
+                ""
+            );
+
+
+        const todosClientes =
+            Array.isArray(dados)
+                ? dados
+                : [];
+
+
+        const telefone =
+            somenteNumeros(
+                formulario.telefone
+            );
+
+
+        const cpf =
+            somenteNumeros(
+                formulario.cpf
+            );
+
+
+        if (
+            telefone
+        ) {
+
+            const telefoneDuplicado =
+                todosClientes.find(
+                    (cliente) => {
+
+                        return (
+                            Number(
+                                cliente.id
+                            )
+                            !==
+                            Number(
+                                clienteEditando
+                            )
+                            &&
+                            somenteNumeros(
+                                cliente.telefone
+                            )
+                            ===
+                            telefone
+                        );
+                    }
+                );
+
+
+            if (
+                telefoneDuplicado
+            ) {
+
+                throw new Error(
+                    "Já existe outro usuário "
+                    + "com esse telefone."
+                );
+            }
+        }
+
+
+        if (
+            cpf
+        ) {
+
+            const cpfDuplicado =
+                todosClientes.find(
+                    (cliente) => {
+
+                        return (
+                            Number(
+                                cliente.id
+                            )
+                            !==
+                            Number(
+                                clienteEditando
+                            )
+                            &&
+                            somenteNumeros(
+                                cliente.cpf
+                            )
+                            ===
+                            cpf
+                        );
+                    }
+                );
+
+
+            if (
+                cpfDuplicado
+            ) {
+
+                throw new Error(
+                    "Já existe outro usuário "
+                    + "com esse CPF."
+                );
+            }
+        }
+    }
+
 
     async function handleSubmit(
         event
@@ -535,13 +753,13 @@ function Usuarios() {
         event.preventDefault();
 
         setErro("");
+
         setMensagem("");
 
 
         const cepNumerico =
-            formulario.cep.replace(
-                /\D/g,
-                ""
+            somenteNumeros(
+                formulario.cep
             );
 
 
@@ -552,7 +770,8 @@ function Usuarios() {
         ) {
 
             setErro(
-                "Informe um CEP válido com 8 dígitos."
+                "Informe um CEP válido "
+                + "com 8 dígitos."
             );
 
             return;
@@ -566,7 +785,8 @@ function Usuarios() {
         ) {
 
             setErro(
-                "Informe uma UF válida para o estado."
+                "Informe uma UF válida "
+                + "para o estado."
             );
 
             return;
@@ -580,8 +800,10 @@ function Usuarios() {
 
         try {
 
-            const dadosParaSalvar = {
+            await validarDuplicados();
 
+
+            const dadosParaSalvar = {
                 ...formulario,
 
                 nome:
@@ -626,11 +848,13 @@ function Usuarios() {
                         .toUpperCase(),
 
                 numero_endereco:
-                    formulario.numero_endereco
+                    formulario
+                        .numero_endereco
                         .trim(),
 
                 complemento:
-                    formulario.complemento
+                    formulario
+                        .complemento
                         .trim()
             };
 
@@ -646,9 +870,9 @@ function Usuarios() {
 
 
                 setMensagem(
-                    "Usuário atualizado com sucesso."
+                    "Usuário atualizado "
+                    + "com sucesso."
                 );
-
 
             } else {
 
@@ -658,28 +882,26 @@ function Usuarios() {
 
 
                 setMensagem(
-                    "Usuário cadastrado com sucesso."
+                    "Usuário cadastrado "
+                    + "com sucesso."
                 );
             }
 
 
-            setClienteEditando(
-                null
+            setModalFormularioAberto(
+                false
             );
 
+            limparFormulario();
 
-            setFormulario(
-                formularioInicial
+            setPaginaAtual(
+                1
             );
-
-
-            setErroCep("");
 
 
             await carregarClientes(
                 busca
             );
-
 
         } catch (error) {
 
@@ -688,13 +910,15 @@ function Usuarios() {
                     ?.data
                     ?.erro
                 ||
-                "Não foi possível salvar o usuário.";
+                error.message
+                ||
+                "Não foi possível salvar "
+                + "o usuário.";
 
 
             setErro(
                 mensagemErro
             );
-
 
         } finally {
 
@@ -705,22 +929,10 @@ function Usuarios() {
     }
 
 
-    // ======================================
-    // EXCLUIR
-    // ======================================
-
-    async function remover(
-        cliente
-    ) {
-
-        const confirmar =
-            window.confirm(
-                `Deseja excluir ${cliente.nome} ${cliente.sobrenome}?`
-            );
-
+    async function confirmarExclusao() {
 
         if (
-            !confirmar
+            !clienteExcluir
         ) {
 
             return;
@@ -729,24 +941,39 @@ function Usuarios() {
 
         try {
 
+            setExcluindo(
+                true
+            );
+
             setErro("");
+
             setMensagem("");
 
 
             await excluirCliente(
-                cliente.id
+                clienteExcluir.id
             );
 
 
             setMensagem(
-                "Usuário excluído com sucesso."
+                "Usuário excluído "
+                + "com sucesso."
+            );
+
+
+            setClienteExcluir(
+                null
+            );
+
+
+            setPaginaAtual(
+                1
             );
 
 
             await carregarClientes(
                 busca
             );
-
 
         } catch (error) {
 
@@ -755,21 +982,89 @@ function Usuarios() {
                     ?.data
                     ?.erro
                 ||
-                "Não foi possível excluir o usuário."
+                "Não foi possível excluir "
+                + "o usuário."
+            );
+
+        } finally {
+
+            setExcluindo(
+                false
             );
         }
     }
 
 
-    // ======================================
-    // TELA
-    // ======================================
+    const totalItens =
+        clientes.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const clientesPaginados =
+        clientes.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(
+            1
+        );
+    }
+
 
     return (
 
-        <div className={styles.page}>
+        <div
+            className={
+                styles.page
+            }
+        >
 
-            <div className={styles.header}>
+            <div
+                className={
+                    styles.header
+                }
+            >
 
                 <div>
 
@@ -791,7 +1086,7 @@ function Usuarios() {
                         styles.addButton
                     }
                     onClick={
-                        cancelar
+                        abrirAdicionar
                     }
                 >
 
@@ -799,7 +1094,7 @@ function Usuarios() {
                         size={16}
                     />
 
-                    Adicionar
+                    Adicionar usuário
 
                 </button>
 
@@ -819,7 +1114,9 @@ function Usuarios() {
 
                 <input
                     type="text"
-                    placeholder="Buscar usuário..."
+                    placeholder={
+                        "Buscar usuário..."
+                    }
                     value={busca}
                     onChange={
                         handleBusca
@@ -830,21 +1127,8 @@ function Usuarios() {
 
 
             {
-                erro && (
-
-                    <div
-                        className={
-                            styles.error
-                        }
-                    >
-                        {erro}
-                    </div>
-                )
-            }
-
-
-            {
-                mensagem && (
+                mensagem
+                && (
 
                     <div
                         className={
@@ -852,6 +1136,25 @@ function Usuarios() {
                         }
                     >
                         {mensagem}
+                    </div>
+                )
+            }
+
+
+            {
+                erro
+                &&
+                !modalFormularioAberto
+                &&
+                !clienteExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.error
+                        }
+                    >
+                        {erro}
                     </div>
                 )
             }
@@ -874,39 +1177,14 @@ function Usuarios() {
                         <thead>
 
                             <tr>
-
-                                <th>
-                                    Nome
-                                </th>
-
-                                <th>
-                                    Sobrenome
-                                </th>
-
-                                <th>
-                                    Telefone
-                                </th>
-
-                                <th>
-                                    E-mail
-                                </th>
-
-                                <th>
-                                    CPF
-                                </th>
-
-                                <th>
-                                    Cidade
-                                </th>
-
-                                <th>
-                                    Estado
-                                </th>
-
-                                <th>
-                                    Ações
-                                </th>
-
+                                <th>Nome</th>
+                                <th>Sobrenome</th>
+                                <th>Telefone</th>
+                                <th>E-mail</th>
+                                <th>CPF</th>
+                                <th>Cidade</th>
+                                <th>Estado</th>
+                                <th>Ações</th>
                             </tr>
 
                         </thead>
@@ -915,7 +1193,8 @@ function Usuarios() {
                         <tbody>
 
                             {
-                                clientes.length === 0
+                                clientesPaginados.length
+                                === 0
 
                                     ? (
 
@@ -927,16 +1206,15 @@ function Usuarios() {
                                                     styles.empty
                                                 }
                                             >
-                                                Nenhum usuário encontrado.
+                                                Nenhum usuário
+                                                encontrado.
                                             </td>
 
                                         </tr>
                                     )
 
-                                    : clientes.map(
-                                        (
-                                            cliente
-                                        ) => (
+                                    : clientesPaginados.map(
+                                        (cliente) => (
 
                                             <tr
                                                 key={
@@ -1027,7 +1305,7 @@ function Usuarios() {
                                                             type="button"
                                                             title="Excluir"
                                                             onClick={() =>
-                                                                remover(
+                                                                abrirExcluir(
                                                                     cliente
                                                                 )
                                                             }
@@ -1054,414 +1332,656 @@ function Usuarios() {
 
                 </div>
 
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        setPaginaAtual
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
+
             </section>
 
 
-            <section
-                className={
-                    styles.formCard
-                }
-            >
-
-                <h2>
-
-                    {
-                        clienteEditando
-
-                            ? "Editar Usuário"
-
-                            : "Adicionar Usuário"
-                    }
-
-                </h2>
-
-
-                <form
-                    onSubmit={
-                        handleSubmit
-                    }
-                >
+            {
+                modalFormularioAberto
+                && (
 
                     <div
                         className={
-                            styles.formGrid
+                            styles.modalOverlay
                         }
                     >
 
-                        <div>
-
-                            <label>
-                                Nome *
-                            </label>
-
-                            <input
-                                name="nome"
-                                value={
-                                    formulario.nome
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                required
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Sobrenome *
-                            </label>
-
-                            <input
-                                name="sobrenome"
-                                value={
-                                    formulario.sobrenome
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                required
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Telefone
-                            </label>
-
-                            <input
-                                name="telefone"
-                                value={
-                                    formulario.telefone
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                E-mail
-                            </label>
-
-                            <input
-                                type="email"
-                                name="email"
-                                value={
-                                    formulario.email
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                CPF
-                            </label>
-
-                            <input
-                                name="cpf"
-                                value={
-                                    formulario.cpf
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                maxLength="14"
-                            />
-
-                        </div>
-
-
-                        {/* =====================
-                            CEP
-                        ===================== */}
-
-                        <div>
-
-                            <label>
-                                CEP
-                            </label>
-
+                        <div
+                            className={
+                                styles.modal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
 
                             <div
                                 className={
-                                    styles.cepInput
+                                    styles.modalHeader
                                 }
                             >
 
-                                
+                                <div>
+
+                                    <h2>
+                                        {
+                                            clienteEditando
+                                                ? "Editar usuário"
+                                                : "Adicionar usuário"
+                                        }
+                                    </h2>
+
+                                    <p>
+                                        {
+                                            clienteEditando
+                                                ? "Atualize os dados do usuário."
+                                                : "Preencha os dados do novo usuário."
+                                        }
+                                    </p>
+
+                                </div>
 
 
-                                <input
-                                    name="cep"
-                                    value={
-                                        formulario.cep
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
                                     }
-                                    onChange={
-                                        handleCepChange
+                                    onClick={
+                                        fecharFormulario
                                     }
-                                    placeholder="00000-000"
-                                    maxLength="9"
-                                    inputMode="numeric"
-                                />
+                                    disabled={
+                                        carregando
+                                    }
+                                    title="Fechar"
+                                >
 
+                                    <X
+                                        size={19}
+                                    />
 
-                                {
-                                    buscandoCep
-                                    && (
-
-                                        <LoaderCircle
-                                            size={16}
-                                            className={
-                                                styles
-                                                    .cepLoading
-                                            }
-                                        />
-                                    )
-                                }
+                                </button>
 
                             </div>
 
 
-                            {
-                                erroCep && (
+                            <div
+                                className={
+                                    styles.modalBody
+                                }
+                            >
 
-                                    <span
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
+
+
+                                <form
+                                    onSubmit={
+                                        handleSubmit
+                                    }
+                                >
+
+                                    <div
                                         className={
-                                            styles.cepError
+                                            styles.formGrid
                                         }
                                     >
-                                        {erroCep}
-                                    </span>
-                                )
-                            }
+
+                                        <div>
+
+                                            <label>
+                                                Nome *
+                                            </label>
+
+                                            <input
+                                                name="nome"
+                                                value={
+                                                    formulario.nome
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
 
 
-                            {
-                                !erroCep
-                                &&
-                                !buscandoCep
-                                &&
-                                formulario.cidade
-                                &&
-                                formulario.estado
+                                        <div>
 
-                                && (
+                                            <label>
+                                                Sobrenome *
+                                            </label>
 
-                                    <span
+                                            <input
+                                                name="sobrenome"
+                                                value={
+                                                    formulario.sobrenome
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Telefone
+                                            </label>
+
+                                            <input
+                                                name="telefone"
+                                                value={
+                                                    formulario.telefone
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                E-mail
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={
+                                                    formulario.email
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                CPF
+                                            </label>
+
+                                            <input
+                                                name="cpf"
+                                                value={
+                                                    formulario.cpf
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                maxLength="14"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                CEP
+                                            </label>
+
+                                            <div
+                                                className={
+                                                    styles.cepInput
+                                                }
+                                            >
+
+                                                <input
+                                                    name="cep"
+                                                    value={
+                                                        formulario.cep
+                                                    }
+                                                    onChange={
+                                                        handleCepChange
+                                                    }
+                                                    placeholder="00000-000"
+                                                    maxLength="9"
+                                                    inputMode="numeric"
+                                                />
+
+
+                                                {
+                                                    buscandoCep
+                                                    && (
+
+                                                        <LoaderCircle
+                                                            size={16}
+                                                            className={
+                                                                styles
+                                                                    .cepLoading
+                                                            }
+                                                        />
+                                                    )
+                                                }
+
+                                            </div>
+
+
+                                            {
+                                                erroCep
+                                                && (
+
+                                                    <span
+                                                        className={
+                                                            styles.cepError
+                                                        }
+                                                    >
+                                                        {erroCep}
+                                                    </span>
+                                                )
+                                            }
+
+
+                                            {
+                                                !erroCep
+                                                &&
+                                                !buscandoCep
+                                                &&
+                                                formulario.cidade
+                                                &&
+                                                formulario.estado
+                                                && (
+
+                                                    <span
+                                                        className={
+                                                            styles.cepSuccess
+                                                        }
+                                                    >
+                                                        Endereço encontrado.
+                                                    </span>
+                                                )
+                                            }
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Rua
+                                            </label>
+
+                                            <input
+                                                name="rua"
+                                                value={
+                                                    formulario.rua
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Bairro
+                                            </label>
+
+                                            <input
+                                                name="bairro"
+                                                value={
+                                                    formulario.bairro
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Cidade
+                                            </label>
+
+                                            <input
+                                                name="cidade"
+                                                value={
+                                                    formulario.cidade
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Estado
+                                            </label>
+
+                                            <input
+                                                name="estado"
+                                                value={
+                                                    formulario.estado
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                placeholder="RJ"
+                                                maxLength="2"
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Número
+                                            </label>
+
+                                            <input
+                                                ref={
+                                                    numeroEnderecoRef
+                                                }
+                                                name="numero_endereco"
+                                                value={
+                                                    formulario
+                                                        .numero_endereco
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Complemento
+                                            </label>
+
+                                            <input
+                                                name="complemento"
+                                                value={
+                                                    formulario
+                                                        .complemento
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <p
                                         className={
-                                            styles.cepSuccess
+                                            styles.required
                                         }
                                     >
-                                        Endereço encontrado.
-                                    </span>
-                                )
-                            }
-
-                        </div>
+                                        * Campos obrigatórios
+                                    </p>
 
 
-                        <div>
+                                    <div
+                                        className={
+                                            styles.formActions
+                                        }
+                                    >
 
-                            <label>
-                                Rua
-                            </label>
-
-                            <input
-                                name="rua"
-                                value={
-                                    formulario.rua
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Bairro
-                            </label>
-
-                            <input
-                                name="bairro"
-                                value={
-                                    formulario.bairro
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </div>
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.cancelButton
+                                            }
+                                            onClick={
+                                                fecharFormulario
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                        >
+                                            Cancelar
+                                        </button>
 
 
-                        {/* =====================
-                            CIDADE
-                        ===================== */}
+                                        <button
+                                            type="submit"
+                                            className={
+                                                styles.saveButton
+                                            }
+                                            disabled={
+                                                carregando
+                                                ||
+                                                buscandoCep
+                                            }
+                                        >
 
-                        <div>
+                                            {
+                                                carregando
+                                                    ? "Salvando..."
+                                                    : clienteEditando
+                                                        ? "Salvar alterações"
+                                                        : "Adicionar usuário"
+                                            }
 
-                            <label>
-                                Cidade
-                            </label>
+                                        </button>
 
-                            <input
-                                name="cidade"
-                                value={
-                                    formulario.cidade
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
+                                    </div>
 
-                        </div>
+                                </form>
 
-
-                        {/* =====================
-                            ESTADO
-                        ===================== */}
-
-                        <div>
-
-                            <label>
-                                Estado
-                            </label>
-
-                            <input
-                                name="estado"
-                                value={
-                                    formulario.estado
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                placeholder="RJ"
-                                maxLength="2"
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Número
-                            </label>
-
-                            <input
-                                ref={
-                                    numeroEnderecoRef
-                                }
-                                name="numero_endereco"
-                                value={
-                                    formulario
-                                        .numero_endereco
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Complemento
-                            </label>
-
-                            <input
-                                name="complemento"
-                                value={
-                                    formulario
-                                        .complemento
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                            />
+                            </div>
 
                         </div>
 
                     </div>
+                )
+            }
 
 
-                    <p
-                        className={
-                            styles.required
-                        }
-                    >
-                        * Campos obrigatórios
-                    </p>
-
+            {
+                clienteExcluir
+                && (
 
                     <div
                         className={
-                            styles.formActions
+                            styles.modalOverlay
                         }
                     >
 
-                        <button
-                            type="button"
+                        <div
                             className={
-                                styles.cancelButton
+                                styles.confirmModal
                             }
-                            onClick={
-                                cancelar
-                            }
-                        >
-                            Cancelar
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            className={
-                                styles.saveButton
-                            }
-                            disabled={
-                                carregando
-                                ||
-                                buscandoCep
-                            }
+                            role="dialog"
+                            aria-modal="true"
                         >
 
-                            {
-                                carregando
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
 
-                                    ? "Salvando..."
+                                <div>
 
-                                    : "Salvar"
-                            }
+                                    <h2>
+                                        Excluir usuário
+                                    </h2>
 
-                        </button>
+                                    <p>
+                                        Confirme a exclusão
+                                        deste cadastro.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharExcluir
+                                    }
+                                    disabled={
+                                        excluindo
+                                    }
+                                    title="Fechar"
+                                >
+
+                                    <X
+                                        size={19}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    Deseja realmente excluir
+                                    o usuário:
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        clienteExcluir.nome
+                                    }
+                                    {" "}
+                                    {
+                                        clienteExcluir.sobrenome
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    {
+                                        clienteExcluir.cpf
+                                            ? `CPF: ${clienteExcluir.cpf}`
+                                            : "CPF não informado"
+                                    }
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.formActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            fecharExcluir
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        Cancelar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.deleteButton
+                                        }
+                                        onClick={
+                                            confirmarExclusao
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        {
+                                            excluindo
+                                                ? "Excluindo..."
+                                                : "Excluir usuário"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
-
-                </form>
-
-            </section>
+                )
+            }
 
         </div>
     );

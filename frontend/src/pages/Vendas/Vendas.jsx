@@ -128,6 +128,24 @@ function Vendas() {
     ] = useState(null);
 
 
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
+
+
+    const [
+        quantidadePagina,
+        setQuantidadePagina
+    ] = useState("6");
+
+
     const [resumo, setResumo] =
         useState({
             quantidade_pedidos: 0,
@@ -254,6 +272,26 @@ function Vendas() {
     );
 
 
+    useEffect(
+        () => {
+
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setPaginaAtual(1);
+
+            setPedidoAberto(null);
+
+        },
+        [
+            periodo,
+            dia,
+            mes,
+            ano,
+            busca,
+            status
+        ]
+    );
+
+
     function moeda(valor) {
 
         return Number(
@@ -339,6 +377,144 @@ function Vendas() {
                     ? null
                     : pedidoId
         );
+    }
+
+
+    // ==============================
+    // PAGINAÇÃO
+    // ==============================
+
+    const totalItens =
+        vendas.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaExibida =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaExibida - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const vendasPaginadas =
+        vendas.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    const primeiroItem =
+        totalItens === 0
+            ? 0
+            : indiceInicial + 1;
+
+
+    const ultimoItem =
+        Math.min(
+            indiceFinal,
+            totalItens
+        );
+
+
+    function irParaPagina(
+        pagina
+    ) {
+
+        if (
+            pagina < 1
+            ||
+            pagina > totalPaginas
+        ) {
+            return;
+        }
+
+
+        setPaginaAtual(
+            pagina
+        );
+
+        setPedidoAberto(
+            null
+        );
+    }
+
+
+    function aplicarQuantidadePagina() {
+
+        const quantidade =
+            Number(
+                quantidadePagina
+            );
+
+
+        if (
+            !Number.isInteger(
+                quantidade
+            )
+            ||
+            quantidade <= 0
+        ) {
+
+            setQuantidadePagina(
+                String(
+                    itensPorPagina
+                )
+            );
+
+            return;
+        }
+
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(
+            1
+        );
+
+        setPedidoAberto(
+            null
+        );
+    }
+
+
+    function teclaQuantidadePagina(
+        event
+    ) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            aplicarQuantidadePagina();
+
+            event.currentTarget.blur();
+        }
     }
 
 
@@ -725,7 +901,7 @@ function Vendas() {
                                         </tr>
                                     )
 
-                                    : vendas.map(
+                                    : vendasPaginadas.map(
                                         (pedido) => (
 
                                             <Fragment
@@ -1216,6 +1392,186 @@ function Vendas() {
                         </tbody>
 
                     </table>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.pagination
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.paginationInfo
+                        }
+                    >
+
+                        Mostrando{" "}
+
+                        <strong>
+                            {primeiroItem}
+                        </strong>
+
+                        {" - "}
+
+                        <strong>
+                            {ultimoItem}
+                        </strong>
+
+                        {" de "}
+
+                        <strong>
+                            {totalItens}
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        className={
+                            styles.paginationControls
+                        }
+                    >
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida === 1
+                            }
+                            onClick={() =>
+                                irParaPagina(1)
+                            }
+                            title="Primeira página"
+                        >
+                            &laquo;
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida === 1
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    paginaExibida - 1
+                                )
+                            }
+                            title="Página anterior"
+                        >
+                            &lsaquo;
+                        </button>
+
+
+                        <span
+                            className={
+                                styles.paginationPage
+                            }
+                        >
+
+                            Página{" "}
+
+                            <strong>
+                                {paginaExibida}
+                            </strong>
+
+                            {" de "}
+
+                            <strong>
+                                {totalPaginas}
+                            </strong>
+
+                        </span>
+
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida
+                                === totalPaginas
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    paginaExibida + 1
+                                )
+                            }
+                            title="Próxima página"
+                        >
+                            &rsaquo;
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida
+                                === totalPaginas
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    totalPaginas
+                                )
+                            }
+                            title="Última página"
+                        >
+                            &raquo;
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        className={
+                            styles.paginationSize
+                        }
+                    >
+
+                        <label
+                            htmlFor={
+                                "itensPorPaginaVendas"
+                            }
+                        >
+                            Itens por página
+                        </label>
+
+
+                        <input
+                            id="itensPorPaginaVendas"
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={
+                                quantidadePagina
+                            }
+                            onChange={
+                                (event) =>
+                                    setQuantidadePagina(
+                                        event.target.value
+                                    )
+                            }
+                            onBlur={
+                                aplicarQuantidadePagina
+                            }
+                            onKeyDown={
+                                teclaQuantidadePagina
+                            }
+                        />
+
+                    </div>
 
                 </div>
 

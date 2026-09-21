@@ -3,6 +3,10 @@
 }
 
 
+/* ==============================
+   CABEÇALHO
+============================== */
+
 .header {
     margin-bottom: 20px;
 }
@@ -25,8 +29,14 @@
 }
 
 
+/* ==============================
+   PERÍODOS
+============================== */
+
 .periodTabs {
     display: flex;
+
+    flex-wrap: wrap;
 
     gap: 5px;
 
@@ -49,6 +59,14 @@
 
     color:
         var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.periodTabs button:hover {
+    border-color:
+        var(--color-primary);
 }
 
 
@@ -68,6 +86,7 @@
     height: 39px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -83,6 +102,9 @@
     border-radius: 6px;
 
     background: white;
+
+    color:
+        var(--color-primary);
 }
 
 
@@ -97,11 +119,18 @@
 }
 
 
+/* ==============================
+   RESUMO
+============================== */
+
 .summary {
     display: grid;
 
     grid-template-columns:
-        repeat(5, 1fr);
+        repeat(
+            5,
+            minmax(0, 1fr)
+        );
 
     gap: 12px;
 
@@ -113,6 +142,7 @@
     min-height: 100px;
 
     display: flex;
+
     flex-direction: column;
 
     padding: 15px;
@@ -152,8 +182,16 @@
 }
 
 
+/* ==============================
+   FILTROS
+============================== */
+
 .filters {
     display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
 
     gap: 10px;
 
@@ -166,6 +204,7 @@
     height: 39px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -195,6 +234,7 @@
 
 
 .filters select {
+    min-width: 145px;
     height: 39px;
 
     padding: 0 10px;
@@ -206,10 +246,34 @@
     border-radius: 6px;
 
     background: white;
+
+    color:
+        var(--color-text);
+
+    outline: none;
+
+    cursor: pointer;
 }
 
 
+.filters select:last-child {
+    min-width: 170px;
+}
+
+
+.filters select:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+/* ==============================
+   CARD
+============================== */
+
 .card {
+    overflow: hidden;
+
     border:
         1px solid
         var(--color-border);
@@ -221,6 +285,10 @@
         var(--color-surface);
 }
 
+
+/* ==============================
+   TABELA
+============================== */
 
 .tableWrapper {
     overflow-x: auto;
@@ -255,8 +323,26 @@ th {
 
     color:
         var(--color-text-light);
+
+    font-size: 9px;
 }
 
+
+.pedidoRow {
+    transition:
+        background
+        0.15s ease;
+}
+
+
+.pedidoRow:hover {
+    background: #fcfaf8;
+}
+
+
+/* ==============================
+   STATUS
+============================== */
 
 .pago,
 .pendente {
@@ -286,49 +372,20 @@ th {
 }
 
 
-.empty {
-    padding: 35px !important;
-
-    text-align: center !important;
-
-    color:
-        var(--color-text-light);
-}
-
-
-.error {
-    margin-bottom: 15px;
-
-    padding: 11px 14px;
-
-    border-radius: 6px;
-
-    background: #fbe8e8;
-
-    color:
-        var(--color-danger);
-
-    font-size: 12px;
-}
-
-.pedidoRow {
-    transition:
-        background 0.15s ease;
-}
-
-
-.pedidoRow:hover {
-    background: #fcfaf8;
-}
-
+/* ==============================
+   EXPANDIR
+============================== */
 
 .expandButton {
     width: 30px;
     height: 30px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
+
+    padding: 0;
 
     border:
         1px solid
@@ -342,10 +399,19 @@ th {
         var(--color-primary);
 
     cursor: pointer;
+
+    transition:
+        background
+        0.15s ease,
+        border-color
+        0.15s ease;
 }
 
 
 .expandButton:hover {
+    border-color:
+        var(--color-primary);
+
     background: #f7f3ef;
 }
 
@@ -368,6 +434,10 @@ th {
 }
 
 
+/* ==============================
+   DETALHES
+============================== */
+
 .detailsRow > td {
     padding: 0 !important;
 
@@ -376,14 +446,20 @@ th {
 
 
 .detailsContainer {
-    padding: 18px 25px 22px;
+    padding:
+        18px
+        25px
+        22px;
 }
 
 
 .detailsHeader {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
+
+    gap: 15px;
 
     margin-bottom: 14px;
 }
@@ -391,9 +467,10 @@ th {
 
 .detailsHeader > div:first-child {
     display: flex;
+
     flex-direction: column;
 
-    gap: 3px;
+    gap: 4px;
 }
 
 
@@ -412,9 +489,12 @@ th {
 
 .paymentInfo {
     display: flex;
+
     align-items: center;
 
-    gap: 5px;
+    flex-wrap: wrap;
+
+    gap: 7px;
 }
 
 
@@ -437,6 +517,11 @@ th {
 }
 
 
+.detailsTable {
+    width: 100%;
+}
+
+
 .detailsTable th,
 .detailsTable td {
     padding: 10px 12px;
@@ -452,152 +537,10 @@ th {
 
 .detailsTotals {
     display: flex;
+
     justify-content: flex-end;
 
-    gap: 10px;
-
-    margin-top: 14px;
-}
-
-
-.detailsTotals > div {
-    min-width: 125px;
-
-    padding: 10px 12px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    background: white;
-}
-
-
-.detailsTotals span {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color:
-        var(--color-text-light);
-
-    font-size: 9px;
-}
-
-
-.detailsTotals strong {
-    font-size: 13px;
-}
-
-.expandButton {
-    width: 30px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    background: white;
-
-    color:
-        var(--color-primary);
-
-    cursor: pointer;
-}
-
-
-.itemCount {
-    display: inline-flex;
-
-    padding: 4px 8px;
-
-    border-radius: 20px;
-
-    background: #f3efeb;
-
-    color:
-        var(--color-primary);
-
-    font-size: 9px;
-
-    font-weight: 600;
-}
-
-
-.detailsRow > td {
-    padding: 0 !important;
-
-    background: #faf8f6;
-}
-
-
-.detailsContainer {
-    padding: 18px 25px 22px;
-}
-
-
-.detailsHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 14px;
-}
-
-
-.detailsHeader > div:first-child {
-    display: flex;
-    flex-direction: column;
-
-    gap: 4px;
-}
-
-
-.detailsHeader span {
-    color:
-        var(--color-text-light);
-
-    font-size: 10px;
-}
-
-
-.paymentInfo {
-    display: flex;
-    align-items: center;
-
-    gap: 7px;
-}
-
-
-.detailsTableWrapper {
-    overflow-x: auto;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 6px;
-
-    background: white;
-}
-
-
-.detailsTable {
-    width: 100%;
-}
-
-
-.detailsTotals {
-    display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
 
     gap: 10px;
 
@@ -638,13 +581,263 @@ th {
     font-size: 13px;
 }
 
-@media (max-width: 700px) {
+
+/* ==============================
+   MENSAGENS
+============================== */
+
+.empty {
+    padding: 35px !important;
+
+    text-align: center !important;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.error {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 12px;
+}
+
+
+/* ==============================
+   PAGINAÇÃO
+============================== */
+
+.pagination {
+    min-height: 60px;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        auto
+        1fr;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 12px 16px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+}
+
+
+.paginationInfo {
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationInfo strong {
+    color:
+        var(--color-text);
+}
+
+
+.paginationControls {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+}
+
+
+.paginationButton {
+    width: 31px;
+    height: 31px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+
+    font-size: 17px;
+}
+
+
+.paginationButton:hover:not(:disabled) {
+    border-color:
+        var(--color-primary);
+
+    color:
+        var(--color-primary);
+
+    background: #faf8f6;
+}
+
+
+.paginationButton:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.35;
+}
+
+
+.paginationPage {
+    min-width: 105px;
+
+    text-align: center;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationPage strong {
+    color:
+        var(--color-text);
+}
+
+
+.paginationSize {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+
+.paginationSize label {
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationSize input {
+    width: 65px;
+    height: 31px;
+
+    padding: 0 8px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 11px;
+}
+
+
+.paginationSize input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+/* ==============================
+   RESPONSIVO
+============================== */
+
+@media (
+    max-width: 1100px
+) {
+
+    .summary {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+
+@media (
+    max-width: 700px
+) {
+
+    .summary {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .filters {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .searchBox {
+        width: 100%;
+    }
+
+
+    .filters select {
+        width: 100%;
+    }
+
+
+    .periodFilter {
+        width: 100%;
+    }
+
 
     .detailsHeader {
         align-items: flex-start;
-        flex-direction: column;
 
-        gap: 10px;
+        flex-direction: column;
+    }
+
+
+    .paymentInfo {
+        align-items: flex-start;
+
+        flex-direction: column;
     }
 
 
@@ -658,29 +851,51 @@ th {
     }
 }
 
-@media (max-width: 1100px) {
+
+@media (
+    max-width: 480px
+) {
 
     .summary {
         grid-template-columns:
-            repeat(3, 1fr);
+            1fr;
+    }
+
+
+    .periodTabs {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+
+    .periodTabs button {
+        padding: 0 8px;
     }
 }
 
 
-@media (max-width: 700px) {
+@media (
+    max-width: 700px
+) {
 
-    .summary {
-        grid-template-columns:
-            repeat(2, 1fr);
+    .pagination {
+        grid-template-columns: 1fr;
+
+        justify-items: center;
     }
 
 
-    .filters {
-        flex-direction: column;
+    .paginationInfo {
+        text-align: center;
     }
 
 
-    .searchBox {
-        width: 100%;
+    .paginationSize {
+        justify-content: center;
     }
 }

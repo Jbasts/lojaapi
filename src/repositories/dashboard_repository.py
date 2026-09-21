@@ -1,19 +1,21 @@
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import (
+    RealDictCursor
+)
 
-from src.database import get_connection
+from src.database import (
+    get_connection
+)
 
 
 class DashboardRepository:
 
+
     # ==========================================
-    # ÚLTIMOS RECEBIMENTOS DO MÊS
+    # PRIMEIRO RECEBIMENTO REGISTRADO
     # ==========================================
 
     @staticmethod
-    def ultimos_recebimentos(
-        data_referencia,
-        limite=5
-    ):
+    def primeira_data_recebimento():
 
         connection = get_connection()
 
@@ -26,9 +28,75 @@ class DashboardRepository:
                 cursor.execute(
                     """
                     SELECT
+                        MIN(
+                            data_pagamento
+                        )::date
+                        AS primeira_data
+
+                    FROM pagamentos
+
+                    WHERE
+                        status = 'PAGO'
+
+                        AND data_pagamento
+                            IS NOT NULL
+                    """
+                )
+
+
+                registro = (
+                    cursor.fetchone()
+                )
+
+
+                if (
+                    not registro
+                    or not registro[
+                        "primeira_data"
+                    ]
+                ):
+
+                    return None
+
+
+                return registro[
+                    "primeira_data"
+                ]
+
+        finally:
+
+            connection.close()
+
+
+    # ==========================================
+    # RECEBIMENTOS DO MÊS
+    # ==========================================
+
+    @staticmethod
+    def ultimos_recebimentos(
+        data_referencia
+    ):
+
+        connection = (
+            get_connection()
+        )
+
+
+        try:
+
+            with connection.cursor(
+                cursor_factory=
+                    RealDictCursor
+            ) as cursor:
+
+                cursor.execute(
+                    """
+                    SELECT
                         pg.id,
                         pg.pedido_id,
-                        p.numero AS numero_pedido,
+
+                        p.numero
+                            AS numero_pedido,
 
                         CONCAT(
                             c.nome,
@@ -67,14 +135,13 @@ class DashboardRepository:
                         )
 
                     ORDER BY
-                        pg.data_pagamento DESC,
-                        pg.id DESC
+                        pg.data_pagamento
+                            DESC,
 
-                    LIMIT %s
+                        pg.id DESC
                     """,
                     (
                         data_referencia,
-                        limite
                     )
                 )
 

@@ -27,11 +27,23 @@ class DesperdicioController:
                 "motivo"
             )
 
+            periodo = request.args.get(
+                "periodo",
+                "TOTAL"
+            )
+
+            referencia = request.args.get(
+                "referencia"
+            )
+
+
             dados = (
                 DesperdicioService
                 .listar(
-                    busca,
-                    motivo
+                    busca=busca,
+                    motivo=motivo,
+                    periodo=periodo,
+                    referencia=referencia
                 )
             )
 

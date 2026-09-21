@@ -63,3 +63,59 @@ def retirar_para_uso():
         EstoqueController
         .retirar_para_uso()
     )
+
+
+@estoque_bp.route(
+    "/retiradas",
+    methods=["GET"]
+)
+@jwt_required()
+def listar_retiradas():
+
+    return (
+        EstoqueController
+        .listar_retiradas()
+    )
+
+
+@estoque_bp.route(
+    "/receitas",
+    methods=["GET"]
+)
+@jwt_required()
+def listar_receitas():
+
+    return (
+        EstoqueController
+        .listar_receitas()
+    )
+
+
+@estoque_bp.route(
+    "/receitas/<int:produto_id>",
+    methods=["GET"]
+)
+@jwt_required()
+def buscar_receita(
+    produto_id
+):
+
+    return (
+        EstoqueController
+        .buscar_receita(
+            produto_id
+        )
+    )
+
+
+@estoque_bp.route(
+    "/retirar-receita",
+    methods=["POST"]
+)
+@jwt_required()
+def retirar_por_receita():
+
+    return (
+        EstoqueController
+        .retirar_por_receita()
+    )

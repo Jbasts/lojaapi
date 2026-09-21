@@ -1,16 +1,31 @@
+
 .page {
     width: 100%;
 }
 
+
+/* ==============================
+   CABEÇALHO
+============================== */
+
 .header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
     margin-bottom: 22px;
 }
+
 
 .header h1 {
     margin: 0;
 
     font-size: 24px;
 }
+
 
 .header p {
     margin: 5px 0 0;
@@ -21,19 +36,503 @@
     font-size: 13px;
 }
 
+
+.newOrderButton {
+    min-height: 39px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.newOrderButton:hover {
+    opacity: 0.92;
+}
+
+
+/* ==============================
+   MENSAGENS
+============================== */
+
+.error,
+.success {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+
+.error {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+.success {
+    background: #e7f5ec;
+
+    color:
+        var(--color-success);
+}
+
+
+/* ==============================
+   FORMULÁRIO
+============================== */
+
+.formCard,
+.modalForm {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    background:
+        var(--color-surface);
+}
+
+
+.formCard {
+    margin-bottom: 28px;
+
+    padding: 22px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+}
+
+
+.modalForm {
+    padding: 0;
+}
+
+
+.formHeader {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+
+.formHeader h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.formHeader p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.formCard h3,
+.modalForm h3 {
+    margin: 0 0 12px;
+
+    font-size: 13px;
+}
+
+
+/* ==============================
+   CLIENTE
+============================== */
+
+.customer {
+    width: min(
+        100%,
+        500px
+    );
+
+    display: flex;
+
+    flex-direction: column;
+
+    margin-bottom: 24px;
+}
+
+
+.customer label,
+.itemGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.customer select,
+.itemGrid input,
+.itemGrid select {
+    width: 100%;
+    height: 38px;
+
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    outline: none;
+}
+
+
+.customer select:focus,
+.itemGrid input:focus,
+.itemGrid select:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.itemGrid input:disabled {
+    background: #f5f3f1;
+
+    color:
+        var(--color-text-light);
+
+    cursor: not-allowed;
+}
+
+
+/* ==============================
+   GRID DO PRODUTO
+
+   12 COLUNAS:
+   evita desconto e botão
+   saírem do container
+============================== */
+
+.itemGrid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            12,
+            minmax(0, 1fr)
+        );
+
+    gap: 10px;
+
+    align-items: end;
+
+    margin-bottom: 22px;
+}
+
+
+.itemGrid > div {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.productField {
+    grid-column:
+        span 3;
+}
+
+
+.quantityField {
+    grid-column:
+        span 1;
+}
+
+
+.valueField {
+    grid-column:
+        span 2;
+}
+
+
+.discountTypeField {
+    grid-column:
+        span 2;
+}
+
+
+.discountValueField {
+    grid-column:
+        span 2;
+}
+
+
+.addItem {
+    grid-column:
+        span 2;
+
+    width: 100%;
+    height: 38px;
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 0 12px;
+
+    border: 0;
+
+    border-radius: 5px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+}
+
+
+.addItem:hover {
+    opacity: 0.92;
+}
+
+
+/* ==============================
+   ITENS
+============================== */
+
+.itemsArea {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+}
+
+
+.itemsArea table {
+    min-width: 780px;
+}
+
+
+/* ==============================
+   RESUMO
+============================== */
+
+.summary {
+    display: flex;
+
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 20px;
+}
+
+
+.summary > div {
+    min-width: 150px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: #faf8f6;
+}
+
+
+.summary span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.summary strong {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 16px;
+}
+
+
+/* ==============================
+   AÇÕES DO FORMULÁRIO
+============================== */
+
+.formActions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+
+.cancelButton,
+.saveButton {
+    min-height: 38px;
+
+    padding: 0 15px;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+
+.cancelButton {
+    border:
+        1px solid
+        var(--color-border);
+
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.saveButton {
+    border: 0;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.cancelButton:disabled,
+.saveButton:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+/* ==============================
+   LISTA DE PEDIDOS
+============================== */
+
+.listSectionHeader {
+    margin:
+        0
+        0
+        12px;
+}
+
+
+.listSectionHeader h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.listSectionHeader p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+/* ==============================
+   FILTROS
+============================== */
+
 .filters {
     display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
 
     gap: 10px;
 
     margin-bottom: 18px;
 }
 
+
 .searchBox {
     width: 400px;
     height: 39px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -50,14 +549,25 @@
         var(--color-surface);
 }
 
+
+.searchBox svg {
+    flex-shrink: 0;
+
+    color:
+        var(--color-text-light);
+}
+
+
 .searchBox input {
     width: 100%;
 
     border: 0;
+
     outline: none;
 
     background: transparent;
 }
+
 
 .filters > select {
     height: 39px;
@@ -71,10 +581,130 @@
     border-radius: 6px;
 
     background: white;
+
+    color:
+        var(--color-text);
+
+    outline: none;
 }
 
-.card,
-.formCard {
+
+.dateFilters {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin: -6px 0 18px;
+}
+
+
+.dateTabs {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+}
+
+
+.dateTabs button {
+    min-height: 35px;
+
+    padding: 0 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+
+    font-size: 10px;
+}
+
+
+.dateTabs button:hover {
+    border-color:
+        var(--color-primary);
+}
+
+
+.dateTabs .activeDateTab {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.dateReference {
+    min-height: 39px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.dateReference span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.dateReference input {
+    height: 30px;
+
+    min-width: 125px;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+
+    color:
+        var(--color-text);
+}
+
+
+/* ==============================
+   CARD / TABELA
+============================== */
+
+.card {
+    overflow: hidden;
+
+    margin-bottom: 22px;
+
     border:
         1px solid
         var(--color-border);
@@ -86,19 +716,18 @@
         var(--color-surface);
 }
 
-.card {
-    margin-bottom: 22px;
-}
 
 .tableWrapper {
     overflow-x: auto;
 }
+
 
 table {
     width: 100%;
 
     border-collapse: collapse;
 }
+
 
 th,
 td {
@@ -115,6 +744,7 @@ td {
     font-size: 10px;
 }
 
+
 th {
     background: #faf8f6;
 
@@ -122,32 +752,22 @@ th {
         var(--color-text-light);
 }
 
-.actions {
-    display: flex;
 
-    gap: 5px;
-}
+.empty {
+    padding: 30px
+        !important;
 
-.actions button,
-.removeItem {
-    width: 30px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    background: white;
+    text-align: center
+        !important;
 
     color:
-        var(--color-primary);
+        var(--color-text-light);
 }
+
+
+/* ==============================
+   STATUS
+============================== */
 
 .aberto,
 .concluido,
@@ -164,12 +784,14 @@ th {
     font-weight: 600;
 }
 
+
 .aberto,
 .pendente {
     background: #f6eedf;
 
     color: #98701f;
 }
+
 
 .concluido,
 .pago {
@@ -178,15 +800,93 @@ th {
     color: #277347;
 }
 
+
+/* ==============================
+   BOTÕES DE AÇÃO
+============================== */
+
+.actions {
+    display: flex;
+
+    flex-wrap: nowrap;
+
+    gap: 5px;
+}
+
+
+.actions button,
+.removeItem {
+    width: 30px;
+    height: 30px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+}
+
+
+.actions button:hover,
+.removeItem:hover {
+    border-color:
+        var(--color-primary);
+
+    background: #f7f3ef;
+}
+
+
+.pdfButton {
+    background: #faf7f4 !important;
+
+    color:
+        var(--color-primary)
+        !important;
+}
+
+
+.pdfButton:hover {
+    background: #f3ece6
+        !important;
+}
+
+
+/* ==============================
+   DETALHES
+============================== */
+
 .details {
-    padding: 15px 25px !important;
+    padding:
+        15px
+        25px
+        !important;
 
     background: #faf8f6;
 }
 
+
 .innerTable {
+    min-width: 700px;
+
     background: white;
 }
+
 
 .innerTable th,
 .innerTable td {
@@ -197,255 +897,351 @@ th {
         var(--color-border);
 }
 
-.empty {
-    padding: 30px !important;
 
-    text-align: center !important;
+/* ==============================
+   MODAL DE EDIÇÃO
+============================== */
 
-    color:
-        var(--color-text-light);
-}
+.modalOverlay {
+    position: fixed;
 
-.formCard {
-    padding: 22px;
-}
+    inset: 0;
 
-.formHeader {
+    z-index: 2000;
+
     display: flex;
 
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
 
-    margin-bottom: 20px;
-}
-
-.formHeader h2 {
-    margin: 0;
-
-    font-size: 17px;
-}
-
-.customer {
-    max-width: 500px;
-
-    display: flex;
-    flex-direction: column;
-
-    margin-bottom: 24px;
-}
-
-.customer label,
-.itemGrid label {
-    margin-bottom: 6px;
-
-    font-size: 11px;
-
-    font-weight: 600;
-}
-
-.customer select,
-.itemGrid input,
-.itemGrid select {
-    height: 38px;
-
-    padding: 0 10px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    background: white;
-
-    outline: none;
-}
-
-.formCard h3 {
-    margin: 0 0 12px;
-
-    font-size: 13px;
-}
-
-.itemGrid {
-    display: grid;
-
-    grid-template-columns:
-        2fr
-        0.7fr
-        1fr
-        1fr
-        1fr
-        auto;
-
-    gap: 10px;
-
-    align-items: end;
-
-    margin-bottom: 22px;
-}
-
-.itemGrid div {
-    display: flex;
-
-    flex-direction: column;
-}
-
-.addItem {
-    height: 38px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 5px;
-
-    padding: 0 13px;
-
-    border: 0;
-
-    border-radius: 5px;
+    padding: 24px;
 
     background:
-        var(--color-primary);
-
-    color: white;
+        rgba(
+            0,
+            0,
+            0,
+            0.48
+        );
 }
 
-.itemsArea {
-    overflow-x: auto;
 
-    border:
-        1px solid
-        var(--color-border);
+.modal {
+    width: min(
+        1180px,
+        100%
+    );
 
-    border-radius: 6px;
-}
+    max-height:
+        calc(
+            100vh
+            -
+            48px
+        );
 
-.summary {
     display: flex;
 
-    justify-content: flex-end;
+    flex-direction: column;
 
-    gap: 12px;
-
-    margin-top: 20px;
-}
-
-.summary div {
-    min-width: 150px;
-
-    padding: 13px;
+    overflow: hidden;
 
     border:
         1px solid
         var(--color-border);
 
-    border-radius: 6px;
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0
+        24px
+        60px
+        rgba(
+            0,
+            0,
+            0,
+            0.22
+        );
+}
+
+
+.modalHeader {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 20px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
 
     background: #faf8f6;
 }
 
-.summary span {
-    display: block;
+
+.modalHeader h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+
+.modalHeader p {
+    margin: 5px 0 0;
 
     color:
         var(--color-text-light);
 
-    font-size: 9px;
+    font-size: 11px;
 }
 
-.summary strong {
-    display: block;
 
-    margin-top: 5px;
+.closeModal {
+    width: 34px;
+    height: 34px;
 
-    font-size: 16px;
-}
+    flex-shrink: 0;
 
-.formActions {
     display: flex;
 
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: center;
 
-    gap: 8px;
+    padding: 0;
 
-    margin-top: 20px;
-}
-
-.cancelButton,
-.saveButton {
-    height: 38px;
-
-    padding: 0 15px;
-
-    border-radius: 5px;
-}
-
-.cancelButton {
     border:
         1px solid
         var(--color-border);
 
-    background: white;
-}
-
-.saveButton {
-    border: 0;
-
-    background:
-        var(--color-primary);
-
-    color: white;
-}
-
-.error,
-.success {
-    margin-bottom: 15px;
-
-    padding: 11px 14px;
-
     border-radius: 6px;
 
-    font-size: 12px;
-}
-
-.error {
-    background: #fbe8e8;
+    background: white;
 
     color:
-        var(--color-danger);
+        var(--color-text);
+
+    cursor: pointer;
 }
 
-.success {
-    background: #e7f5ec;
+
+.closeModal:hover {
+    border-color:
+        var(--color-primary);
 
     color:
-        var(--color-success);
+        var(--color-primary);
 }
 
-@media (max-width: 1200px) {
+
+.closeModal:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+.modalBody {
+    overflow-y: auto;
+
+    padding: 20px;
+}
+
+
+/* ==============================
+   RESPONSIVO
+============================== */
+
+@media (
+    max-width: 1200px
+) {
 
     .itemGrid {
         grid-template-columns:
-            repeat(3, 1fr);
+            repeat(
+                6,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .productField {
+        grid-column:
+            span 3;
+    }
+
+
+    .quantityField {
+        grid-column:
+            span 1;
+    }
+
+
+    .valueField {
+        grid-column:
+            span 2;
+    }
+
+
+    .discountTypeField {
+        grid-column:
+            span 2;
+    }
+
+
+    .discountValueField {
+        grid-column:
+            span 2;
+    }
+
+
+    .addItem {
+        grid-column:
+            span 2;
     }
 }
 
-@media (max-width: 750px) {
+
+@media (
+    max-width: 750px
+) {
 
     .filters {
         flex-direction: column;
+
+        align-items: stretch;
     }
 
-    .searchBox {
+
+    .searchBox,
+    .filters > select {
         width: 100%;
+
+        box-sizing: border-box;
     }
+
 
     .itemGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
     }
+
+
+    .productField,
+    .quantityField,
+    .valueField,
+    .discountTypeField,
+    .discountValueField,
+    .addItem {
+        grid-column:
+            span 1;
+    }
+
 
     .summary {
         flex-direction: column;
+    }
+
+
+    .summary > div {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+
+    .formActions {
+        flex-direction:
+            column-reverse;
+    }
+
+
+    .formActions button {
+        width: 100%;
+    }
+
+
+    .modalOverlay {
+        align-items: stretch;
+
+        padding: 10px;
+    }
+
+
+    .modal {
+        max-height:
+            calc(
+                100vh
+                -
+                20px
+            );
+    }
+
+
+    .modalHeader {
+        padding: 15px;
+    }
+
+
+    .modalBody {
+        padding: 15px;
+    }
+}
+
+
+
+@media (
+    max-width: 700px
+) {
+
+    .header {
+        flex-direction: column;
+    }
+
+
+    .newOrderButton {
+        width: 100%;
+    }
+
+
+    .dateFilters {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .dateTabs {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    .dateTabs button {
+        width: 100%;
+    }
+
+
+    .dateReference {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+
+    .dateReference input {
+        flex: 1;
+
+        min-width: 0;
     }
 }

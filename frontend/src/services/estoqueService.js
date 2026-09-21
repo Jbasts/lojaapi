@@ -58,3 +58,57 @@ export async function retirarProdutoEstoque(
 
     return response.data;
 }
+
+
+export async function listarReceitasEstoque() {
+
+    const response = await api.get(
+        "/estoque/receitas"
+    );
+
+    return response.data;
+}
+
+
+export async function buscarReceitaEstoque(
+    produtoVendaId
+) {
+
+    const response = await api.get(
+        `/estoque/receitas/${produtoVendaId}`
+    );
+
+    return response.data;
+}
+
+
+export async function retirarReceitaEstoque(
+    dados
+) {
+
+    const response = await api.post(
+        "/estoque/retirar-receita",
+        dados
+    );
+
+    return response.data;
+}
+
+
+export async function listarRetiradasEstoque(
+    periodo = "DIARIO",
+    referencia = ""
+) {
+
+    const response = await api.get(
+        "/estoque/retiradas",
+        {
+            params: {
+                periodo,
+                referencia
+            }
+        }
+    );
+
+    return response.data;
+}

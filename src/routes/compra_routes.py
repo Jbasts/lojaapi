@@ -66,3 +66,15 @@ def excluir(compra_id):
     return CompraController.excluir(
         compra_id
     )
+
+@compra_bp.route(
+    "/ler-nota",
+    methods=["POST"]
+)
+@jwt_required()
+def ler_nota():
+
+    return (
+        CompraController
+        .ler_nota()
+    )

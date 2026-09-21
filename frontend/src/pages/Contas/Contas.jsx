@@ -24,7 +24,11 @@ import {
     listarContas
 } from "../../services/contaService";
 
-import styles from "./Contas.module.css";
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
+
+import styles
+    from "./Contas.module.css";
 
 
 function dataLocalAtual() {
@@ -49,6 +53,7 @@ function dataLocalAtual() {
             2,
             "0"
         );
+
 
     return `${ano}-${mes}-${dia}`;
 }
@@ -76,9 +81,9 @@ function Contas() {
         );
 
 
-    // =========================
+    // ==========================================
     // PERÍODO
-    // =========================
+    // ==========================================
 
     const [
         periodo,
@@ -118,9 +123,9 @@ function Contas() {
     );
 
 
-    // =========================
+    // ==========================================
     // FILTROS
-    // =========================
+    // ==========================================
 
     const [
         busca,
@@ -140,9 +145,15 @@ function Contas() {
     ] = useState("");
 
 
-    // =========================
+    const [
+        ordenacao,
+        setOrdenacao
+    ] = useState("");
+
+
+    // ==========================================
     // DADOS
-    // =========================
+    // ==========================================
 
     const [
         movimentos,
@@ -175,9 +186,9 @@ function Contas() {
     });
 
 
-    // =========================
+    // ==========================================
     // DETALHES DAS COMPRAS
-    // =========================
+    // ==========================================
 
     const [
         compraAberta,
@@ -201,9 +212,9 @@ function Contas() {
     );
 
 
-    // =========================
+    // ==========================================
     // MENSAGENS
-    // =========================
+    // ==========================================
 
     const [
         erro,
@@ -211,17 +222,32 @@ function Contas() {
     ] = useState("");
 
 
-    // =========================
+    // ==========================================
+    // PAGINAÇÃO
+    // ==========================================
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
+
+
+    // ==========================================
     // DATA DE REFERÊNCIA
-    // =========================
+    // ==========================================
 
     const referencia =
         useMemo(
             () => {
 
                 if (
-                    periodo
-                    === "DIARIO"
+                    periodo === "DIARIO"
                 ) {
 
                     return dia;
@@ -229,8 +255,7 @@ function Contas() {
 
 
                 if (
-                    periodo
-                    === "MENSAL"
+                    periodo === "MENSAL"
                 ) {
 
                     return `${mes}-01`;
@@ -249,9 +274,9 @@ function Contas() {
         );
 
 
-    // =========================
+    // ==========================================
     // CARREGAR CONTAS
-    // =========================
+    // ==========================================
 
     const carregar =
         useCallback(
@@ -283,7 +308,11 @@ function Contas() {
 
 
                     setMovimentos(
-                        dadosMovimentos
+                        Array.isArray(
+                            dadosMovimentos
+                        )
+                            ? dadosMovimentos
+                            : []
                     );
 
 
@@ -328,9 +357,9 @@ function Contas() {
     );
 
 
-    // =========================
+    // ==========================================
     // FORMATAÇÃO
-    // =========================
+    // ==========================================
 
     function moeda(
         valor
@@ -385,9 +414,37 @@ function Contas() {
     }
 
 
-    // =========================
+    // ==========================================
+    // FECHAR DETALHES / RESETAR PÁGINA
+    // ==========================================
+
+    function resetarPagina() {
+
+        setPaginaAtual(1);
+
+        setCompraAberta(null);
+    }
+
+
+    // ==========================================
+    // ALTERAR PERÍODO
+    // ==========================================
+
+    function alterarPeriodo(
+        novoPeriodo
+    ) {
+
+        setPeriodo(
+            novoPeriodo
+        );
+
+        resetarPagina();
+    }
+
+
+    // ==========================================
     // ABRIR / FECHAR COMPRA
-    // =========================
+    // ==========================================
 
     async function alternarCompra(
         movimento
@@ -396,9 +453,6 @@ function Contas() {
         const compraId =
             movimento.origem_id;
 
-
-        // Se já estiver aberta,
-        // apenas fecha.
 
         if (
             compraAberta
@@ -417,10 +471,6 @@ function Contas() {
 
             setErro("");
 
-
-            // Se os detalhes ainda
-            // não foram carregados,
-            // busca no backend.
 
             if (
                 !detalhesCompras[
@@ -480,9 +530,133 @@ function Contas() {
     }
 
 
-    // =========================
+    // ==========================================
+    // ORDENAÇÃO
+    // ==========================================
+
+    const movimentosOrdenados =
+        useMemo(
+            () => {
+
+                const lista = [
+                    ...movimentos
+                ];
+
+
+                if (
+                    ordenacao
+                    === "VALOR_MAIOR"
+                ) {
+
+                    lista.sort(
+                        (a, b) =>
+                            Number(
+                                b.valor
+                                || 0
+                            )
+                            -
+                            Number(
+                                a.valor
+                                || 0
+                            )
+                    );
+                }
+
+
+                if (
+                    ordenacao
+                    === "VALOR_MENOR"
+                ) {
+
+                    lista.sort(
+                        (a, b) =>
+                            Number(
+                                a.valor
+                                || 0
+                            )
+                            -
+                            Number(
+                                b.valor
+                                || 0
+                            )
+                    );
+                }
+
+
+                return lista;
+
+            },
+            [
+                movimentos,
+                ordenacao
+            ]
+        );
+
+
+    // ==========================================
+    // PAGINAÇÃO
+    // ==========================================
+
+    const totalItens =
+        movimentosOrdenados.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const movimentosPaginados =
+        movimentosOrdenados.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(1);
+
+        setCompraAberta(null);
+    }
+
+
+    // ==========================================
     // JSX
-    // =========================
+    // ==========================================
 
     return (
 
@@ -558,7 +732,7 @@ function Contas() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "DIARIO"
                         )
                     }
@@ -578,7 +752,7 @@ function Contas() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "MENSAL"
                         )
                     }
@@ -598,7 +772,7 @@ function Contas() {
                             : ""
                     }
                     onClick={() =>
-                        setPeriodo(
+                        alterarPeriodo(
                             "ANUAL"
                         )
                     }
@@ -634,12 +808,16 @@ function Contas() {
                             type="date"
                             value={dia}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setDia(
                                         event
                                             .target
                                             .value
-                                    )
+                                    );
+
+                                    resetarPagina();
+                                }
                             }
                         />
                     )
@@ -656,12 +834,16 @@ function Contas() {
                             type="month"
                             value={mes}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setMes(
                                         event
                                             .target
                                             .value
-                                    )
+                                    );
+
+                                    resetarPagina();
+                                }
                             }
                         />
                     )
@@ -680,12 +862,16 @@ function Contas() {
                             max="2100"
                             value={ano}
                             onChange={
-                                (event) =>
+                                (event) => {
+
                                     setAno(
                                         event
                                             .target
                                             .value
-                                    )
+                                    );
+
+                                    resetarPagina();
+                                }
                             }
                         />
                     )
@@ -832,7 +1018,8 @@ function Contas() {
 
                     <strong
                         className={
-                            resumo.saldo >= 0
+                            resumo.saldo
+                            >= 0
 
                                 ? styles.positive
 
@@ -879,12 +1066,16 @@ function Contas() {
                         }
                         value={busca}
                         onChange={
-                            (event) =>
+                            (event) => {
+
                                 setBusca(
                                     event
                                         .target
                                         .value
-                                )
+                                );
+
+                                resetarPagina();
+                            }
                         }
                     />
 
@@ -894,12 +1085,16 @@ function Contas() {
                 <select
                     value={tipo}
                     onChange={
-                        (event) =>
+                        (event) => {
+
                             setTipo(
                                 event
                                     .target
                                     .value
-                            )
+                            );
+
+                            resetarPagina();
+                        }
                     }
                 >
 
@@ -923,14 +1118,20 @@ function Contas() {
 
 
                 <select
-                    value={categoria}
+                    value={
+                        categoria
+                    }
                     onChange={
-                        (event) =>
+                        (event) => {
+
                             setCategoria(
                                 event
                                     .target
                                     .value
-                            )
+                            );
+
+                            resetarPagina();
+                        }
                     }
                 >
 
@@ -954,6 +1155,43 @@ function Contas() {
                         value="DESPESA_EXTRA"
                     >
                         Despesas extras
+                    </option>
+
+                </select>
+
+
+                <select
+                    value={
+                        ordenacao
+                    }
+                    onChange={
+                        (event) => {
+
+                            setOrdenacao(
+                                event
+                                    .target
+                                    .value
+                            );
+
+                            resetarPagina();
+                        }
+                    }
+                >
+
+                    <option value="">
+                        Ordenação padrão
+                    </option>
+
+                    <option
+                        value="VALOR_MAIOR"
+                    >
+                        Maior valor
+                    </option>
+
+                    <option
+                        value="VALOR_MENOR"
+                    >
+                        Menor valor
                     </option>
 
                 </select>
@@ -1015,7 +1253,8 @@ function Contas() {
                         <tbody>
 
                             {
-                                movimentos.length
+                                movimentosPaginados
+                                    .length
                                 === 0
 
                                     ? (
@@ -1025,7 +1264,8 @@ function Contas() {
                                             <td
                                                 colSpan="6"
                                                 className={
-                                                    styles.empty
+                                                    styles
+                                                        .empty
                                                 }
                                             >
                                                 Nenhum movimento
@@ -1036,645 +1276,649 @@ function Contas() {
                                         </tr>
                                     )
 
-                                    : movimentos.map(
-                                        (
-                                            movimento,
-                                            indice
-                                        ) => (
+                                    : movimentosPaginados
+                                        .map(
+                                            (
+                                                movimento,
+                                                indice
+                                            ) => (
 
-                                            <Fragment
-                                                key={
-                                                    `${
-                                                        movimento
-                                                            .categoria
-                                                    }-${
-                                                        movimento
-                                                            .origem_id
-                                                    }-${indice}`
-                                                }
-                                            >
-
-                                                {/* =================
-                                                    LINHA PRINCIPAL
-                                                ================= */}
-
-                                                <tr
-                                                    className={
-                                                        styles
-                                                            .mainRow
+                                                <Fragment
+                                                    key={
+                                                        `${
+                                                            movimento
+                                                                .categoria
+                                                        }-${
+                                                            movimento
+                                                                .origem_id
+                                                        }-${indice}`
                                                     }
                                                 >
 
-                                                    <td>
+                                                    {/* LINHA PRINCIPAL */}
 
-                                                        {
-                                                            dataBR(
-                                                                movimento
-                                                                    .data_movimento
-                                                            )
+                                                    <tr
+                                                        className={
+                                                            styles
+                                                                .mainRow
                                                         }
+                                                    >
 
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <span
-                                                            className={
-                                                                movimento.tipo
-                                                                === "ENTRADA"
-
-                                                                    ? styles
-                                                                        .entrada
-
-                                                                    : styles
-                                                                        .saida
-                                                            }
-                                                        >
+                                                        <td>
 
                                                             {
-                                                                movimento.tipo
-                                                                === "ENTRADA"
-
-                                                                    ? "Entrada"
-
-                                                                    : "Saída"
+                                                                dataBR(
+                                                                    movimento
+                                                                        .data_movimento
+                                                                )
                                                             }
 
-                                                        </span>
-
-                                                    </td>
+                                                        </td>
 
 
-                                                    {/* CATEGORIA */}
+                                                        <td>
 
-                                                    <td>
+                                                            <span
+                                                                className={
+                                                                    movimento
+                                                                        .tipo
+                                                                    === "ENTRADA"
 
-                                                        <div
-                                                            className={
-                                                                styles
-                                                                    .categoryCell
-                                                            }
-                                                        >
+                                                                        ? styles
+                                                                            .entrada
 
-                                                            {
-                                                                movimento
-                                                                    .categoria
-                                                                === "COMPRA"
+                                                                        : styles
+                                                                            .saida
+                                                                }
+                                                            >
 
-                                                                && (
+                                                                {
+                                                                    movimento
+                                                                        .tipo
+                                                                    === "ENTRADA"
 
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            styles
-                                                                                .expandButton
-                                                                        }
-                                                                        onClick={() =>
-                                                                            alternarCompra(
-                                                                                movimento
-                                                                            )
-                                                                        }
-                                                                        title={
-                                                                            compraAberta
-                                                                            ===
-                                                                            movimento
-                                                                                .origem_id
+                                                                        ? "Entrada"
 
-                                                                                ? "Ocultar detalhes"
+                                                                        : "Saída"
+                                                                }
 
-                                                                                : "Mostrar detalhes"
-                                                                        }
-                                                                    >
+                                                            </span>
 
-                                                                        {
-                                                                            carregandoCompra
-                                                                            ===
-                                                                            movimento
-                                                                                .origem_id
+                                                        </td>
 
-                                                                                ? (
 
-                                                                                    <span
-                                                                                        className={
-                                                                                            styles
-                                                                                                .loadingDot
-                                                                                        }
-                                                                                    >
-                                                                                        ...
-                                                                                    </span>
+                                                        {/* CATEGORIA */}
+
+                                                        <td>
+
+                                                            <div
+                                                                className={
+                                                                    styles
+                                                                        .categoryCell
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    movimento
+                                                                        .categoria
+                                                                    === "COMPRA"
+
+                                                                    && (
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                styles
+                                                                                    .expandButton
+                                                                            }
+                                                                            onClick={() =>
+                                                                                alternarCompra(
+                                                                                    movimento
                                                                                 )
+                                                                            }
+                                                                            title={
+                                                                                compraAberta
+                                                                                ===
+                                                                                movimento
+                                                                                    .origem_id
 
-                                                                                : compraAberta
+                                                                                    ? "Ocultar detalhes"
+
+                                                                                    : "Mostrar detalhes"
+                                                                            }
+                                                                        >
+
+                                                                            {
+                                                                                carregandoCompra
                                                                                 ===
                                                                                 movimento
                                                                                     .origem_id
 
                                                                                     ? (
 
-                                                                                        <ChevronUp
-                                                                                            size={16}
-                                                                                        />
+                                                                                        <span
+                                                                                            className={
+                                                                                                styles
+                                                                                                    .loadingDot
+                                                                                            }
+                                                                                        >
+                                                                                            ...
+                                                                                        </span>
                                                                                     )
 
-                                                                                    : (
-
-                                                                                        <ChevronDown
-                                                                                            size={16}
-                                                                                        />
-                                                                                    )
-                                                                        }
-
-                                                                    </button>
-                                                                )
-                                                            }
-
-
-                                                            <span>
-                                                                {
-                                                                    nomesCategorias[
-                                                                        movimento
-                                                                            .categoria
-                                                                    ]
-
-                                                                    ||
-
-                                                                    movimento
-                                                                        .categoria
-                                                                }
-                                                            </span>
-
-                                                        </div>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <strong>
-                                                            {
-                                                                movimento
-                                                                    .referencia
-                                                            }
-                                                        </strong>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            movimento
-                                                                .descricao
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <strong
-                                                            className={
-                                                                movimento.tipo
-                                                                === "ENTRADA"
-
-                                                                    ? styles
-                                                                        .positive
-
-                                                                    : styles
-                                                                        .negative
-                                                            }
-                                                        >
-
-                                                            {
-                                                                movimento.tipo
-                                                                === "ENTRADA"
-
-                                                                    ? "+"
-                                                                    : "-"
-                                                            }
-
-                                                            {
-                                                                moeda(
-                                                                    movimento
-                                                                        .valor
-                                                                )
-                                                            }
-
-                                                        </strong>
-
-                                                    </td>
-
-                                                </tr>
-
-
-                                                {/* =================
-                                                    DETALHES COMPRA
-                                                ================= */}
-
-                                                {
-                                                    movimento
-                                                        .categoria
-                                                    === "COMPRA"
-
-                                                    &&
-
-                                                    compraAberta
-                                                    ===
-                                                    movimento
-                                                        .origem_id
-
-                                                    &&
-
-                                                    detalhesCompras[
-                                                        movimento
-                                                            .origem_id
-                                                    ]
-
-                                                    && (
-
-                                                        <tr
-                                                            className={
-                                                                styles
-                                                                    .detailsRow
-                                                            }
-                                                        >
-
-                                                            <td
-                                                                colSpan="6"
-                                                            >
-
-                                                                <div
-                                                                    className={
-                                                                        styles
-                                                                            .purchaseDetails
-                                                                    }
-                                                                >
-
-                                                                    {/* CABEÇALHO */}
-
-                                                                    <div
-                                                                        className={
-                                                                            styles
-                                                                                .detailsHeader
-                                                                        }
-                                                                    >
-
-                                                                        <div>
-
-                                                                            <strong>
-                                                                                Compra #
-                                                                                {
-                                                                                    detalhesCompras[
-                                                                                        movimento
-                                                                                            .origem_id
-                                                                                    ]
-                                                                                    .numero
-                                                                                }
-                                                                            </strong>
-
-                                                                            <span>
-
-                                                                                Data:{" "}
-
-                                                                                {
-                                                                                    dataBR(
-                                                                                        detalhesCompras[
-                                                                                            movimento
-                                                                                                .origem_id
-                                                                                        ]
-                                                                                        .data_compra
-                                                                                    )
-                                                                                }
-
-                                                                            </span>
-
-                                                                        </div>
-
-
-                                                                        <span
-                                                                            className={
-                                                                                styles
-                                                                                    .purchaseStatus
-                                                                            }
-                                                                        >
-
-                                                                            {
-                                                                                detalhesCompras[
+                                                                                    : compraAberta
+                                                                                    ===
                                                                                     movimento
                                                                                         .origem_id
-                                                                                ]
-                                                                                .status
-                                                                            }
-
-                                                                        </span>
-
-                                                                    </div>
-
-
-                                                                    {/* PRODUTOS */}
-
-                                                                    <div
-                                                                        className={
-                                                                            styles
-                                                                                .detailsTableWrapper
-                                                                        }
-                                                                    >
-
-                                                                        <table
-                                                                            className={
-                                                                                styles
-                                                                                    .detailsTable
-                                                                            }
-                                                                        >
-
-                                                                            <thead>
-
-                                                                                <tr>
-
-                                                                                    <th>
-                                                                                        Produto
-                                                                                    </th>
-
-                                                                                    <th>
-                                                                                        Código de barras
-                                                                                    </th>
-
-                                                                                    <th>
-                                                                                        Quantidade
-                                                                                    </th>
-
-                                                                                    <th>
-                                                                                        Valor unitário
-                                                                                    </th>
-
-                                                                                    <th>
-                                                                                        Subtotal
-                                                                                    </th>
-
-                                                                                    <th>
-                                                                                        Validade
-                                                                                    </th>
-
-                                                                                </tr>
-
-                                                                            </thead>
-
-
-                                                                            <tbody>
-
-                                                                                {
-                                                                                    detalhesCompras[
-                                                                                        movimento
-                                                                                            .origem_id
-                                                                                    ]
-                                                                                    .itens
-                                                                                    .length
-                                                                                    === 0
 
                                                                                         ? (
 
-                                                                                            <tr>
-
-                                                                                                <td
-                                                                                                    colSpan="6"
-                                                                                                    className={
-                                                                                                        styles
-                                                                                                            .emptyDetails
-                                                                                                    }
-                                                                                                >
-                                                                                                    Nenhum produto
-                                                                                                    encontrado nesta
-                                                                                                    compra.
-                                                                                                </td>
-
-                                                                                            </tr>
+                                                                                            <ChevronUp
+                                                                                                size={16}
+                                                                                            />
                                                                                         )
 
-                                                                                        : detalhesCompras[
-                                                                                            movimento
-                                                                                                .origem_id
-                                                                                        ]
-                                                                                        .itens
-                                                                                        .map(
-                                                                                            (
-                                                                                                item
-                                                                                            ) => (
+                                                                                        : (
 
-                                                                                                <tr
-                                                                                                    key={
-                                                                                                        item.id
-                                                                                                    }
-                                                                                                >
-
-                                                                                                    <td>
-
-                                                                                                        <strong>
-                                                                                                            {
-                                                                                                                item
-                                                                                                                    .produto
-                                                                                                            }
-                                                                                                        </strong>
-
-                                                                                                    </td>
-
-
-                                                                                                    <td>
-
-                                                                                                        {
-                                                                                                            item
-                                                                                                                .codigo_barras
-                                                                                                            || "-"
-                                                                                                        }
-
-                                                                                                    </td>
-
-
-                                                                                                    <td>
-
-                                                                                                        {
-                                                                                                            item
-                                                                                                                .quantidade
-                                                                                                        }
-
-                                                                                                    </td>
-
-
-                                                                                                    <td>
-
-                                                                                                        {
-                                                                                                            moeda(
-                                                                                                                item
-                                                                                                                    .valor_unitario
-                                                                                                            )
-                                                                                                        }
-
-                                                                                                    </td>
-
-
-                                                                                                    <td>
-
-                                                                                                        <strong>
-                                                                                                            {
-                                                                                                                moeda(
-                                                                                                                    item
-                                                                                                                        .valor_total
-                                                                                                                )
-                                                                                                            }
-                                                                                                        </strong>
-
-                                                                                                    </td>
-
-
-                                                                                                    <td>
-
-                                                                                                        {
-                                                                                                            dataBR(
-                                                                                                                item
-                                                                                                                    .validade
-                                                                                                            )
-                                                                                                        }
-
-                                                                                                    </td>
-
-                                                                                                </tr>
-                                                                                            )
+                                                                                            <ChevronDown
+                                                                                                size={16}
+                                                                                            />
                                                                                         )
-                                                                                }
+                                                                            }
 
-                                                                            </tbody>
-
-                                                                        </table>
-
-                                                                    </div>
+                                                                        </button>
+                                                                    )
+                                                                }
 
 
-                                                                    {/* TOTAIS */}
+                                                                <span>
+
+                                                                    {
+                                                                        nomesCategorias[
+                                                                            movimento
+                                                                                .categoria
+                                                                        ]
+
+                                                                        ||
+
+                                                                        movimento
+                                                                            .categoria
+                                                                    }
+
+                                                                </span>
+
+                                                            </div>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <strong>
+                                                                {
+                                                                    movimento
+                                                                        .referencia
+                                                                }
+                                                            </strong>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            {
+                                                                movimento
+                                                                    .descricao
+                                                            }
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <strong
+                                                                className={
+                                                                    movimento
+                                                                        .tipo
+                                                                    === "ENTRADA"
+
+                                                                        ? styles
+                                                                            .positive
+
+                                                                        : styles
+                                                                            .negative
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    movimento
+                                                                        .tipo
+                                                                    === "ENTRADA"
+
+                                                                        ? "+"
+
+                                                                        : "-"
+                                                                }
+
+                                                                {
+                                                                    moeda(
+                                                                        movimento
+                                                                            .valor
+                                                                    )
+                                                                }
+
+                                                            </strong>
+
+                                                        </td>
+
+                                                    </tr>
+
+
+                                                    {/* DETALHES COMPRA */}
+
+                                                    {
+                                                        movimento
+                                                            .categoria
+                                                        === "COMPRA"
+
+                                                        &&
+
+                                                        compraAberta
+                                                        ===
+                                                        movimento
+                                                            .origem_id
+
+                                                        &&
+
+                                                        detalhesCompras[
+                                                            movimento
+                                                                .origem_id
+                                                        ]
+
+                                                        && (
+
+                                                            <tr
+                                                                className={
+                                                                    styles
+                                                                        .detailsRow
+                                                                }
+                                                            >
+
+                                                                <td
+                                                                    colSpan="6"
+                                                                >
 
                                                                     <div
                                                                         className={
                                                                             styles
-                                                                                .purchaseTotals
+                                                                                .purchaseDetails
                                                                         }
                                                                     >
 
-                                                                        <div>
-
-                                                                            <span>
-                                                                                Subtotal
-                                                                            </span>
-
-                                                                            <strong>
-                                                                                {
-                                                                                    moeda(
-                                                                                        detalhesCompras[
-                                                                                            movimento
-                                                                                                .origem_id
-                                                                                        ]
-                                                                                        .subtotal
-                                                                                    )
-                                                                                }
-                                                                            </strong>
-
-                                                                        </div>
-
-
-                                                                        <div>
-
-                                                                            <span>
-                                                                                Desconto
-                                                                            </span>
-
-                                                                            <strong>
-                                                                                {
-                                                                                    moeda(
-                                                                                        detalhesCompras[
-                                                                                            movimento
-                                                                                                .origem_id
-                                                                                        ]
-                                                                                        .desconto
-                                                                                    )
-                                                                                }
-                                                                            </strong>
-
-                                                                        </div>
-
+                                                                        {/* CABEÇALHO */}
 
                                                                         <div
                                                                             className={
                                                                                 styles
-                                                                                    .totalFinal
+                                                                                    .detailsHeader
                                                                             }
                                                                         >
 
-                                                                            <span>
-                                                                                Valor total
-                                                                            </span>
-
-                                                                            <strong>
-                                                                                {
-                                                                                    moeda(
-                                                                                        detalhesCompras[
-                                                                                            movimento
-                                                                                                .origem_id
-                                                                                        ]
-                                                                                        .valor_total
-                                                                                    )
-                                                                                }
-                                                                            </strong>
-
-                                                                        </div>
-
-                                                                    </div>
-
-
-                                                                    {/* OBSERVAÇÃO */}
-
-                                                                    {
-                                                                        detalhesCompras[
-                                                                            movimento
-                                                                                .origem_id
-                                                                        ]
-                                                                        .observacao
-
-                                                                        && (
-
-                                                                            <div
-                                                                                className={
-                                                                                    styles
-                                                                                        .observation
-                                                                                }
-                                                                            >
+                                                                            <div>
 
                                                                                 <strong>
-                                                                                    Observação:
-                                                                                </strong>
-
-                                                                                <span>
+                                                                                    Compra #
                                                                                     {
                                                                                         detalhesCompras[
                                                                                             movimento
                                                                                                 .origem_id
                                                                                         ]
-                                                                                        .observacao
+                                                                                            .numero
                                                                                     }
+                                                                                </strong>
+
+                                                                                <span>
+
+                                                                                    Data:{" "}
+
+                                                                                    {
+                                                                                        dataBR(
+                                                                                            detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .data_compra
+                                                                                        )
+                                                                                    }
+
                                                                                 </span>
 
                                                                             </div>
-                                                                        )
-                                                                    }
 
-                                                                </div>
 
-                                                            </td>
+                                                                            <span
+                                                                                className={
+                                                                                    styles
+                                                                                        .purchaseStatus
+                                                                                }
+                                                                            >
 
-                                                        </tr>
-                                                    )
-                                                }
+                                                                                {
+                                                                                    detalhesCompras[
+                                                                                        movimento
+                                                                                            .origem_id
+                                                                                    ]
+                                                                                        .status
+                                                                                }
 
-                                            </Fragment>
+                                                                            </span>
+
+                                                                        </div>
+
+
+                                                                        {/* PRODUTOS */}
+
+                                                                        <div
+                                                                            className={
+                                                                                styles
+                                                                                    .detailsTableWrapper
+                                                                            }
+                                                                        >
+
+                                                                            <table
+                                                                                className={
+                                                                                    styles
+                                                                                        .detailsTable
+                                                                                }
+                                                                            >
+
+                                                                                <thead>
+
+                                                                                    <tr>
+
+                                                                                        <th>
+                                                                                            Produto
+                                                                                        </th>
+
+                                                                                        <th>
+                                                                                            Código de barras
+                                                                                        </th>
+
+                                                                                        <th>
+                                                                                            Quantidade
+                                                                                        </th>
+
+                                                                                        <th>
+                                                                                            Valor unitário
+                                                                                        </th>
+
+                                                                                        <th>
+                                                                                            Subtotal
+                                                                                        </th>
+
+                                                                                        <th>
+                                                                                            Validade
+                                                                                        </th>
+
+                                                                                    </tr>
+
+                                                                                </thead>
+
+
+                                                                                <tbody>
+
+                                                                                    {
+                                                                                        detalhesCompras[
+                                                                                            movimento
+                                                                                                .origem_id
+                                                                                        ]
+                                                                                            .itens
+                                                                                            .length
+                                                                                        === 0
+
+                                                                                            ? (
+
+                                                                                                <tr>
+
+                                                                                                    <td
+                                                                                                        colSpan="6"
+                                                                                                        className={
+                                                                                                            styles
+                                                                                                                .emptyDetails
+                                                                                                        }
+                                                                                                    >
+                                                                                                        Nenhum produto
+                                                                                                        encontrado nesta
+                                                                                                        compra.
+                                                                                                    </td>
+
+                                                                                                </tr>
+                                                                                            )
+
+                                                                                            : detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .itens
+                                                                                                .map(
+                                                                                                    (
+                                                                                                        item
+                                                                                                    ) => (
+
+                                                                                                        <tr
+                                                                                                            key={
+                                                                                                                item.id
+                                                                                                            }
+                                                                                                        >
+
+                                                                                                            <td>
+
+                                                                                                                <strong>
+                                                                                                                    {
+                                                                                                                        item
+                                                                                                                            .produto
+                                                                                                                    }
+                                                                                                                </strong>
+
+                                                                                                            </td>
+
+
+                                                                                                            <td>
+
+                                                                                                                {
+                                                                                                                    item
+                                                                                                                        .codigo_barras
+                                                                                                                    || "-"
+                                                                                                                }
+
+                                                                                                            </td>
+
+
+                                                                                                            <td>
+
+                                                                                                                {
+                                                                                                                    item
+                                                                                                                        .quantidade
+                                                                                                                }
+
+                                                                                                            </td>
+
+
+                                                                                                            <td>
+
+                                                                                                                {
+                                                                                                                    moeda(
+                                                                                                                        item
+                                                                                                                            .valor_unitario
+                                                                                                                    )
+                                                                                                                }
+
+                                                                                                            </td>
+
+
+                                                                                                            <td>
+
+                                                                                                                <strong>
+                                                                                                                    {
+                                                                                                                        moeda(
+                                                                                                                            item
+                                                                                                                                .valor_total
+                                                                                                                        )
+                                                                                                                    }
+                                                                                                                </strong>
+
+                                                                                                            </td>
+
+
+                                                                                                            <td>
+
+                                                                                                                {
+                                                                                                                    dataBR(
+                                                                                                                        item
+                                                                                                                            .validade
+                                                                                                                    )
+                                                                                                                }
+
+                                                                                                            </td>
+
+                                                                                                        </tr>
+                                                                                                    )
+                                                                                                )
+                                                                                    }
+
+                                                                                </tbody>
+
+                                                                            </table>
+
+                                                                        </div>
+
+
+                                                                        {/* TOTAIS */}
+
+                                                                        <div
+                                                                            className={
+                                                                                styles
+                                                                                    .purchaseTotals
+                                                                            }
+                                                                        >
+
+                                                                            <div>
+
+                                                                                <span>
+                                                                                    Subtotal
+                                                                                </span>
+
+                                                                                <strong>
+                                                                                    {
+                                                                                        moeda(
+                                                                                            detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .subtotal
+                                                                                        )
+                                                                                    }
+                                                                                </strong>
+
+                                                                            </div>
+
+
+                                                                            <div>
+
+                                                                                <span>
+                                                                                    Desconto
+                                                                                </span>
+
+                                                                                <strong>
+                                                                                    {
+                                                                                        moeda(
+                                                                                            detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .desconto
+                                                                                        )
+                                                                                    }
+                                                                                </strong>
+
+                                                                            </div>
+
+
+                                                                            <div
+                                                                                className={
+                                                                                    styles
+                                                                                        .totalFinal
+                                                                                }
+                                                                            >
+
+                                                                                <span>
+                                                                                    Valor total
+                                                                                </span>
+
+                                                                                <strong>
+                                                                                    {
+                                                                                        moeda(
+                                                                                            detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .valor_total
+                                                                                        )
+                                                                                    }
+                                                                                </strong>
+
+                                                                            </div>
+
+                                                                        </div>
+
+
+                                                                        {/* OBSERVAÇÃO */}
+
+                                                                        {
+                                                                            detalhesCompras[
+                                                                                movimento
+                                                                                    .origem_id
+                                                                            ]
+                                                                                .observacao
+
+                                                                            && (
+
+                                                                                <div
+                                                                                    className={
+                                                                                        styles
+                                                                                            .observation
+                                                                                    }
+                                                                                >
+
+                                                                                    <strong>
+                                                                                        Observação:
+                                                                                    </strong>
+
+                                                                                    <span>
+                                                                                        {
+                                                                                            detalhesCompras[
+                                                                                                movimento
+                                                                                                    .origem_id
+                                                                                            ]
+                                                                                                .observacao
+                                                                                        }
+                                                                                    </span>
+
+                                                                                </div>
+                                                                            )
+                                                                        }
+
+                                                                    </div>
+
+                                                                </td>
+
+                                                            </tr>
+                                                        )
+                                                    }
+
+                                                </Fragment>
+                                            )
                                         )
-                                    )
                             }
 
                         </tbody>
@@ -1682,6 +1926,36 @@ function Contas() {
                     </table>
 
                 </div>
+
+
+                {/* PAGINAÇÃO */}
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        (pagina) => {
+
+                            setPaginaAtual(
+                                pagina
+                            );
+
+                            setCompraAberta(
+                                null
+                            );
+                        }
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
 
             </section>
 

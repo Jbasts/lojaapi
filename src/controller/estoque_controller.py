@@ -168,3 +168,211 @@ class EstoqueController:
                 "erro":
                     "Erro interno do servidor."
             }), 500
+
+    @staticmethod
+    def listar_retiradas():
+
+        try:
+
+            periodo = request.args.get(
+                "periodo",
+                "DIARIO"
+            )
+
+            referencia = request.args.get(
+                "referencia"
+            )
+
+
+            dados = (
+                EstoqueService
+                .listar_retiradas(
+                    periodo=periodo,
+                    referencia=referencia
+                )
+            )
+
+
+            return jsonify(
+                dados
+            ), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 400
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao listar retiradas "
+                f"do estoque: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+
+    @staticmethod
+    def listar_receitas():
+
+        try:
+
+            dados = (
+                EstoqueService
+                .listar_receitas()
+            )
+
+            return jsonify(
+                dados
+            ), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 400
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao listar receitas "
+                f"do estoque: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+    @staticmethod
+    def buscar_receita(
+        produto_id
+    ):
+
+        try:
+
+            dados = (
+                EstoqueService
+                .buscar_receita(
+                    produto_id
+                )
+            )
+
+            return jsonify(
+                dados
+            ), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 404
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao buscar receita "
+                f"do estoque: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+    @staticmethod
+    def retirar_por_receita():
+
+        try:
+
+            dados = request.get_json(
+                silent=True
+            ) or {}
+
+            usuario_id = int(
+                get_jwt_identity()
+            )
+
+            resultado = (
+                EstoqueService
+                .retirar_por_receita(
+                    usuario_id,
+                    dados
+                )
+            )
+
+            possui_manuais = bool(
+                resultado.get(
+                    "itens_manuais_ignorados"
+                )
+            )
+
+            possui_retiradas = bool(
+                resultado.get(
+                    "retiradas"
+                )
+            )
+
+
+            if (
+                possui_retiradas
+                and possui_manuais
+            ):
+
+                mensagem = (
+                    "Produtos do estoque "
+                    "retirados com sucesso. "
+                    "Itens manuais foram "
+                    "ignorados."
+                )
+
+            elif possui_retiradas:
+
+                mensagem = (
+                    "Produtos do estoque "
+                    "retirados com sucesso."
+                )
+
+            else:
+
+                mensagem = (
+                    "Nenhum item de estoque "
+                    "precisou ser retirado. "
+                    "Os itens manuais foram "
+                    "ignorados."
+                )
+
+
+            return jsonify({
+                "mensagem":
+                    mensagem,
+
+                "producao":
+                    resultado
+            }), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 400
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao retirar estoque "
+                f"por receita: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+

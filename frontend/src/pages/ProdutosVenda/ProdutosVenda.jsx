@@ -7,7 +7,8 @@ import {
     Pencil,
     Plus,
     Search,
-    Trash2
+    Trash2,
+    X
 } from "lucide-react";
 
 import {
@@ -20,6 +21,9 @@ import {
 import {
     listarProdutosEstoque
 } from "../../services/produtoEstoqueService";
+
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
 
 import styles
     from "./ProdutosVenda.module.css";
@@ -47,6 +51,13 @@ function ProdutosVenda() {
     const [busca, setBusca] =
         useState("");
 
+
+    const [
+        filtroTipo,
+        setFiltroTipo
+    ] = useState("TODOS");
+
+
     const [formulario, setFormulario] =
         useState(formularioInicial);
 
@@ -67,6 +78,36 @@ function ProdutosVenda() {
     ] = useState(false);
 
 
+    const [
+        modalFormularioAberto,
+        setModalFormularioAberto
+    ] = useState(false);
+
+
+    const [
+        produtoExcluir,
+        setProdutoExcluir
+    ] = useState(null);
+
+
+    const [
+        excluindo,
+        setExcluindo
+    ] = useState(false);
+
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
+
+
     async function carregarProdutos(
         textoBusca = ""
     ) {
@@ -79,7 +120,9 @@ function ProdutosVenda() {
                 );
 
             setProdutos(
-                dados
+                Array.isArray(dados)
+                    ? dados
+                    : []
             );
 
         } catch {
@@ -100,7 +143,9 @@ function ProdutosVenda() {
                 await listarProdutosEstoque();
 
             setProdutosEstoque(
-                dados
+                Array.isArray(dados)
+                    ? dados
+                    : []
             );
 
         } catch {
@@ -166,6 +211,10 @@ function ProdutosVenda() {
             valor
         );
 
+        setPaginaAtual(
+            1
+        );
+
         await carregarProdutos(
             valor
         );
@@ -198,10 +247,14 @@ function ProdutosVenda() {
 
         setErro("");
         setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
     }
 
 
-    function cancelar() {
+    function limparFormulario() {
 
         setProdutoEditando(
             null
@@ -210,6 +263,35 @@ function ProdutosVenda() {
         setFormulario(
             formularioInicial
         );
+    }
+
+
+    function abrirAdicionar() {
+
+        limparFormulario();
+
+        setErro("");
+        setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    function fecharFormulario() {
+
+        if (
+            carregando
+        ) {
+            return;
+        }
+
+        setModalFormularioAberto(
+            false
+        );
+
+        limparFormulario();
 
         setErro("");
     }
@@ -264,12 +346,14 @@ function ProdutosVenda() {
             }
 
 
-            setProdutoEditando(
-                null
+            setModalFormularioAberto(
+                false
             );
 
-            setFormulario(
-                formularioInicial
+            limparFormulario();
+
+            setPaginaAtual(
+                1
             );
 
             await carregarProdutos(
@@ -294,36 +378,72 @@ function ProdutosVenda() {
     }
 
 
-    async function remover(produto) {
+    function abrirExcluir(
+        produto
+    ) {
 
-        const confirmar =
-            window.confirm(
-                `Deseja excluir `
-                + `"${produto.nome}`
-                + (
-                    produto.sabor
-                        ? ` - ${produto.sabor}`
-                        : ""
-                )
-                + `"?`
-            );
+        setErro("");
+        setMensagem("");
+
+        setProdutoExcluir(
+            produto
+        );
+    }
 
 
-        if (!confirmar) {
+    function fecharExcluir() {
+
+        if (
+            excluindo
+        ) {
+            return;
+        }
+
+        setProdutoExcluir(
+            null
+        );
+    }
+
+
+    async function confirmarExclusao() {
+
+        if (
+            !produtoExcluir
+        ) {
             return;
         }
 
 
         try {
 
-            await excluirProdutoVenda(
-                produto.id
+            setExcluindo(
+                true
             );
+
+            setErro("");
+            setMensagem("");
+
+
+            await excluirProdutoVenda(
+                produtoExcluir.id
+            );
+
 
             setMensagem(
                 "Produto excluído "
                 + "com sucesso."
             );
+
+
+            setProdutoExcluir(
+                null
+            );
+
+
+            setPaginaAtual(
+                1
+            );
+
 
             await carregarProdutos(
                 busca
@@ -339,7 +459,123 @@ function ProdutosVenda() {
                 "Não foi possível "
                 + "excluir o produto."
             );
+
+        } finally {
+
+            setExcluindo(
+                false
+            );
         }
+    }
+
+
+    const quantidadeProducao =
+        produtos.filter(
+            (produto) => (
+                produto.tipo
+                === "PRODUCAO"
+            )
+        ).length;
+
+
+    const quantidadeRevenda =
+        produtos.filter(
+            (produto) => (
+                produto.tipo
+                === "REVENDA"
+            )
+        ).length;
+
+
+    const produtosFiltrados =
+        produtos.filter(
+            (produto) => {
+
+                if (
+                    filtroTipo
+                    === "TODOS"
+                ) {
+
+                    return true;
+                }
+
+
+                return (
+                    produto.tipo
+                    === filtroTipo
+                );
+            }
+        );
+
+
+    const totalItens =
+        produtosFiltrados.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const produtosPaginados =
+        produtosFiltrados.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    function alterarFiltroTipo(
+        tipo
+    ) {
+
+        setFiltroTipo(
+            tipo
+        );
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(
+            1
+        );
     }
 
 
@@ -367,7 +603,7 @@ function ProdutosVenda() {
                     className={
                         styles.addButton
                     }
-                    onClick={cancelar}
+                    onClick={abrirAdicionar}
                 >
 
                     <Plus size={16} />
@@ -398,8 +634,127 @@ function ProdutosVenda() {
             </div>
 
 
+            <div
+                className={
+                    styles.summaryGrid
+                }
+            >
+
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
+
+                    <span>
+                        Produção
+                    </span>
+
+                    <strong>
+                        {quantidadeProducao}
+                    </strong>
+
+                    <small>
+                        produtos cadastrados
+                    </small>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.summaryCard
+                    }
+                >
+
+                    <span>
+                        Revenda
+                    </span>
+
+                    <strong>
+                        {quantidadeRevenda}
+                    </strong>
+
+                    <small>
+                        produtos cadastrados
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div
+                className={
+                    styles.typeFilter
+                }
+            >
+
+                <span>
+                    Filtrar por tipo:
+                </span>
+
+
+                <button
+                    type="button"
+                    className={
+                        filtroTipo === "TODOS"
+                            ? styles.filterActive
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarFiltroTipo(
+                            "TODOS"
+                        )
+                    }
+                >
+                    Todos
+                </button>
+
+
+                <button
+                    type="button"
+                    className={
+                        filtroTipo === "PRODUCAO"
+                            ? styles.filterActive
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarFiltroTipo(
+                            "PRODUCAO"
+                        )
+                    }
+                >
+                    Produção
+                </button>
+
+
+                <button
+                    type="button"
+                    className={
+                        filtroTipo === "REVENDA"
+                            ? styles.filterActive
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarFiltroTipo(
+                            "REVENDA"
+                        )
+                    }
+                >
+                    Revenda
+                </button>
+
+            </div>
+
+
             {
-                erro && (
+                erro
+                &&
+                !modalFormularioAberto
+                &&
+                !produtoExcluir
+                && (
 
                     <div
                         className={
@@ -476,7 +831,7 @@ function ProdutosVenda() {
                         <tbody>
 
                             {
-                                produtos.length === 0
+                                produtosPaginados.length === 0
                                     ? (
 
                                         <tr>
@@ -494,7 +849,7 @@ function ProdutosVenda() {
                                         </tr>
                                     )
 
-                                    : produtos.map(
+                                    : produtosPaginados.map(
                                         (produto) => (
 
                                             <tr
@@ -594,7 +949,7 @@ function ProdutosVenda() {
                                                         <button
                                                             title="Excluir"
                                                             onClick={() =>
-                                                                remover(
+                                                                abrirExcluir(
                                                                     produto
                                                                 )
                                                             }
@@ -621,24 +976,115 @@ function ProdutosVenda() {
 
                 </div>
 
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        setPaginaAtual
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
+
             </section>
 
 
-            <section
-                className={
-                    styles.formCard
-                }
-            >
+            {
+                modalFormularioAberto
+                && (
 
-                <h2>
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
 
-                    {
-                        produtoEditando
-                            ? "Editar Produto"
-                            : "Adicionar Produto"
-                    }
+                        <div
+                            className={
+                                styles.modal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
 
-                </h2>
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        {
+                                            produtoEditando
+                                                ? "Editar Produto"
+                                                : "Adicionar Produto"
+                                        }
+                                    </h2>
+
+                                    <p>
+                                        {
+                                            produtoEditando
+                                                ? "Atualize os dados do produto de venda."
+                                                : "Cadastre um novo produto de venda."
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharFormulario
+                                    }
+                                    disabled={
+                                        carregando
+                                    }
+                                    title="Fechar"
+                                >
+
+                                    <X
+                                        size={19}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.modalBody
+                                }
+                            >
+
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
 
 
                 <form
@@ -755,7 +1201,11 @@ function ProdutosVenda() {
                             === "REVENDA"
                             && (
 
-                                <div>
+                                <div
+                                    className={
+                                        styles.fullField
+                                    }
+                                >
 
                                     <label>
                                         Produto de estoque *
@@ -833,7 +1283,7 @@ function ProdutosVenda() {
                             className={
                                 styles.cancelButton
                             }
-                            onClick={cancelar}
+                            onClick={fecharFormulario}
                         >
                             Cancelar
                         </button>
@@ -852,7 +1302,9 @@ function ProdutosVenda() {
                             {
                                 carregando
                                     ? "Salvando..."
-                                    : "Salvar"
+                                    : produtoEditando
+                                        ? "Salvar alterações"
+                                        : "Adicionar produto"
                             }
 
                         </button>
@@ -861,7 +1313,188 @@ function ProdutosVenda() {
 
                 </form>
 
-            </section>
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
+
+
+            {
+                produtoExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.confirmModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
+
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        Excluir Produto
+                                    </h2>
+
+                                    <p>
+                                        Confirme a exclusão
+                                        deste produto.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharExcluir
+                                    }
+                                    disabled={
+                                        excluindo
+                                    }
+                                    title="Fechar"
+                                >
+
+                                    <X
+                                        size={19}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    Deseja realmente excluir
+                                    o produto:
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        produtoExcluir.nome
+                                    }
+                                    {
+                                        produtoExcluir.sabor
+                                            ? ` - ${produtoExcluir.sabor}`
+                                            : ""
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    {
+                                        produtoExcluir.tipo
+                                        === "PRODUCAO"
+                                            ? "Produção"
+                                            : "Revenda"
+                                    }
+                                     | 
+                                    {
+                                        Number(
+                                            produtoExcluir.preco_venda
+                                            || 0
+                                        ).toLocaleString(
+                                            "pt-BR",
+                                            {
+                                                style: "currency",
+                                                currency: "BRL"
+                                            }
+                                        )
+                                    }
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.formActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            fecharExcluir
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        Cancelar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.deleteButton
+                                        }
+                                        onClick={
+                                            confirmarExclusao
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        {
+                                            excluindo
+                                                ? "Excluindo..."
+                                                : "Excluir produto"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
 
         </div>
     );

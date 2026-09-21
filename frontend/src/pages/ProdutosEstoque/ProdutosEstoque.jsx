@@ -7,7 +7,8 @@ import {
     Pencil,
     Plus,
     Search,
-    Trash2
+    Trash2,
+    X
 } from "lucide-react";
 
 import {
@@ -16,6 +17,9 @@ import {
     excluirProdutoEstoque,
     listarProdutosEstoque
 } from "../../services/produtoEstoqueService";
+
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
 
 import styles
     from "./ProdutosEstoque.module.css";
@@ -29,28 +33,78 @@ const formularioInicial = {
 
 function ProdutosEstoque() {
 
-    const [produtos, setProdutos] =
-        useState([]);
+    const [
+        produtos,
+        setProdutos
+    ] = useState([]);
 
-    const [busca, setBusca] =
-        useState("");
 
-    const [formulario, setFormulario] =
-        useState(formularioInicial);
+    const [
+        busca,
+        setBusca
+    ] = useState("");
+
+
+    const [
+        formulario,
+        setFormulario
+    ] = useState(
+        formularioInicial
+    );
+
 
     const [
         produtoEditando,
         setProdutoEditando
     ] = useState(null);
 
-    const [erro, setErro] =
-        useState("");
 
-    const [mensagem, setMensagem] =
-        useState("");
+    const [
+        modalFormularioAberto,
+        setModalFormularioAberto
+    ] = useState(false);
 
-    const [carregando, setCarregando] =
-        useState(false);
+
+    const [
+        produtoExcluir,
+        setProdutoExcluir
+    ] = useState(null);
+
+
+    const [
+        erro,
+        setErro
+    ] = useState("");
+
+
+    const [
+        mensagem,
+        setMensagem
+    ] = useState("");
+
+
+    const [
+        carregando,
+        setCarregando
+    ] = useState(false);
+
+
+    const [
+        excluindo,
+        setExcluindo
+    ] = useState(false);
+
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
 
 
     async function carregarProdutos(
@@ -64,46 +118,71 @@ function ProdutosEstoque() {
                     textoBusca
                 );
 
-            setProdutos(dados);
+
+            setProdutos(
+                Array.isArray(dados)
+                    ? dados
+                    : []
+            );
 
         } catch {
 
             setErro(
-                "Não foi possível carregar os produtos."
+                "Não foi possível carregar "
+                + "os produtos."
             );
         }
     }
 
 
-    useEffect(() => {
-// eslint-disable-next-line react-hooks/set-state-in-effect
-        carregarProdutos();
+    useEffect(
+        () => {
 
-    }, []);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            carregarProdutos();
+
+        },
+        []
+    );
 
 
-    function handleChange(event) {
+    function handleChange(
+        event
+    ) {
 
         const {
             name,
             value
         } = event.target;
 
+
         setFormulario(
             (anterior) => ({
                 ...anterior,
-                [name]: value
+                [name]:
+                    value
             })
         );
     }
 
 
-    async function handleBusca(event) {
+    async function handleBusca(
+        event
+    ) {
 
         const valor =
             event.target.value;
 
-        setBusca(valor);
+
+        setBusca(
+            valor
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+
 
         await carregarProdutos(
             valor
@@ -111,72 +190,189 @@ function ProdutosEstoque() {
     }
 
 
-    function editar(produto) {
+    function limparFormulario() {
+
+        setProdutoEditando(
+            null
+        );
+
+
+        setFormulario(
+            formularioInicial
+        );
+    }
+
+
+    function abrirAdicionar() {
+
+        limparFormulario();
+
+        setErro("");
+
+        setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    function editar(
+        produto
+    ) {
 
         setProdutoEditando(
             produto.id
         );
 
+
         setFormulario({
-            nome: produto.nome,
+            nome:
+                produto.nome
+                || "",
+
             codigo_barras:
                 produto.codigo_barras
+                || ""
         });
 
+
         setErro("");
+
         setMensagem("");
+
+        setModalFormularioAberto(
+            true
+        );
     }
 
 
-    function cancelar() {
+    function fecharFormulario() {
 
-        setProdutoEditando(null);
+        if (
+            carregando
+        ) {
 
-        setFormulario(
-            formularioInicial
+            return;
+        }
+
+
+        setModalFormularioAberto(
+            false
         );
 
+
+        limparFormulario();
+
         setErro("");
     }
 
 
-    async function handleSubmit(event) {
+    function abrirExcluir(
+        produto
+    ) {
+
+        setErro("");
+
+        setMensagem("");
+
+        setProdutoExcluir(
+            produto
+        );
+    }
+
+
+    function fecharExcluir() {
+
+        if (
+            excluindo
+        ) {
+
+            return;
+        }
+
+
+        setProdutoExcluir(
+            null
+        );
+    }
+
+
+    async function handleSubmit(
+        event
+    ) {
 
         event.preventDefault();
 
         setErro("");
+
         setMensagem("");
-        setCarregando(true);
+
+        setCarregando(
+            true
+        );
+
 
         try {
 
-            if (produtoEditando) {
+            const dados = {
+                nome:
+                    formulario.nome
+                        .trim(),
+
+                codigo_barras:
+                    String(
+                        formulario.codigo_barras
+                        || ""
+                    )
+                        .replace(
+                            /\D/g,
+                            ""
+                        )
+            };
+
+
+            if (
+                produtoEditando
+            ) {
 
                 await atualizarProdutoEstoque(
                     produtoEditando,
-                    formulario
+                    dados
                 );
 
+
                 setMensagem(
-                    "Produto atualizado com sucesso."
+                    "Produto atualizado "
+                    + "com sucesso."
                 );
 
             } else {
 
                 await criarProdutoEstoque(
-                    formulario
+                    dados
                 );
 
+
                 setMensagem(
-                    "Produto cadastrado com sucesso."
+                    "Produto cadastrado "
+                    + "com sucesso."
                 );
             }
 
-            setProdutoEditando(null);
 
-            setFormulario(
-                formularioInicial
+            setModalFormularioAberto(
+                false
             );
+
+
+            limparFormulario();
+
+
+            setPaginaAtual(
+                1
+            );
+
 
             await carregarProdutos(
                 busca
@@ -185,38 +381,65 @@ function ProdutosEstoque() {
         } catch (error) {
 
             setErro(
-                error.response?.data?.erro
+                error.response
+                    ?.data
+                    ?.erro
                 ||
-                "Não foi possível salvar o produto."
+                "Não foi possível salvar "
+                + "o produto."
             );
 
         } finally {
 
-            setCarregando(false);
+            setCarregando(
+                false
+            );
         }
     }
 
 
-    async function remover(produto) {
+    async function confirmarExclusao() {
 
-        const confirmar =
-            window.confirm(
-                `Deseja excluir "${produto.nome}"?`
-            );
+        if (
+            !produtoExcluir
+        ) {
 
-        if (!confirmar) {
             return;
         }
 
+
         try {
 
-            await excluirProdutoEstoque(
-                produto.id
+            setExcluindo(
+                true
             );
 
-            setMensagem(
-                "Produto excluído com sucesso."
+
+            setErro("");
+
+            setMensagem("");
+
+
+            await excluirProdutoEstoque(
+                produtoExcluir.id
             );
+
+
+            setMensagem(
+                "Produto excluído "
+                + "com sucesso."
+            );
+
+
+            setProdutoExcluir(
+                null
+            );
+
+
+            setPaginaAtual(
+                1
+            );
+
 
             await carregarProdutos(
                 busca
@@ -225,19 +448,94 @@ function ProdutosEstoque() {
         } catch (error) {
 
             setErro(
-                error.response?.data?.erro
+                error.response
+                    ?.data
+                    ?.erro
                 ||
-                "Não foi possível excluir o produto."
+                "Não foi possível excluir "
+                + "o produto."
+            );
+
+        } finally {
+
+            setExcluindo(
+                false
             );
         }
+    }
+
+
+    const totalItens =
+        produtos.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const produtosPaginados =
+        produtos.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+
+        setPaginaAtual(
+            1
+        );
     }
 
 
     return (
 
-        <div className={styles.page}>
+        <div
+            className={
+                styles.page
+            }
+        >
 
-            <div className={styles.header}>
+            <div
+                className={
+                    styles.header
+                }
+            >
 
                 <div>
 
@@ -246,19 +544,27 @@ function ProdutosEstoque() {
                     </h1>
 
                     <p>
-                        Cadastre os produtos que poderão
-                        ser usados nas compras e no estoque.
+                        Cadastre os produtos que
+                        poderão ser usados nas
+                        compras e no estoque.
                     </p>
 
                 </div>
 
 
                 <button
-                    className={styles.addButton}
-                    onClick={cancelar}
+                    type="button"
+                    className={
+                        styles.addButton
+                    }
+                    onClick={
+                        abrirAdicionar
+                    }
                 >
 
-                    <Plus size={16} />
+                    <Plus
+                        size={16}
+                    />
 
                     Adicionar Produto
 
@@ -267,263 +573,589 @@ function ProdutosEstoque() {
             </div>
 
 
-            <div className={styles.searchBox}>
+            <div
+                className={
+                    styles.searchBox
+                }
+            >
 
-                <Search size={17} />
+                <Search
+                    size={17}
+                />
+
 
                 <input
-                    placeholder="Buscar por nome ou código..."
+                    placeholder={
+                        "Buscar por nome ou código..."
+                    }
                     value={busca}
-                    onChange={handleBusca}
+                    onChange={
+                        handleBusca
+                    }
                 />
 
             </div>
 
 
             {
-                erro && (
+                mensagem
+                && (
 
-                    <div className={styles.error}>
-                        {erro}
-                    </div>
-                )
-            }
-
-
-            {
-                mensagem && (
-
-                    <div className={styles.success}>
+                    <div
+                        className={
+                            styles.success
+                        }
+                    >
                         {mensagem}
                     </div>
                 )
             }
 
 
-            <section className={styles.card}>
+            {
+                erro
+                &&
+                !modalFormularioAberto
+                &&
+                !produtoExcluir
+                && (
 
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Nome
-                            </th>
-
-                            <th>
-                                Código de barras
-                            </th>
-
-                            <th>
-                                Ações
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                    <div
+                        className={
+                            styles.error
+                        }
+                    >
+                        {erro}
+                    </div>
+                )
+            }
 
 
-                    <tbody>
+            <section
+                className={
+                    styles.card
+                }
+            >
 
-                        {
-                            produtos.length === 0
-                                ? (
+                <div
+                    className={
+                        styles.tableWrapper
+                    }
+                >
 
-                                    <tr>
+                    <table>
 
-                                        <td
-                                            colSpan="3"
-                                            className={styles.empty}
-                                        >
-                                            Nenhum produto cadastrado.
-                                        </td>
+                        <thead>
 
-                                    </tr>
-                                )
+                            <tr>
 
-                                : produtos.map(
-                                    (produto) => (
+                                <th>
+                                    Nome
+                                </th>
 
-                                        <tr
-                                            key={
-                                                produto.id
-                                            }
-                                        >
+                                <th>
+                                    Código de barras
+                                </th>
 
-                                            <td>
-                                                {produto.nome}
-                                            </td>
+                                <th>
+                                    Ações
+                                </th>
 
-                                            <td>
-                                                {
-                                                    produto.codigo_barras
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {
+                                produtosPaginados.length
+                                === 0
+
+                                    ? (
+
+                                        <tr>
+
+                                            <td
+                                                colSpan="3"
+                                                className={
+                                                    styles.empty
                                                 }
-                                            </td>
-
-                                            <td>
-
-                                                <div
-                                                    className={
-                                                        styles.actions
-                                                    }
-                                                >
-
-                                                    <button
-                                                        title="Editar"
-                                                        onClick={() =>
-                                                            editar(
-                                                                produto
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <Pencil
-                                                            size={15}
-                                                        />
-
-                                                    </button>
-
-
-                                                    <button
-                                                        title="Excluir"
-                                                        onClick={() =>
-                                                            remover(
-                                                                produto
-                                                            )
-                                                        }
-                                                    >
-
-                                                        <Trash2
-                                                            size={15}
-                                                        />
-
-                                                    </button>
-
-                                                </div>
-
+                                            >
+                                                Nenhum produto
+                                                cadastrado.
                                             </td>
 
                                         </tr>
                                     )
-                                )
-                        }
 
-                    </tbody>
+                                    : produtosPaginados.map(
+                                        (produto) => (
 
-                </table>
+                                            <tr
+                                                key={
+                                                    produto.id
+                                                }
+                                            >
+
+                                                <td>
+                                                    {
+                                                        produto.nome
+                                                    }
+                                                </td>
+
+
+                                                <td>
+                                                    {
+                                                        produto
+                                                            .codigo_barras
+                                                        || "-"
+                                                    }
+                                                </td>
+
+
+                                                <td>
+
+                                                    <div
+                                                        className={
+                                                            styles.actions
+                                                        }
+                                                    >
+
+                                                        <button
+                                                            type="button"
+                                                            title="Editar"
+                                                            onClick={() =>
+                                                                editar(
+                                                                    produto
+                                                                )
+                                                            }
+                                                        >
+
+                                                            <Pencil
+                                                                size={15}
+                                                            />
+
+                                                        </button>
+
+
+                                                        <button
+                                                            type="button"
+                                                            title="Excluir"
+                                                            onClick={() =>
+                                                                abrirExcluir(
+                                                                    produto
+                                                                )
+                                                            }
+                                                        >
+
+                                                            <Trash2
+                                                                size={15}
+                                                            />
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+                                        )
+                                    )
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        setPaginaAtual
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
 
             </section>
 
 
-            <section className={styles.formCard}>
-
-                <h2>
-
-                    {
-                        produtoEditando
-                            ? "Editar Produto"
-                            : "Adicionar Produto"
-                    }
-
-                </h2>
-
-
-                <form
-                    onSubmit={handleSubmit}
-                >
-
-                    <div className={styles.formGrid}>
-
-                        <div>
-
-                            <label>
-                                Nome *
-                            </label>
-
-                            <input
-                                name="nome"
-                                value={
-                                    formulario.nome
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                required
-                            />
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Código de barras *
-                            </label>
-
-                            <input
-                                name="codigo_barras"
-                                value={
-                                    formulario.codigo_barras
-                                }
-                                onChange={
-                                    handleChange
-                                }
-                                inputMode="numeric"
-                                required
-                            />
-
-                        </div>
-
-                    </div>
-
-
-                    <p className={styles.required}>
-                        * Campos obrigatórios
-                    </p>
-
+            {
+                modalFormularioAberto
+                && (
 
                     <div
                         className={
-                            styles.formActions
+                            styles.modalOverlay
                         }
                     >
 
-                        <button
-                            type="button"
+                        <div
                             className={
-                                styles.cancelButton
+                                styles.modal
                             }
-                            onClick={cancelar}
-                        >
-                            Cancelar
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            className={
-                                styles.saveButton
-                            }
-                            disabled={
-                                carregando
-                            }
+                            role="dialog"
+                            aria-modal="true"
                         >
 
-                            {
-                                carregando
-                                    ? "Salvando..."
-                                    : "Salvar"
-                            }
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
 
-                        </button>
+                                <div>
+
+                                    <h2>
+                                        {
+                                            produtoEditando
+                                                ? "Editar Produto"
+                                                : "Adicionar Produto"
+                                        }
+                                    </h2>
+
+                                    <p>
+                                        {
+                                            produtoEditando
+                                                ? "Atualize os dados do produto."
+                                                : "Cadastre um novo produto de estoque."
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharFormulario
+                                    }
+                                    disabled={
+                                        carregando
+                                    }
+                                    title="Fechar"
+                                >
+
+                                    <X
+                                        size={19}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.modalBody
+                                }
+                            >
+
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
+
+
+                                <form
+                                    onSubmit={
+                                        handleSubmit
+                                    }
+                                >
+
+                                    <div
+                                        className={
+                                            styles.formGrid
+                                        }
+                                    >
+
+                                        <div>
+
+                                            <label>
+                                                Nome *
+                                            </label>
+
+                                            <input
+                                                name="nome"
+                                                value={
+                                                    formulario.nome
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                required
+                                            />
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                Código de barras *
+                                            </label>
+
+                                            <input
+                                                name="codigo_barras"
+                                                value={
+                                                    formulario
+                                                        .codigo_barras
+                                                }
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                inputMode="numeric"
+                                                required
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <p
+                                        className={
+                                            styles.required
+                                        }
+                                    >
+                                        * Campos obrigatórios
+                                    </p>
+
+
+                                    <div
+                                        className={
+                                            styles.formActions
+                                        }
+                                    >
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                styles.cancelButton
+                                            }
+                                            onClick={
+                                                fecharFormulario
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                        >
+                                            Cancelar
+                                        </button>
+
+
+                                        <button
+                                            type="submit"
+                                            className={
+                                                styles.saveButton
+                                            }
+                                            disabled={
+                                                carregando
+                                            }
+                                        >
+
+                                            {
+                                                carregando
+                                                    ? "Salvando..."
+                                                    : produtoEditando
+                                                        ? "Salvar alterações"
+                                                        : "Adicionar produto"
+                                            }
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
 
                     </div>
+                )
+            }
 
-                </form>
 
-            </section>
+            {
+                produtoExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.confirmModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
+
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        Excluir Produto
+                                    </h2>
+
+                                    <p>
+                                        Confirme a exclusão
+                                        deste produto.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharExcluir
+                                    }
+                                    disabled={
+                                        excluindo
+                                    }
+                                    title="Fechar"
+                                >
+
+                                    <X
+                                        size={19}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erro
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erro}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    Deseja realmente excluir
+                                    o produto:
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        produtoExcluir.nome
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    Código de barras:{" "}
+                                    {
+                                        produtoExcluir
+                                            .codigo_barras
+                                        || "-"
+                                    }
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.formActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            fecharExcluir
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        Cancelar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.deleteButton
+                                        }
+                                        onClick={
+                                            confirmarExclusao
+                                        }
+                                        disabled={
+                                            excluindo
+                                        }
+                                    >
+                                        {
+                                            excluindo
+                                                ? "Excluindo..."
+                                                : "Excluir produto"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
 
         </div>
     );

@@ -3,7 +3,9 @@ import api from "./api";
 
 export async function listarDesperdicios(
     busca = "",
-    motivo = ""
+    motivo = "",
+    periodo = "TOTAL",
+    referencia = ""
 ) {
 
     const response = await api.get(
@@ -11,7 +13,9 @@ export async function listarDesperdicios(
         {
             params: {
                 busca,
-                motivo
+                motivo,
+                periodo,
+                referencia
             }
         }
     );

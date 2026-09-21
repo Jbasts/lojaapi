@@ -6,9 +6,11 @@ import {
 
 import {
     Pencil,
+    Plus,
     Search,
     Trash2,
-    TriangleAlert
+    TriangleAlert,
+    X
 } from "lucide-react";
 
 import {
@@ -50,6 +52,42 @@ const motivos = {
 };
 
 
+function referenciaAtual(
+    periodo
+) {
+
+    const hoje = new Date();
+
+    const ano =
+        String(
+            hoje.getFullYear()
+        );
+
+    const mes =
+        String(
+            hoje.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    if (periodo === "MENSAL") {
+
+        return `${ano}-${mes}`;
+    }
+
+
+    if (periodo === "ANUAL") {
+
+        return ano;
+    }
+
+
+    return "";
+}
+
+
 function Desperdicios() {
 
     const [
@@ -57,46 +95,122 @@ function Desperdicios() {
         setDesperdicios
     ] = useState([]);
 
-    const [busca, setBusca] =
-        useState("");
+    const [
+        busca,
+        setBusca
+    ] = useState("");
 
-    const [filtroMotivo, setFiltroMotivo] =
-        useState("");
+    const [
+        filtroMotivo,
+        setFiltroMotivo
+    ] = useState("");
 
-    const [formulario, setFormulario] =
-        useState(formularioInicial);
+    const [
+        periodo,
+        setPeriodo
+    ] = useState("TOTAL");
+
+    const [
+        referencia,
+        setReferencia
+    ] = useState("");
+
+    const [
+        formulario,
+        setFormulario
+    ] = useState(
+        formularioInicial
+    );
 
     const [
         desperdicioEditando,
         setDesperdicioEditando
     ] = useState(null);
 
-    const [erro, setErro] =
-        useState("");
+    const [
+        modalFormularioAberto,
+        setModalFormularioAberto
+    ] = useState(false);
 
-    const [mensagem, setMensagem] =
-        useState("");
+    const [
+        modalExcluir,
+        setModalExcluir
+    ] = useState(null);
 
-    const [salvando, setSalvando] =
-        useState(false);
+    const [
+        erro,
+        setErro
+    ] = useState("");
+
+    const [
+        erroFormulario,
+        setErroFormulario
+    ] = useState("");
+
+    const [
+        mensagem,
+        setMensagem
+    ] = useState("");
+
+    const [
+        salvando,
+        setSalvando
+    ] = useState(false);
+
+    const [
+        excluindo,
+        setExcluindo
+    ] = useState(false);
+
+
+    // ==============================
+    // PAGINAÇÃO
+    // ==============================
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
+
+    const [
+        quantidadePagina,
+        setQuantidadePagina
+    ] = useState("6");
 
 
     async function carregar(
         texto = busca,
-        motivo = filtroMotivo
+        motivo = filtroMotivo,
+        periodoFiltro = periodo,
+        referenciaFiltro = referencia
     ) {
 
         try {
 
+            setErro("");
+
+
             const dados =
                 await listarDesperdicios(
                     texto,
-                    motivo
+                    motivo,
+                    periodoFiltro,
+                    referenciaFiltro
                 );
 
+
             setDesperdicios(
-                dados
+                Array.isArray(dados)
+                    ? dados
+                    : []
             );
+
+            setPaginaAtual(1);
 
         } catch (error) {
 
@@ -113,12 +227,19 @@ function Desperdicios() {
     useEffect(() => {
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        carregar("", "");
+        carregar(
+            "",
+            "",
+            "TOTAL",
+            ""
+        );
 
     }, []);
 
 
-    function moeda(valor) {
+    function moeda(
+        valor
+    ) {
 
         return Number(
             valor || 0
@@ -132,11 +253,14 @@ function Desperdicios() {
     }
 
 
-    function dataBR(data) {
+    function dataBR(
+        data
+    ) {
 
         if (!data) {
             return "Sem validade";
         }
+
 
         const [
             ano,
@@ -145,6 +269,7 @@ function Desperdicios() {
         ] = data
             .substring(0, 10)
             .split("-");
+
 
         return `${dia}/${mes}/${ano}`;
     }
@@ -157,11 +282,17 @@ function Desperdicios() {
         const valor =
             event.target.value;
 
-        setBusca(valor);
+
+        setBusca(
+            valor
+        );
+
 
         await carregar(
             valor,
-            filtroMotivo
+            filtroMotivo,
+            periodo,
+            referencia
         );
     }
 
@@ -173,11 +304,71 @@ function Desperdicios() {
         const valor =
             event.target.value;
 
-        setFiltroMotivo(valor);
+
+        setFiltroMotivo(
+            valor
+        );
+
 
         await carregar(
             busca,
-            valor
+            valor,
+            periodo,
+            referencia
+        );
+    }
+
+
+    async function handlePeriodo(
+        novoPeriodo
+    ) {
+
+        const novaReferencia =
+            referenciaAtual(
+                novoPeriodo
+            );
+
+
+        setPeriodo(
+            novoPeriodo
+        );
+
+        setReferencia(
+            novaReferencia
+        );
+
+
+        await carregar(
+            busca,
+            filtroMotivo,
+            novoPeriodo,
+            novaReferencia
+        );
+    }
+
+
+    async function aplicarPeriodo() {
+
+        if (
+            periodo !== "TOTAL"
+            &&
+            !referencia
+        ) {
+
+            setErro(
+                "Informe a referência "
+                + "do período."
+            );
+
+            return;
+        }
+
+
+        await carregar(
+            busca,
+            filtroMotivo,
+            periodo,
+            referencia
         );
     }
 
@@ -191,6 +382,7 @@ function Desperdicios() {
             value
         } = event.target;
 
+
         setFormulario(
             (anterior) => ({
                 ...anterior,
@@ -200,17 +392,67 @@ function Desperdicios() {
     }
 
 
+    function abrirAdicionar() {
+
+        setDesperdicioEditando(
+            null
+        );
+
+        setFormulario(
+            formularioInicial
+        );
+
+        setErroFormulario(
+            ""
+        );
+
+        setMensagem(
+            ""
+        );
+
+        setModalFormularioAberto(
+            true
+        );
+    }
+
+
+    function fecharFormulario() {
+
+        if (salvando) {
+            return;
+        }
+
+
+        setModalFormularioAberto(
+            false
+        );
+
+        setDesperdicioEditando(
+            null
+        );
+
+        setFormulario(
+            formularioInicial
+        );
+
+        setErroFormulario(
+            ""
+        );
+    }
+
+
     async function buscarCodigo() {
 
-        setErro("");
-        setMensagem("");
+        setErroFormulario(
+            ""
+        );
 
 
         if (
             !formulario.codigo.trim()
         ) {
 
-            setErro(
+            setErroFormulario(
                 "Digite o código de barras."
             );
 
@@ -244,10 +486,14 @@ function Desperdicios() {
 
 
             if (
+                !Array.isArray(
+                    dados.lotes
+                )
+                ||
                 dados.lotes.length === 0
             ) {
 
-                setErro(
+                setErroFormulario(
                     "Produto sem saldo "
                     + "em estoque."
                 );
@@ -260,11 +506,13 @@ function Desperdicios() {
                     ...anterior,
                     produto: null,
                     lotes: [],
-                    lote_id: ""
+                    lote_id: "",
+                    quantidade: ""
                 })
             );
 
-            setErro(
+
+            setErroFormulario(
                 error.response?.data?.erro
                 ||
                 "Produto não encontrado."
@@ -280,7 +528,9 @@ function Desperdicios() {
                 return (
                     formulario.lotes.find(
                         (lote) =>
-                            String(lote.id)
+                            String(
+                                lote.id
+                            )
                             ===
                             String(
                                 formulario.lote_id
@@ -306,6 +556,7 @@ function Desperdicios() {
                     return 0;
                 }
 
+
                 return (
                     Number(
                         formulario.quantidade
@@ -327,28 +578,23 @@ function Desperdicios() {
         );
 
 
-    function cancelar() {
-
-        setDesperdicioEditando(
-            null
-        );
-
-        setFormulario(
-            formularioInicial
-        );
-
-        setErro("");
-    }
-
-
     async function editar(
         desperdicio
     ) {
 
         try {
 
-            setErro("");
-            setMensagem("");
+            setErro(
+                ""
+            );
+
+            setMensagem(
+                ""
+            );
+
+            setErroFormulario(
+                ""
+            );
 
 
             const detalhe =
@@ -358,6 +604,7 @@ function Desperdicios() {
 
 
             let dadosEstoque;
+
 
             try {
 
@@ -386,15 +633,26 @@ function Desperdicios() {
 
 
             let lotes = [
-                ...dadosEstoque.lotes
+                ...(
+                    Array.isArray(
+                        dadosEstoque.lotes
+                    )
+                        ? dadosEstoque.lotes
+                        : []
+                )
             ];
 
 
             const existeLote =
                 lotes.some(
                     (lote) =>
-                        lote.id
-                        === detalhe.lote_id
+                        Number(
+                            lote.id
+                        )
+                        ===
+                        Number(
+                            detalhe.lote_id
+                        )
                 );
 
 
@@ -432,11 +690,17 @@ function Desperdicios() {
                     (lote) => {
 
                         if (
-                            lote.id
-                            !== detalhe.lote_id
+                            Number(
+                                lote.id
+                            )
+                            !==
+                            Number(
+                                detalhe.lote_id
+                            )
                         ) {
                             return lote;
                         }
+
 
                         return {
                             ...lote,
@@ -483,6 +747,11 @@ function Desperdicios() {
                     || ""
             });
 
+
+            setModalFormularioAberto(
+                true
+            );
+
         } catch (error) {
 
             setErro(
@@ -501,13 +770,33 @@ function Desperdicios() {
 
         event.preventDefault();
 
-        setErro("");
-        setMensagem("");
+        setErroFormulario(
+            ""
+        );
+
+        setMensagem(
+            ""
+        );
 
 
-        if (!formulario.lote_id) {
+        if (
+            !formulario.produto
+        ) {
 
-            setErro(
+            setErroFormulario(
+                "Busque um produto "
+                + "do estoque."
+            );
+
+            return;
+        }
+
+
+        if (
+            !formulario.lote_id
+        ) {
+
+            setErroFormulario(
                 "Selecione o lote."
             );
 
@@ -521,7 +810,7 @@ function Desperdicios() {
             ) <= 0
         ) {
 
-            setErro(
+            setErroFormulario(
                 "Quantidade deve ser "
                 + "maior que zero."
             );
@@ -530,7 +819,9 @@ function Desperdicios() {
         }
 
 
-        setSalvando(true);
+        setSalvando(
+            true
+        );
 
 
         const dados = {
@@ -554,6 +845,9 @@ function Desperdicios() {
 
         try {
 
+            let mensagemSucesso;
+
+
             if (
                 desperdicioEditando
             ) {
@@ -563,10 +857,10 @@ function Desperdicios() {
                     dados
                 );
 
-                setMensagem(
+
+                mensagemSucesso =
                     "Desperdício atualizado "
-                    + "com sucesso."
-                );
+                    + "com sucesso.";
 
             } else {
 
@@ -574,20 +868,44 @@ function Desperdicios() {
                     dados
                 );
 
-                setMensagem(
+
+                mensagemSucesso =
                     "Desperdício registrado "
-                    + "com sucesso."
-                );
+                    + "com sucesso.";
             }
 
 
-            cancelar();
+            setModalFormularioAberto(
+                false
+            );
 
-            await carregar();
+            setDesperdicioEditando(
+                null
+            );
+
+            setFormulario(
+                formularioInicial
+            );
+
+            setErroFormulario(
+                ""
+            );
+
+            setMensagem(
+                mensagemSucesso
+            );
+
+
+            await carregar(
+                busca,
+                filtroMotivo,
+                periodo,
+                referencia
+            );
 
         } catch (error) {
 
-            setErro(
+            setErroFormulario(
                 error.response?.data?.erro
                 ||
                 "Não foi possível salvar "
@@ -596,32 +914,69 @@ function Desperdicios() {
 
         } finally {
 
-            setSalvando(false);
+            setSalvando(
+                false
+            );
         }
     }
 
 
-    async function remover(
+    function abrirExcluir(
         desperdicio
     ) {
 
-        const confirmar =
-            window.confirm(
-                "Deseja excluir este "
-                + "desperdício? A quantidade "
-                + "será devolvida ao estoque."
-            );
+        setErro(
+            ""
+        );
+
+        setMensagem(
+            ""
+        );
+
+        setModalExcluir(
+            desperdicio
+        );
+    }
 
 
-        if (!confirmar) {
+    function fecharExcluir() {
+
+        if (excluindo) {
+            return;
+        }
+
+
+        setModalExcluir(
+            null
+        );
+    }
+
+
+    async function confirmarExclusao() {
+
+        if (!modalExcluir) {
             return;
         }
 
 
         try {
 
+            setExcluindo(
+                true
+            );
+
+            setErro(
+                ""
+            );
+
+
             await excluirDesperdicio(
-                desperdicio.id
+                modalExcluir.id
+            );
+
+
+            setModalExcluir(
+                null
             );
 
             setMensagem(
@@ -629,7 +984,13 @@ function Desperdicios() {
                 + "e estoque estornado."
             );
 
-            await carregar();
+
+            await carregar(
+                busca,
+                filtroMotivo,
+                periodo,
+                referencia
+            );
 
         } catch (error) {
 
@@ -637,6 +998,12 @@ function Desperdicios() {
                 error.response?.data?.erro
                 ||
                 "Não foi possível excluir."
+            );
+
+        } finally {
+
+            setExcluindo(
+                false
             );
         }
     }
@@ -647,7 +1014,10 @@ function Desperdicios() {
             () => {
 
                 return desperdicios.reduce(
-                    (total, item) =>
+                    (
+                        total,
+                        item
+                    ) =>
                         total
                         +
                         Number(
@@ -658,15 +1028,155 @@ function Desperdicios() {
                 );
 
             },
-            [desperdicios]
+            [
+                desperdicios
+            ]
         );
+
+
+    // ==============================
+    // PAGINAÇÃO
+    // ==============================
+
+    const totalItens =
+        desperdicios.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaExibida =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaExibida - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const desperdiciosPaginados =
+        desperdicios.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    const primeiroItem =
+        totalItens === 0
+            ? 0
+            : indiceInicial + 1;
+
+
+    const ultimoItem =
+        Math.min(
+            indiceFinal,
+            totalItens
+        );
+
+
+    function irParaPagina(
+        pagina
+    ) {
+
+        if (
+            pagina < 1
+            ||
+            pagina > totalPaginas
+        ) {
+            return;
+        }
+
+
+        setPaginaAtual(
+            pagina
+        );
+    }
+
+
+    function aplicarQuantidadePagina() {
+
+        const quantidade =
+            Number(
+                quantidadePagina
+            );
+
+
+        if (
+            !Number.isInteger(
+                quantidade
+            )
+            ||
+            quantidade <= 0
+        ) {
+
+            setQuantidadePagina(
+                String(
+                    itensPorPagina
+                )
+            );
+
+            return;
+        }
+
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function teclaQuantidadePagina(
+        event
+    ) {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            aplicarQuantidadePagina();
+
+            event.currentTarget.blur();
+        }
+    }
 
 
     return (
 
-        <div className={styles.page}>
+        <div
+            className={
+                styles.page
+            }
+        >
 
-            <div className={styles.header}>
+            <div
+                className={
+                    styles.header
+                }
+            >
 
                 <div>
 
@@ -682,13 +1192,37 @@ function Desperdicios() {
 
                 </div>
 
+
+                <button
+                    type="button"
+                    className={
+                        styles.addButton
+                    }
+                    onClick={
+                        abrirAdicionar
+                    }
+                >
+
+                    <Plus
+                        size={16}
+                    />
+
+                    Adicionar desperdício
+
+                </button>
+
             </div>
 
 
             {
-                erro && (
+                erro
+                && (
 
-                    <div className={styles.error}>
+                    <div
+                        className={
+                            styles.error
+                        }
+                    >
                         {erro}
                     </div>
                 )
@@ -696,16 +1230,25 @@ function Desperdicios() {
 
 
             {
-                mensagem && (
+                mensagem
+                && (
 
-                    <div className={styles.success}>
+                    <div
+                        className={
+                            styles.success
+                        }
+                    >
                         {mensagem}
                     </div>
                 )
             }
 
 
-            <div className={styles.summary}>
+            <div
+                className={
+                    styles.summary
+                }
+            >
 
                 <div>
 
@@ -749,7 +1292,145 @@ function Desperdicios() {
             </div>
 
 
-            <div className={styles.filters}>
+            <div
+                className={
+                    styles.periodArea
+                }
+            >
+
+                <div
+                    className={
+                        styles.periodButtons
+                    }
+                >
+
+                    <button
+                        type="button"
+                        className={
+                            periodo === "TOTAL"
+                                ? styles.activePeriod
+                                : ""
+                        }
+                        onClick={() =>
+                            handlePeriodo(
+                                "TOTAL"
+                            )
+                        }
+                    >
+                        Total
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            periodo === "MENSAL"
+                                ? styles.activePeriod
+                                : ""
+                        }
+                        onClick={() =>
+                            handlePeriodo(
+                                "MENSAL"
+                            )
+                        }
+                    >
+                        Mensal
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            periodo === "ANUAL"
+                                ? styles.activePeriod
+                                : ""
+                        }
+                        onClick={() =>
+                            handlePeriodo(
+                                "ANUAL"
+                            )
+                        }
+                    >
+                        Anual
+                    </button>
+
+                </div>
+
+
+                {
+                    periodo !== "TOTAL"
+                    && (
+
+                        <div
+                            className={
+                                styles.periodReference
+                            }
+                        >
+
+                            {
+                                periodo === "MENSAL"
+                                    ? (
+
+                                        <input
+                                            type="month"
+                                            value={
+                                                referencia
+                                            }
+                                            onChange={
+                                                (event) =>
+                                                    setReferencia(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                            }
+                                        />
+                                    )
+                                    : (
+
+                                        <input
+                                            type="number"
+                                            min="2000"
+                                            max="2100"
+                                            step="1"
+                                            value={
+                                                referencia
+                                            }
+                                            onChange={
+                                                (event) =>
+                                                    setReferencia(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                            }
+                                            placeholder="Ano"
+                                        />
+                                    )
+                            }
+
+
+                            <button
+                                type="button"
+                                onClick={
+                                    aplicarPeriodo
+                                }
+                            >
+                                Aplicar
+                            </button>
+
+                        </div>
+                    )
+                }
+
+            </div>
+
+
+            <div
+                className={
+                    styles.filters
+                }
+            >
 
                 <div
                     className={
@@ -757,27 +1438,38 @@ function Desperdicios() {
                     }
                 >
 
-                    <Search size={17} />
+                    <Search
+                        size={17}
+                    />
 
                     <input
                         placeholder={
                             "Buscar produto ou código..."
                         }
-                        value={busca}
-                        onChange={handleBusca}
+                        value={
+                            busca
+                        }
+                        onChange={
+                            handleBusca
+                        }
                     />
 
                 </div>
 
 
                 <select
-                    value={filtroMotivo}
-                    onChange={handleMotivo}
+                    value={
+                        filtroMotivo
+                    }
+                    onChange={
+                        handleMotivo
+                    }
                 >
 
                     <option value="">
                         Todos os motivos
                     </option>
+
 
                     {
                         Object.entries(
@@ -789,10 +1481,16 @@ function Desperdicios() {
                             ]) => (
 
                                 <option
-                                    key={valor}
-                                    value={valor}
+                                    key={
+                                        valor
+                                    }
+                                    value={
+                                        valor
+                                    }
                                 >
-                                    {descricao}
+                                    {
+                                        descricao
+                                    }
                                 </option>
                             )
                         )
@@ -803,7 +1501,11 @@ function Desperdicios() {
             </div>
 
 
-            <section className={styles.card}>
+            <section
+                className={
+                    styles.card
+                }
+            >
 
                 <div
                     className={
@@ -834,7 +1536,8 @@ function Desperdicios() {
                         <tbody>
 
                             {
-                                desperdicios.length
+                                desperdiciosPaginados
+                                    .length
                                 === 0
                                     ? (
 
@@ -847,130 +1550,160 @@ function Desperdicios() {
                                                 }
                                             >
                                                 Nenhum desperdício
-                                                registrado.
+                                                encontrado.
                                             </td>
 
                                         </tr>
                                     )
 
-                                    : desperdicios.map(
-                                        (item) => (
+                                    : desperdiciosPaginados
+                                        .map(
+                                            (item) => (
 
-                                            <tr
-                                                key={
-                                                    item.id
-                                                }
-                                            >
-
-                                                <td>
-                                                    {
-                                                        item.quantidade
+                                                <tr
+                                                    key={
+                                                        item.id
                                                     }
-                                                </td>
+                                                >
 
-                                                <td>
-                                                    {
-                                                        item.produto_nome
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            item
+                                                                .quantidade
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        moeda(
-                                                            item.custo_unitario
-                                                        )
-                                                    }
-                                                </td>
 
-                                                <td>
-                                                    <strong>
+                                                    <td>
+                                                        {
+                                                            item
+                                                                .produto_nome
+                                                        }
+                                                    </td>
+
+
+                                                    <td>
                                                         {
                                                             moeda(
-                                                                item.valor_total
+                                                                item
+                                                                    .custo_unitario
                                                             )
                                                         }
-                                                    </strong>
-                                                </td>
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        item.codigo_barras
-                                                    }
-                                                </td>
 
-                                                <td>
-                                                    #{item.lote_id}
-                                                </td>
+                                                    <td>
 
-                                                <td>
-                                                    {
-                                                        dataBR(
-                                                            item.validade
-                                                        )
-                                                    }
-                                                </td>
+                                                        <strong>
+                                                            {
+                                                                moeda(
+                                                                    item
+                                                                        .valor_total
+                                                                )
+                                                            }
+                                                        </strong>
 
-                                                <td>
-                                                    {
-                                                        motivos[
-                                                            item.motivo
-                                                        ]
-                                                        ||
-                                                        item.motivo
-                                                    }
-                                                </td>
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        dataBR(
+
+                                                    <td>
+                                                        {
                                                             item
-                                                                .data_desperdicio
-                                                        )
-                                                    }
-                                                </td>
-
-                                                <td>
-
-                                                    <div
-                                                        className={
-                                                            styles.actions
+                                                                .codigo_barras
+                                                            || "-"
                                                         }
-                                                    >
+                                                    </td>
 
-                                                        <button
-                                                            title="Editar"
-                                                            onClick={() =>
-                                                                editar(
-                                                                    item
-                                                                )
+
+                                                    <td>
+                                                        #
+                                                        {
+                                                            item
+                                                                .lote_id
+                                                        }
+                                                    </td>
+
+
+                                                    <td>
+                                                        {
+                                                            dataBR(
+                                                                item
+                                                                    .validade
+                                                            )
+                                                        }
+                                                    </td>
+
+
+                                                    <td>
+                                                        {
+                                                            motivos[
+                                                                item
+                                                                    .motivo
+                                                            ]
+                                                            ||
+                                                            item
+                                                                .motivo
+                                                        }
+                                                    </td>
+
+
+                                                    <td>
+                                                        {
+                                                            dataBR(
+                                                                item
+                                                                    .data_desperdicio
+                                                            )
+                                                        }
+                                                    </td>
+
+
+                                                    <td>
+
+                                                        <div
+                                                            className={
+                                                                styles.actions
                                                             }
                                                         >
-                                                            <Pencil
-                                                                size={15}
-                                                            />
-                                                        </button>
+
+                                                            <button
+                                                                type="button"
+                                                                title="Editar"
+                                                                onClick={() =>
+                                                                    editar(
+                                                                        item
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Pencil
+                                                                    size={15}
+                                                                />
+                                                            </button>
 
 
-                                                        <button
-                                                            title="Excluir"
-                                                            onClick={() =>
-                                                                remover(
-                                                                    item
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2
-                                                                size={15}
-                                                            />
-                                                        </button>
+                                                            <button
+                                                                type="button"
+                                                                title="Excluir"
+                                                                className={
+                                                                    styles.deleteAction
+                                                                }
+                                                                onClick={() =>
+                                                                    abrirExcluir(
+                                                                        item
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2
+                                                                    size={15}
+                                                                />
+                                                            </button>
 
-                                                    </div>
+                                                        </div>
 
-                                                </td>
+                                                    </td>
 
-                                            </tr>
+                                                </tr>
+                                            )
                                         )
-                                    )
                             }
 
                         </tbody>
@@ -979,317 +1712,751 @@ function Desperdicios() {
 
                 </div>
 
-            </section>
 
-
-            <section className={styles.formCard}>
-
-                <h2>
-                    {
-                        desperdicioEditando
-                            ? "Editar Desperdício"
-                            : "Registrar Desperdício"
+                <div
+                    className={
+                        styles.pagination
                     }
-                </h2>
+                >
 
+                    <div
+                        className={
+                            styles.paginationInfo
+                        }
+                    >
 
-                <div className={styles.barcode}>
+                        Mostrando{" "}
 
-                    <div>
-
-                        <label>
-                            Código de barras *
-                        </label>
-
-                        <input
-                            name="codigo"
-                            value={
-                                formulario.codigo
+                        <strong>
+                            {
+                                primeiroItem
                             }
-                            onChange={
-                                alterarFormulario
+                        </strong>
+
+                        {" - "}
+
+                        <strong>
+                            {
+                                ultimoItem
                             }
-                            inputMode="numeric"
-                        />
+                        </strong>
+
+                        {" de "}
+
+                        <strong>
+                            {
+                                totalItens
+                            }
+                        </strong>
 
                     </div>
 
 
-                    <button
-                        type="button"
-                        onClick={
-                            buscarCodigo
+                    <div
+                        className={
+                            styles.paginationControls
                         }
                     >
 
-                        <Search size={15} />
-
-                        Buscar
-
-                    </button>
-
-                </div>
-
-
-                {
-                    formulario.produto
-                    && (
-
-                        <div
+                        <button
+                            type="button"
                             className={
-                                styles.productFound
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida === 1
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    1
+                                )
+                            }
+                            title="Primeira página"
+                        >
+                            &laquo;
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida === 1
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    paginaExibida - 1
+                                )
+                            }
+                            title="Página anterior"
+                        >
+                            &lsaquo;
+                        </button>
+
+
+                        <span
+                            className={
+                                styles.paginationPage
                             }
                         >
-                            Produto:
-                            {" "}
+                            Página{" "}
 
                             <strong>
                                 {
-                                    formulario
-                                        .produto
-                                        .nome
+                                    paginaExibida
                                 }
                             </strong>
-                        </div>
-                    )
-                }
+
+                            {" de "}
+
+                            <strong>
+                                {
+                                    totalPaginas
+                                }
+                            </strong>
+                        </span>
 
 
-                {
-                    formulario.produto
-                    && (
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida
+                                === totalPaginas
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    paginaExibida + 1
+                                )
+                            }
+                            title="Próxima página"
+                        >
+                            &rsaquo;
+                        </button>
 
-                        <form
-                            onSubmit={salvar}
+
+                        <button
+                            type="button"
+                            className={
+                                styles.paginationButton
+                            }
+                            disabled={
+                                paginaExibida
+                                === totalPaginas
+                            }
+                            onClick={() =>
+                                irParaPagina(
+                                    totalPaginas
+                                )
+                            }
+                            title="Última página"
+                        >
+                            &raquo;
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        className={
+                            styles.paginationSize
+                        }
+                    >
+
+                        <label
+                            htmlFor={
+                                "itensPorPaginaDesperdicios"
+                            }
+                        >
+                            Itens por página
+                        </label>
+
+                        <input
+                            id={
+                                "itensPorPaginaDesperdicios"
+                            }
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={
+                                quantidadePagina
+                            }
+                            onChange={
+                                (event) =>
+                                    setQuantidadePagina(
+                                        event.target.value
+                                    )
+                            }
+                            onBlur={
+                                aplicarQuantidadePagina
+                            }
+                            onKeyDown={
+                                teclaQuantidadePagina
+                            }
+                        />
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            {
+                modalFormularioAberto
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.modalCard
+                            }
                         >
 
                             <div
                                 className={
-                                    styles.formGrid
+                                    styles.modalHeader
                                 }
                             >
 
                                 <div>
 
-                                    <label>
-                                        Lote *
-                                    </label>
-
-                                    <select
-                                        name="lote_id"
-                                        value={
-                                            formulario
-                                                .lote_id
-                                        }
-                                        onChange={
-                                            alterarFormulario
-                                        }
-                                        required
-                                    >
-
-                                        <option value="">
-                                            Selecione
-                                        </option>
-
-
+                                    <h2>
                                         {
-                                            formulario
-                                                .lotes
-                                                .map(
-                                                    (lote) => (
-
-                                                        <option
-                                                            key={
-                                                                lote.id
-                                                            }
-                                                            value={
-                                                                lote.id
-                                                            }
-                                                        >
-
-                                                            Lote #{lote.id}
-
-                                                            {" - "}
-
-                                                            {
-                                                                dataBR(
-                                                                    lote.validade
-                                                                )
-                                                            }
-
-                                                            {" - "}
-
-                                                            {
-                                                                lote
-                                                                    .quantidade_atual
-                                                            }
-
-                                                            {" disponíveis"}
-
-                                                        </option>
-                                                    )
+                                            desperdicioEditando
+                                                ? (
+                                                    "Editar desperdício #"
+                                                    + desperdicioEditando
                                                 )
+                                                : "Adicionar desperdício"
                                         }
+                                    </h2>
 
-                                    </select>
-
-                                </div>
-
-
-                                <div>
-
-                                    <label>
-                                        Quantidade *
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        name="quantidade"
-                                        min="0.001"
-                                        step="0.001"
-                                        value={
-                                            formulario
-                                                .quantidade
-                                        }
-                                        onChange={
-                                            alterarFormulario
-                                        }
-                                        required
-                                    />
-
-                                </div>
-
-
-                                <div>
-
-                                    <label>
-                                        Motivo *
-                                    </label>
-
-                                    <select
-                                        name="motivo"
-                                        value={
-                                            formulario.motivo
-                                        }
-                                        onChange={
-                                            alterarFormulario
-                                        }
-                                    >
-
+                                    <p>
                                         {
-                                            Object.entries(
-                                                motivos
-                                            ).map(
-                                                ([
-                                                    valor,
-                                                    descricao
-                                                ]) => (
-
-                                                    <option
-                                                        key={valor}
-                                                        value={valor}
-                                                    >
-                                                        {descricao}
-                                                    </option>
-                                                )
-                                            )
+                                            desperdicioEditando
+                                                ? "Altere os dados do registro."
+                                                : "Registre uma nova perda do estoque."
                                         }
-
-                                    </select>
+                                    </p>
 
                                 </div>
 
 
-                                <div>
-
-                                    <label>
-                                        Valor unitário
-                                    </label>
-
-                                    <input
-                                        value={
-                                            moeda(
-                                                loteSelecionado
-                                                    ?.custo_unitario
-                                            )
-                                        }
-                                        disabled
-                                    />
-
-                                </div>
-
-
-                                <div>
-
-                                    <label>
-                                        Valor total
-                                    </label>
-
-                                    <input
-                                        value={
-                                            moeda(
-                                                valorTotal
-                                            )
-                                        }
-                                        disabled
-                                    />
-
-                                </div>
-
-
-                                <div>
-
-                                    <label>
-                                        Validade
-                                    </label>
-
-                                    <input
-                                        value={
-                                            loteSelecionado
-                                                ? dataBR(
-                                                    loteSelecionado
-                                                        .validade
-                                                )
-                                                : ""
-                                        }
-                                        disabled
-                                    />
-
-                                </div>
-
-
-                                <div
+                                <button
+                                    type="button"
                                     className={
-                                        styles.observation
+                                        styles.closeButton
                                     }
+                                    onClick={
+                                        fecharFormulario
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                    title="Fechar"
                                 >
-
-                                    <label>
-                                        Observação
-                                    </label>
-
-                                    <input
-                                        name="observacao"
-                                        value={
-                                            formulario
-                                                .observacao
-                                        }
-                                        onChange={
-                                            alterarFormulario
-                                        }
-                                        placeholder={
-                                            "Informações adicionais"
-                                        }
+                                    <X
+                                        size={18}
                                     />
-
-                                </div>
+                                </button>
 
                             </div>
 
 
                             <div
                                 className={
-                                    styles.formActions
+                                    styles.modalBody
+                                }
+                            >
+
+                                {
+                                    erroFormulario
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                erroFormulario
+                                            }
+                                        </div>
+                                    )
+                                }
+
+
+                                <div
+                                    className={
+                                        styles.barcode
+                                    }
+                                >
+
+                                    <div>
+
+                                        <label>
+                                            Código de barras *
+                                        </label>
+
+                                        <input
+                                            name="codigo"
+                                            value={
+                                                formulario.codigo
+                                            }
+                                            onChange={
+                                                alterarFormulario
+                                            }
+                                            inputMode="numeric"
+                                            disabled={
+                                                salvando
+                                            }
+                                        />
+
+                                    </div>
+
+
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            buscarCodigo
+                                        }
+                                        disabled={
+                                            salvando
+                                        }
+                                    >
+
+                                        <Search
+                                            size={15}
+                                        />
+
+                                        Buscar
+
+                                    </button>
+
+                                </div>
+
+
+                                {
+                                    formulario.produto
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.productFound
+                                            }
+                                        >
+                                            Produto:
+                                            {" "}
+
+                                            <strong>
+                                                {
+                                                    formulario
+                                                        .produto
+                                                        .nome
+                                                }
+                                            </strong>
+                                        </div>
+                                    )
+                                }
+
+
+                                {
+                                    formulario.produto
+                                    && (
+
+                                        <form
+                                            onSubmit={
+                                                salvar
+                                            }
+                                        >
+
+                                            <div
+                                                className={
+                                                    styles.formGrid
+                                                }
+                                            >
+
+                                                <div>
+
+                                                    <label>
+                                                        Lote *
+                                                    </label>
+
+                                                    <select
+                                                        name="lote_id"
+                                                        value={
+                                                            formulario
+                                                                .lote_id
+                                                        }
+                                                        onChange={
+                                                            alterarFormulario
+                                                        }
+                                                        required
+                                                        disabled={
+                                                            salvando
+                                                        }
+                                                    >
+
+                                                        <option value="">
+                                                            Selecione
+                                                        </option>
+
+
+                                                        {
+                                                            formulario
+                                                                .lotes
+                                                                .map(
+                                                                    (lote) => (
+
+                                                                        <option
+                                                                            key={
+                                                                                lote.id
+                                                                            }
+                                                                            value={
+                                                                                lote.id
+                                                                            }
+                                                                        >
+
+                                                                            Lote #{lote.id}
+
+                                                                            {" - "}
+
+                                                                            {
+                                                                                dataBR(
+                                                                                    lote.validade
+                                                                                )
+                                                                            }
+
+                                                                            {" - "}
+
+                                                                            {
+                                                                                lote
+                                                                                    .quantidade_atual
+                                                                            }
+
+                                                                            {" disponíveis"}
+
+                                                                        </option>
+                                                                    )
+                                                                )
+                                                        }
+
+                                                    </select>
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <label>
+                                                        Quantidade *
+                                                    </label>
+
+                                                    <input
+                                                        type="number"
+                                                        name="quantidade"
+                                                        min="0.001"
+                                                        step="0.001"
+                                                        value={
+                                                            formulario
+                                                                .quantidade
+                                                        }
+                                                        onChange={
+                                                            alterarFormulario
+                                                        }
+                                                        required
+                                                        disabled={
+                                                            salvando
+                                                        }
+                                                    />
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <label>
+                                                        Motivo *
+                                                    </label>
+
+                                                    <select
+                                                        name="motivo"
+                                                        value={
+                                                            formulario
+                                                                .motivo
+                                                        }
+                                                        onChange={
+                                                            alterarFormulario
+                                                        }
+                                                        disabled={
+                                                            salvando
+                                                        }
+                                                    >
+
+                                                        {
+                                                            Object.entries(
+                                                                motivos
+                                                            ).map(
+                                                                ([
+                                                                    valor,
+                                                                    descricao
+                                                                ]) => (
+
+                                                                    <option
+                                                                        key={
+                                                                            valor
+                                                                        }
+                                                                        value={
+                                                                            valor
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            descricao
+                                                                        }
+                                                                    </option>
+                                                                )
+                                                            )
+                                                        }
+
+                                                    </select>
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <label>
+                                                        Valor unitário
+                                                    </label>
+
+                                                    <input
+                                                        value={
+                                                            moeda(
+                                                                loteSelecionado
+                                                                    ?.custo_unitario
+                                                            )
+                                                        }
+                                                        disabled
+                                                    />
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <label>
+                                                        Valor total
+                                                    </label>
+
+                                                    <input
+                                                        value={
+                                                            moeda(
+                                                                valorTotal
+                                                            )
+                                                        }
+                                                        disabled
+                                                    />
+
+                                                </div>
+
+
+                                                <div>
+
+                                                    <label>
+                                                        Validade
+                                                    </label>
+
+                                                    <input
+                                                        value={
+                                                            loteSelecionado
+                                                                ? dataBR(
+                                                                    loteSelecionado
+                                                                        .validade
+                                                                )
+                                                                : ""
+                                                        }
+                                                        disabled
+                                                    />
+
+                                                </div>
+
+
+                                                <div
+                                                    className={
+                                                        styles.observation
+                                                    }
+                                                >
+
+                                                    <label>
+                                                        Observação
+                                                    </label>
+
+                                                    <input
+                                                        name="observacao"
+                                                        value={
+                                                            formulario
+                                                                .observacao
+                                                        }
+                                                        onChange={
+                                                            alterarFormulario
+                                                        }
+                                                        placeholder={
+                                                            "Informações adicionais"
+                                                        }
+                                                        disabled={
+                                                            salvando
+                                                        }
+                                                    />
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div
+                                                className={
+                                                    styles.formActions
+                                                }
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    className={
+                                                        styles.cancelButton
+                                                    }
+                                                    onClick={
+                                                        fecharFormulario
+                                                    }
+                                                    disabled={
+                                                        salvando
+                                                    }
+                                                >
+                                                    Cancelar
+                                                </button>
+
+
+                                                <button
+                                                    type="submit"
+                                                    className={
+                                                        styles.saveButton
+                                                    }
+                                                    disabled={
+                                                        salvando
+                                                    }
+                                                >
+
+                                                    {
+                                                        salvando
+                                                            ? "Salvando..."
+                                                            : desperdicioEditando
+                                                                ? "Salvar alterações"
+                                                                : "Adicionar"
+                                                    }
+
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+                                    )
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
+
+
+            {
+                modalExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.confirmModal
+                            }
+                        >
+
+                            <div
+                                className={
+                                    styles.confirmIcon
+                                }
+                            >
+                                <TriangleAlert
+                                    size={24}
+                                />
+                            </div>
+
+
+                            <h2>
+                                Excluir desperdício #
+                                {
+                                    modalExcluir.id
+                                }
+                            </h2>
+
+
+                            <p>
+                                Deseja realmente excluir este
+                                desperdício? A quantidade será
+                                devolvida ao estoque.
+                            </p>
+
+
+                            <div
+                                className={
+                                    styles.confirmDetails
+                                }
+                            >
+
+                                <span>
+                                    Produto
+                                </span>
+
+                                <strong>
+                                    {
+                                        modalExcluir
+                                            .produto_nome
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    Quantidade
+                                </span>
+
+                                <strong>
+                                    {
+                                        modalExcluir
+                                            .quantidade
+                                    }
+                                </strong>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmActions
                                 }
                             >
 
@@ -1299,7 +2466,10 @@ function Desperdicios() {
                                         styles.cancelButton
                                     }
                                     onClick={
-                                        cancelar
+                                        fecharExcluir
+                                    }
+                                    disabled={
+                                        excluindo
                                     }
                                 >
                                     Cancelar
@@ -1307,30 +2477,33 @@ function Desperdicios() {
 
 
                                 <button
-                                    type="submit"
+                                    type="button"
                                     className={
-                                        styles.saveButton
+                                        styles.deleteButton
+                                    }
+                                    onClick={
+                                        confirmarExclusao
                                     }
                                     disabled={
-                                        salvando
+                                        excluindo
                                     }
                                 >
 
                                     {
-                                        salvando
-                                            ? "Salvando..."
-                                            : "Salvar"
+                                        excluindo
+                                            ? "Excluindo..."
+                                            : "Excluir"
                                     }
 
                                 </button>
 
                             </div>
 
-                        </form>
-                    )
-                }
+                        </div>
 
-            </section>
+                    </div>
+                )
+            }
 
         </div>
     );

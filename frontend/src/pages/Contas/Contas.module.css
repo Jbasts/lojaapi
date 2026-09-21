@@ -3,15 +3,11 @@
 }
 
 
-/* =========================
+/* ==============================
    CABEÇALHO
-========================= */
+============================== */
 
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
     margin-bottom: 20px;
 }
 
@@ -20,9 +16,6 @@
     margin: 0;
 
     font-size: 24px;
-
-    color:
-        var(--color-text);
 }
 
 
@@ -36,46 +29,25 @@
 }
 
 
-/* =========================
-   ERRO
-========================= */
-
-.error {
-    margin-bottom: 15px;
-
-    padding: 11px 14px;
-
-    border:
-        1px solid #f0cccc;
-
-    border-radius: 6px;
-
-    background: #fbe8e8;
-
-    color:
-        var(--color-danger);
-
-    font-size: 12px;
-}
-
-
-/* =========================
-   ABAS DE PERÍODO
-========================= */
+/* ==============================
+   PERÍODO
+============================== */
 
 .periodTabs {
     display: flex;
 
-    gap: 6px;
+    flex-wrap: wrap;
+
+    gap: 5px;
 
     margin-bottom: 12px;
 }
 
 
 .periodTabs button {
-    height: 36px;
+    height: 35px;
 
-    padding: 0 17px;
+    padding: 0 16px;
 
     border:
         1px solid
@@ -83,26 +55,21 @@
 
     border-radius: 6px;
 
-    background:
-        var(--color-surface);
+    background: white;
 
     color:
         var(--color-text);
 
-    font-size: 11px;
-
     cursor: pointer;
 
     transition:
-        0.15s ease;
+        background 0.15s ease,
+        border-color 0.15s ease;
 }
 
 
 .periodTabs button:hover {
     border-color:
-        var(--color-primary);
-
-    color:
         var(--color-primary);
 }
 
@@ -118,21 +85,13 @@
 }
 
 
-.periodTabs .activeTab:hover {
-    color: white;
-}
-
-
-/* =========================
+/* ==============================
    FILTRO DE DATA
-========================= */
+============================== */
 
 .periodFilter {
     width: fit-content;
-
-    min-width: 170px;
-
-    height: 40px;
+    height: 39px;
 
     display: flex;
     align-items: center;
@@ -141,7 +100,7 @@
 
     margin-bottom: 18px;
 
-    padding: 0 12px;
+    padding: 0 11px;
 
     border:
         1px solid
@@ -149,8 +108,7 @@
 
     border-radius: 6px;
 
-    background:
-        var(--color-surface);
+    background: white;
 
     color:
         var(--color-primary);
@@ -158,11 +116,7 @@
 
 
 .periodFilter input {
-    min-width: 125px;
-
     height: 30px;
-
-    padding: 0;
 
     border: 0;
 
@@ -172,20 +126,21 @@
 
     color:
         var(--color-text);
-
-    font-size: 11px;
 }
 
 
-/* =========================
+/* ==============================
    RESUMO
-========================= */
+============================== */
 
 .summary {
     display: grid;
 
     grid-template-columns:
-        repeat(5, minmax(0, 1fr));
+        repeat(
+            5,
+            minmax(0, 1fr)
+        );
 
     gap: 12px;
 
@@ -197,10 +152,10 @@
     min-height: 105px;
 
     display: flex;
-    flex-direction: column;
-    justify-content: center;
 
-    padding: 15px 17px;
+    flex-direction: column;
+
+    padding: 15px;
 
     border:
         1px solid
@@ -211,15 +166,11 @@
 
     background:
         var(--color-surface);
-
-    box-shadow:
-        0 1px 3px
-        rgba(0, 0, 0, 0.025);
 }
 
 
 .summaryCard svg {
-    margin-bottom: 9px;
+    margin-bottom: 10px;
 
     color:
         var(--color-primary);
@@ -238,19 +189,19 @@
     margin-top: 5px;
 
     font-size: 18px;
-
-    color:
-        var(--color-text);
 }
 
 
-/* =========================
+/* ==============================
    FILTROS
-========================= */
+============================== */
 
 .filters {
     display: flex;
+
     align-items: center;
+
+    flex-wrap: wrap;
 
     gap: 10px;
 
@@ -260,9 +211,10 @@
 
 .searchBox {
     width: 390px;
-    height: 40px;
+    height: 39px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -277,6 +229,11 @@
 
     background:
         var(--color-surface);
+}
+
+
+.searchBox svg {
+    flex-shrink: 0;
 
     color:
         var(--color-text-light);
@@ -294,20 +251,14 @@
 
     color:
         var(--color-text);
-
-    font-size: 11px;
-}
-
-
-.searchBox input::placeholder {
-    color: #aaa;
 }
 
 
 .filters select {
-    height: 40px;
+    min-width: 145px;
+    height: 39px;
 
-    padding: 0 11px;
+    padding: 0 10px;
 
     border:
         1px solid
@@ -315,21 +266,51 @@
 
     border-radius: 6px;
 
-    outline: none;
-
-    background:
-        var(--color-surface);
+    background: white;
 
     color:
         var(--color-text);
 
-    font-size: 11px;
+    outline: none;
+
+    cursor: pointer;
 }
 
 
-/* =========================
-   CARD DA TABELA
-========================= */
+.filters select:last-child {
+    min-width: 165px;
+}
+
+
+.filters select:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+/* ==============================
+   ERRO
+============================== */
+
+.error {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 12px;
+}
+
+
+/* ==============================
+   CARD
+============================== */
 
 .card {
     overflow: hidden;
@@ -343,34 +324,28 @@
 
     background:
         var(--color-surface);
-
-    box-shadow:
-        0 1px 4px
-        rgba(0, 0, 0, 0.025);
 }
 
 
-.tableWrapper {
-    width: 100%;
+/* ==============================
+   TABELA PRINCIPAL
+============================== */
 
+.tableWrapper {
     overflow-x: auto;
 }
 
 
-/* =========================
-   TABELAS
-========================= */
-
-table {
+.card table {
     width: 100%;
 
     border-collapse: collapse;
 }
 
 
-th,
-td {
-    padding: 12px 13px;
+.card th,
+.card td {
+    padding: 11px 12px;
 
     border-bottom:
         1px solid
@@ -384,7 +359,7 @@ td {
 }
 
 
-th {
+.card th {
     background: #faf8f6;
 
     color:
@@ -393,10 +368,6 @@ th {
     font-size: 9px;
 
     font-weight: 600;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.2px;
 }
 
 
@@ -411,18 +382,14 @@ th {
 }
 
 
-.mainRow:last-child td {
-    border-bottom: 0;
-}
-
-
-/* =========================
-   TIPO
-========================= */
+/* ==============================
+   ENTRADA / SAÍDA
+============================== */
 
 .entrada,
 .saida {
     display: inline-flex;
+
     align-items: center;
 
     padding: 4px 8px;
@@ -445,14 +412,9 @@ th {
 .saida {
     background: #fbe8e8;
 
-    color:
-        var(--color-danger);
+    color: #a14343;
 }
 
-
-/* =========================
-   POSITIVO / NEGATIVO
-========================= */
 
 .positive {
     color:
@@ -468,25 +430,31 @@ th {
 }
 
 
-/* =========================
-   CATEGORIA + SETA
-========================= */
+/* ==============================
+   CATEGORIA
+============================== */
 
 .categoryCell {
     display: flex;
+
     align-items: center;
 
-    gap: 7px;
+    gap: 8px;
 }
 
 
+/* ==============================
+   BOTÃO EXPANDIR
+============================== */
+
 .expandButton {
-    width: 28px;
-    height: 28px;
+    width: 29px;
+    height: 29px;
 
     flex-shrink: 0;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -498,8 +466,7 @@ th {
 
     border-radius: 5px;
 
-    background:
-        var(--color-surface);
+    background: white;
 
     color:
         var(--color-primary);
@@ -514,46 +481,43 @@ th {
 
 .expandButton:hover {
     border-color:
-        var(--color-secondary);
+        var(--color-primary);
 
-    background:
-        var(--color-background);
+    background: #f7f3ef;
 }
 
 
 .loadingDot {
-    font-size: 10px;
+    font-size: 11px;
 
     font-weight: 700;
+
+    line-height: 1;
 }
 
 
-/* =========================
-   DETALHES COMPRA
-========================= */
+/* ==============================
+   DETALHES DA COMPRA
+============================== */
 
 .detailsRow > td {
     padding: 0 !important;
-
-    border-bottom:
-        1px solid
-        var(--color-border);
 
     background: #faf8f6;
 }
 
 
 .purchaseDetails {
-    padding: 19px 25px 22px;
+    padding:
+        18px
+        24px
+        22px;
 }
 
 
-/* =========================
-   CABEÇALHO DO DETALHE
-========================= */
-
 .detailsHeader {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
 
@@ -565,6 +529,7 @@ th {
 
 .detailsHeader > div {
     display: flex;
+
     flex-direction: column;
 
     gap: 4px;
@@ -572,9 +537,6 @@ th {
 
 
 .detailsHeader strong {
-    color:
-        var(--color-text);
-
     font-size: 12px;
 }
 
@@ -590,14 +552,16 @@ th {
 .purchaseStatus {
     display: inline-flex;
 
-    padding: 5px 10px;
+    align-items: center;
+
+    padding: 5px 9px;
 
     border-radius: 20px;
 
-    background: #e7f5ec;
+    background: #f3efeb;
 
     color:
-        var(--color-success)
+        var(--color-primary)
         !important;
 
     font-size: 9px
@@ -607,13 +571,11 @@ th {
 }
 
 
-/* =========================
+/* ==============================
    TABELA DOS PRODUTOS
-========================= */
+============================== */
 
 .detailsTableWrapper {
-    width: 100%;
-
     overflow-x: auto;
 
     border:
@@ -622,8 +584,7 @@ th {
 
     border-radius: 6px;
 
-    background:
-        var(--color-surface);
+    background: white;
 }
 
 
@@ -634,9 +595,15 @@ th {
 }
 
 
-.detailsTable th {
+.detailsTable th,
+.detailsTable td {
     padding: 10px 12px;
 
+    font-size: 10px;
+}
+
+
+.detailsTable th {
     background: #f7f4f1;
 
     color:
@@ -646,39 +613,31 @@ th {
 }
 
 
-.detailsTable td {
-    padding: 10px 12px;
-
-    background: white;
-
-    font-size: 10px;
-}
-
-
 .detailsTable tbody tr:last-child td {
     border-bottom: 0;
 }
 
 
 .emptyDetails {
-    padding: 25px
-        !important;
+    padding: 25px !important;
 
-    text-align: center
-        !important;
+    text-align: center !important;
 
     color:
         var(--color-text-light);
 }
 
 
-/* =========================
+/* ==============================
    TOTAIS DA COMPRA
-========================= */
+============================== */
 
 .purchaseTotals {
     display: flex;
+
     justify-content: flex-end;
+
+    flex-wrap: wrap;
 
     gap: 10px;
 
@@ -695,15 +654,16 @@ th {
         1px solid
         var(--color-border);
 
-    border-radius: 6px;
+    border-radius: 5px;
 
-    background:
-        var(--color-surface);
+    background: white;
 }
 
 
 .purchaseTotals span {
     display: block;
+
+    margin-bottom: 4px;
 
     color:
         var(--color-text-light);
@@ -715,27 +675,16 @@ th {
 .purchaseTotals strong {
     display: block;
 
-    margin-top: 4px;
-
-    color:
-        var(--color-text);
-
     font-size: 13px;
 }
 
 
 .totalFinal {
     border-color:
-        rgba(
-            107,
-            62,
-            38,
-            0.25
-        )
+        var(--color-primary)
         !important;
 
-    background:
-        #fbf8f5
+    background: #faf7f4
         !important;
 }
 
@@ -743,71 +692,73 @@ th {
 .totalFinal strong {
     color:
         var(--color-primary);
+
+    font-size: 14px;
 }
 
 
-/* =========================
+/* ==============================
    OBSERVAÇÃO
-========================= */
+============================== */
 
 .observation {
     display: flex;
+
+    align-items: flex-start;
 
     gap: 6px;
 
     margin-top: 14px;
 
-    padding: 10px 12px;
+    padding: 11px 13px;
 
     border:
         1px solid
         var(--color-border);
 
-    border-radius: 6px;
+    border-radius: 5px;
 
-    background:
-        var(--color-surface);
+    background: white;
 
     font-size: 10px;
 }
 
 
 .observation strong {
-    color:
-        var(--color-text);
+    white-space: nowrap;
 }
 
 
 .observation span {
     color:
         var(--color-text-light);
+
+    white-space: normal;
 }
 
 
-/* =========================
-   TABELA VAZIA
-========================= */
+/* ==============================
+   VAZIO
+============================== */
 
 .empty {
-    padding: 38px
-        !important;
+    padding: 35px !important;
 
-    text-align: center
-        !important;
+    text-align: center !important;
 
     color:
         var(--color-text-light);
 
-    font-size: 11px;
+    font-size: 10px;
 }
 
 
-/* =========================
+/* ==============================
    RESPONSIVO
-========================= */
+============================== */
 
 @media (
-    max-width: 1200px
+    max-width: 1150px
 ) {
 
     .summary {
@@ -821,7 +772,7 @@ th {
 
 
 @media (
-    max-width: 850px
+    max-width: 800px
 ) {
 
     .filters {
@@ -831,25 +782,16 @@ th {
     }
 
 
-    .searchBox {
-        width: 100%;
-    }
-
-
+    .searchBox,
     .filters select {
         width: 100%;
     }
 
 
-    .purchaseTotals {
-        flex-wrap: wrap;
+    .periodFilter {
+        width: 100%;
     }
-}
 
-
-@media (
-    max-width: 650px
-) {
 
     .summary {
         grid-template-columns:
@@ -860,25 +802,10 @@ th {
     }
 
 
-    .periodTabs {
-        width: 100%;
-    }
-
-
-    .periodTabs button {
-        flex: 1;
-    }
-
-
     .detailsHeader {
         align-items: flex-start;
 
         flex-direction: column;
-    }
-
-
-    .purchaseDetails {
-        padding: 15px;
     }
 
 
@@ -899,11 +826,35 @@ th {
 
 
 @media (
-    max-width: 430px
+    max-width: 500px
 ) {
 
     .summary {
         grid-template-columns:
             1fr;
+    }
+
+
+    .periodTabs {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+
+    .periodTabs button {
+        padding: 0 8px;
+    }
+
+
+    .purchaseDetails {
+        padding:
+            14px
+            12px
+            18px;
     }
 }

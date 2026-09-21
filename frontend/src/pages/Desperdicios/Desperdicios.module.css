@@ -2,40 +2,95 @@
     width: 100%;
 }
 
+
 .header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
     margin-bottom: 22px;
 }
 
+
 .header h1 {
     margin: 0;
+
     font-size: 24px;
 }
 
+
 .header p {
     margin: 5px 0 0;
-    color: var(--color-text-light);
+
+    color:
+        var(--color-text-light);
+
     font-size: 13px;
 }
+
+
+.addButton {
+    height: 39px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.addButton:hover {
+    opacity: 0.92;
+}
+
 
 .summary {
     display: grid;
 
     grid-template-columns:
-        repeat(2, minmax(180px, 240px));
+        repeat(
+            2,
+            minmax(180px, 240px)
+        );
 
     gap: 12px;
 
     margin-bottom: 18px;
 }
 
+
 .summary > div {
     display: flex;
+
     flex-direction: column;
 
     padding: 15px;
 
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius:
         var(--border-radius);
@@ -44,12 +99,14 @@
         var(--color-surface);
 }
 
+
 .summary svg {
     margin-bottom: 10px;
 
     color:
         var(--color-danger);
 }
+
 
 .summary span {
     color:
@@ -58,11 +115,145 @@
     font-size: 10px;
 }
 
+
 .summary strong {
     margin-top: 5px;
 
     font-size: 18px;
 }
+
+
+/* ==========================================
+   PERÍODO
+   ========================================== */
+
+.periodArea {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    margin-bottom: 12px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        var(--color-surface);
+}
+
+
+.periodButtons {
+    display: flex;
+
+    gap: 7px;
+}
+
+
+.periodButtons button {
+    height: 35px;
+
+    padding: 0 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+
+    font-size: 11px;
+}
+
+
+.periodButtons button:hover {
+    border-color:
+        var(--color-primary);
+}
+
+
+.periodButtons .activePeriod {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodReference {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.periodReference input {
+    width: 155px;
+    height: 35px;
+
+    padding: 0 9px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 11px;
+}
+
+
+.periodReference input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.periodReference button {
+    height: 35px;
+
+    padding: 0 14px;
+
+    border: 0;
+
+    border-radius: 5px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 11px;
+}
+
+
+/* ==========================================
+   FILTROS
+   ========================================== */
 
 .filters {
     display: flex;
@@ -72,11 +263,13 @@
     margin-bottom: 18px;
 }
 
+
 .searchBox {
     width: 390px;
     height: 39px;
 
     display: flex;
+
     align-items: center;
 
     gap: 8px;
@@ -84,7 +277,8 @@
     padding: 0 12px;
 
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius: 6px;
 
@@ -92,14 +286,17 @@
         var(--color-surface);
 }
 
+
 .searchBox input {
     width: 100%;
 
     border: 0;
+
     outline: none;
 
     background: transparent;
 }
+
 
 .filters select {
     height: 39px;
@@ -107,17 +304,25 @@
     padding: 0 10px;
 
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius: 6px;
 
     background: white;
 }
 
-.card,
-.formCard {
+
+/* ==========================================
+   TABELA
+   ========================================== */
+
+.card {
+    margin-bottom: 22px;
+
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius:
         var(--border-radius);
@@ -126,13 +331,11 @@
         var(--color-surface);
 }
 
-.card {
-    margin-bottom: 22px;
-}
 
 .tableWrapper {
     overflow-x: auto;
 }
+
 
 table {
     width: 100%;
@@ -140,12 +343,14 @@ table {
     border-collapse: collapse;
 }
 
+
 th,
 td {
     padding: 12px;
 
     border-bottom:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     white-space: nowrap;
 
@@ -154,6 +359,7 @@ td {
     font-size: 10px;
 }
 
+
 th {
     background: #faf8f6;
 
@@ -161,22 +367,31 @@ th {
         var(--color-text-light);
 }
 
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
 .actions {
     display: flex;
 
     gap: 5px;
 }
 
+
 .actions button {
     width: 30px;
     height: 30px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius: 5px;
 
@@ -184,7 +399,22 @@ th {
 
     color:
         var(--color-primary);
+
+    cursor: pointer;
 }
+
+
+.actions button:hover {
+    border-color:
+        var(--color-primary);
+}
+
+
+.actions .deleteAction {
+    color:
+        var(--color-danger);
+}
+
 
 .empty {
     padding: 30px;
@@ -195,21 +425,286 @@ th {
         var(--color-text-light);
 }
 
-.formCard {
+
+/* ==========================================
+   PAGINAÇÃO
+   ========================================== */
+
+.pagination {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        auto
+        1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 13px 14px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+}
+
+
+.paginationInfo {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.paginationControls {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.paginationButton {
+    width: 30px;
+    height: 30px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+
+.paginationButton:hover:not(:disabled) {
+    border-color:
+        var(--color-primary);
+
+    color:
+        var(--color-primary);
+}
+
+
+.paginationButton:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.4;
+}
+
+
+.paginationPage {
+    padding: 0 8px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.paginationSize {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 7px;
+}
+
+
+.paginationSize label {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.paginationSize input {
+    width: 58px;
+    height: 30px;
+
+    padding: 0 7px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 10px;
+}
+
+
+/* ==========================================
+   MODAIS
+   ========================================== */
+
+.modalOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
     padding: 22px;
+
+    background:
+        rgba(30, 22, 17, 0.48);
+
+    backdrop-filter:
+        blur(2px);
 }
 
-.formCard h2 {
-    margin: 0 0 20px;
 
-    font-size: 17px;
+.modalCard {
+    width: min(
+        880px,
+        100%
+    );
+
+    max-height: calc(
+        100vh - 44px
+    );
+
+    overflow-y: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 20px 55px
+        rgba(0, 0, 0, 0.18);
 }
+
+
+.modalHeader {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding: 18px 20px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    background:
+        var(--color-surface);
+}
+
+
+.modalHeader h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+
+.modalHeader p {
+    margin: 5px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.modalBody {
+    padding: 20px;
+}
+
+
+.closeButton {
+    width: 32px;
+    height: 32px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.closeButton:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.55;
+}
+
+
+/* ==========================================
+   FORMULÁRIO DO POPUP
+   ========================================== */
 
 .barcode {
     display: grid;
 
     grid-template-columns:
-        minmax(260px, 450px)
+        minmax(260px, 1fr)
         auto;
 
     align-items: end;
@@ -219,12 +714,14 @@ th {
     margin-bottom: 15px;
 }
 
+
 .barcode div,
 .formGrid div {
     display: flex;
 
     flex-direction: column;
 }
+
 
 .barcode label,
 .formGrid label {
@@ -235,6 +732,7 @@ th {
     font-weight: 600;
 }
 
+
 .barcode input,
 .formGrid input,
 .formGrid select {
@@ -243,7 +741,8 @@ th {
     padding: 0 10px;
 
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     border-radius: 5px;
 
@@ -252,10 +751,29 @@ th {
     outline: none;
 }
 
+
+.barcode input:focus,
+.formGrid input:focus,
+.formGrid select:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.barcode input:disabled,
+.formGrid input:disabled,
+.formGrid select:disabled {
+    background: #f4f2f0;
+
+    cursor: not-allowed;
+}
+
+
 .barcode button {
     height: 38px;
 
     display: flex;
+
     align-items: center;
 
     gap: 6px;
@@ -263,13 +781,24 @@ th {
     padding: 0 14px;
 
     border: 0;
+
     border-radius: 5px;
 
     background:
         var(--color-primary);
 
     color: white;
+
+    cursor: pointer;
 }
+
+
+.barcode button:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.6;
+}
+
 
 .productFound {
     margin-bottom: 18px;
@@ -283,19 +812,25 @@ th {
     font-size: 11px;
 }
 
+
 .formGrid {
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(
+            3,
+            1fr
+        );
 
     gap: 14px;
 }
+
 
 .observation {
     grid-column:
         1 / -1;
 }
+
 
 .formActions {
     display: flex;
@@ -307,21 +842,37 @@ th {
     margin-top: 18px;
 }
 
+
 .cancelButton,
-.saveButton {
+.saveButton,
+.deleteButton {
     height: 37px;
 
-    min-width: 90px;
+    min-width: 96px;
+
+    padding: 0 14px;
 
     border-radius: 5px;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 600;
 }
+
 
 .cancelButton {
     border:
-        1px solid var(--color-border);
+        1px solid
+        var(--color-border);
 
     background: white;
+
+    color:
+        var(--color-text);
 }
+
 
 .saveButton {
     border: 0;
@@ -331,6 +882,141 @@ th {
 
     color: white;
 }
+
+
+.deleteButton {
+    border: 0;
+
+    background:
+        var(--color-danger);
+
+    color: white;
+}
+
+
+.cancelButton:disabled,
+.saveButton:disabled,
+.deleteButton:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.6;
+}
+
+
+/* ==========================================
+   POPUP DE EXCLUSÃO
+   ========================================== */
+
+.confirmModal {
+    width: min(
+        430px,
+        100%
+    );
+
+    padding: 24px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 20px 55px
+        rgba(0, 0, 0, 0.18);
+}
+
+
+.confirmIcon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 14px;
+
+    border-radius: 50%;
+
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+.confirmModal h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+
+.confirmModal > p {
+    margin: 10px 0 16px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+
+.confirmDetails {
+    display: grid;
+
+    grid-template-columns:
+        auto
+        1fr;
+
+    gap: 8px 12px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: #faf8f6;
+}
+
+
+.confirmDetails span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.confirmDetails strong {
+    font-size: 11px;
+}
+
+
+.confirmActions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+/* ==========================================
+   MENSAGENS
+   ========================================== */
 
 .error,
 .success {
@@ -343,12 +1029,14 @@ th {
     font-size: 12px;
 }
 
+
 .error {
     background: #fbe8e8;
 
     color:
         var(--color-danger);
 }
+
 
 .success {
     background: #e7f5ec;
@@ -357,36 +1045,146 @@ th {
         var(--color-success);
 }
 
-@media (max-width: 900px) {
+
+/* ==========================================
+   RESPONSIVO
+   ========================================== */
+
+@media (
+    max-width: 900px
+) {
 
     .formGrid {
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(
+                2,
+                1fr
+            );
     }
+
 
     .observation {
         grid-column:
             1 / -1;
     }
+
+
+    .pagination {
+        grid-template-columns:
+            1fr;
+
+        justify-items: center;
+    }
+
+
+    .paginationInfo,
+    .paginationSize {
+        justify-self: center;
+    }
 }
 
-@media (max-width: 650px) {
+
+@media (
+    max-width: 700px
+) {
+
+    .header,
+    .periodArea {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .addButton {
+        width: 100%;
+    }
+
+
+    .periodButtons {
+        width: 100%;
+    }
+
+
+    .periodButtons button {
+        flex: 1;
+    }
+
+
+    .periodReference {
+        width: 100%;
+    }
+
+
+    .periodReference input {
+        flex: 1;
+
+        width: auto;
+    }
+}
+
+
+@media (
+    max-width: 650px
+) {
 
     .summary,
     .formGrid,
     .barcode {
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
     }
+
 
     .filters {
         flex-direction: column;
     }
 
+
     .searchBox {
         width: 100%;
     }
 
+
+    .filters select {
+        width: 100%;
+    }
+
+
     .observation {
         grid-column: auto;
+    }
+
+
+    .modalOverlay {
+        padding: 10px;
+    }
+
+
+    .modalCard {
+        max-height:
+            calc(
+                100vh - 20px
+            );
+    }
+
+
+    .modalHeader,
+    .modalBody {
+        padding:
+            15px;
+    }
+
+
+    .formActions,
+    .confirmActions {
+        flex-direction: column-reverse;
+    }
+
+
+    .cancelButton,
+    .saveButton,
+    .deleteButton {
+        width: 100%;
     }
 }

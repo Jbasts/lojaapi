@@ -5,9 +5,16 @@ import {
 } from "react";
 
 import {
+    Calculator,
+    CircleDollarSign,
+    PackageCheck,
+    PackageX,
+    Pencil,
     Plus,
     Save,
-    Trash2
+    Search,
+    Trash2,
+    X
 } from "lucide-react";
 
 import {
@@ -20,6 +27,9 @@ import {
 import {
     listarProdutosEstoque
 } from "../../services/produtoEstoqueService";
+
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
 
 import styles
     from "./CustosProdutos.module.css";
@@ -37,32 +47,106 @@ const itemInicial = () => ({
 
 function CustosProdutos() {
 
-    const [produtos, setProdutos] =
-        useState([]);
+    const [
+        produtos,
+        setProdutos
+    ] = useState([]);
 
-    const [produtosEstoque, setProdutosEstoque] =
-        useState([]);
 
-    const [produtoSelecionado, setProdutoSelecionado] =
-        useState(null);
+    const [
+        produtosEstoque,
+        setProdutosEstoque
+    ] = useState([]);
 
-    const [produto, setProduto] =
-        useState(null);
 
-    const [rendimento, setRendimento] =
-        useState(1);
+    const [
+        produtoModal,
+        setProdutoModal
+    ] = useState(null);
 
-    const [itens, setItens] =
-        useState([]);
 
-    const [erro, setErro] =
-        useState("");
+    const [
+        produtoExcluir,
+        setProdutoExcluir
+    ] = useState(null);
 
-    const [mensagem, setMensagem] =
-        useState("");
 
-    const [salvando, setSalvando] =
-        useState(false);
+    const [
+        rendimento,
+        setRendimento
+    ] = useState(1);
+
+
+    const [
+        itens,
+        setItens
+    ] = useState([]);
+
+
+    const [
+        busca,
+        setBusca
+    ] = useState("");
+
+
+    const [
+        filtroFicha,
+        setFiltroFicha
+    ] = useState("TODOS");
+
+
+    const [
+        filtroTipo,
+        setFiltroTipo
+    ] = useState("TODOS");
+
+
+    const [
+        erro,
+        setErro
+    ] = useState("");
+
+
+    const [
+        erroModal,
+        setErroModal
+    ] = useState("");
+
+
+    const [
+        mensagem,
+        setMensagem
+    ] = useState("");
+
+
+    const [
+        carregandoModal,
+        setCarregandoModal
+    ] = useState(false);
+
+
+    const [
+        salvando,
+        setSalvando
+    ] = useState(false);
+
+
+    const [
+        removendo,
+        setRemovendo
+    ] = useState(false);
+
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
 
 
     async function carregarLista() {
@@ -70,9 +154,19 @@ function CustosProdutos() {
         const dados =
             await listarCustosProdutos();
 
-        setProdutos(dados);
 
-        return dados;
+        const lista =
+            Array.isArray(dados)
+                ? dados
+                : [];
+
+
+        setProdutos(
+            lista
+        );
+
+
+        return lista;
     }
 
 
@@ -81,108 +175,58 @@ function CustosProdutos() {
         const dados =
             await listarProdutosEstoque();
 
-        setProdutosEstoque(dados);
+
+        setProdutosEstoque(
+            Array.isArray(dados)
+                ? dados
+                : []
+        );
     }
 
 
-    async function selecionarProduto(
-        produtoId
-    ) {
+    useEffect(
+        () => {
 
-        try {
+            async function iniciar() {
 
-            setErro("");
-            setMensagem("");
+                try {
 
-            const dados =
-                await buscarCustoProduto(
-                    produtoId
-                );
+                    await Promise.all([
+                        carregarLista(),
+                        carregarEstoque()
+                    ]);
 
-            setProdutoSelecionado(
-                produtoId
-            );
+                } catch {
 
-            setProduto(
-                dados.produto
-            );
-
-            setRendimento(
-                dados.ficha?.rendimento
-                || 1
-            );
-
-            setItens(
-                dados.itens.length
-                    ? dados.itens.map(
-                        (item) => ({
-                            tipo:
-                                item.tipo,
-
-                            produto_estoque_id:
-                                item.produto_estoque_id
-                                || "",
-
-                            descricao:
-                                item.descricao
-                                || "",
-
-                            quantidade:
-                                item.quantidade,
-
-                            unidade:
-                                item.unidade,
-
-                            valor_unitario:
-                                item.valor_unitario
-                        })
-                    )
-                    : []
-            );
-
-        } catch (error) {
-
-            setErro(
-                error.response?.data?.erro
-                ||
-                "Não foi possível carregar a ficha."
-            );
-        }
-    }
-
-
-    useEffect(() => {
-
-        async function iniciar() {
-
-            try {
-
-                const lista =
-                    await carregarLista();
-
-                await carregarEstoque();
-
-
-                if (lista.length > 0) {
-
-                    await selecionarProduto(
-                        lista[0].produto_id
+                    setErro(
+                        "Não foi possível carregar "
+                        + "os custos dos produtos."
                     );
                 }
-
-            } catch {
-
-                setErro(
-                    "Não foi possível carregar "
-                    + "os custos dos produtos."
-                );
             }
-        }
 
 
-        iniciar();
+            iniciar();
 
-    }, []);
+        },
+        []
+    );
+
+
+    function moeda(
+        valor
+    ) {
+
+        return Number(
+            valor || 0
+        ).toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+    }
 
 
     function adicionarItem() {
@@ -209,15 +253,18 @@ function CustosProdutos() {
                     ...anterior
                 ];
 
+
                 const item = {
                     ...copia[indice],
-                    [campo]: valor
+                    [campo]:
+                        valor
                 };
 
 
                 if (
                     campo === "tipo"
-                    && valor === "ESTOQUE"
+                    &&
+                    valor === "ESTOQUE"
                 ) {
 
                     item.descricao = "";
@@ -226,14 +273,17 @@ function CustosProdutos() {
 
                 if (
                     campo === "tipo"
-                    && valor === "MANUAL"
+                    &&
+                    valor === "MANUAL"
                 ) {
 
                     item.produto_estoque_id = "";
                 }
 
 
-                copia[indice] = item;
+                copia[indice] =
+                    item;
+
 
                 return copia;
             }
@@ -241,7 +291,9 @@ function CustosProdutos() {
     }
 
 
-    function excluirItem(indice) {
+    function excluirItem(
+        indice
+    ) {
 
         setItens(
             (anterior) =>
@@ -253,95 +305,512 @@ function CustosProdutos() {
     }
 
 
-    const resumo = useMemo(
-        () => {
+    async function abrirFicha(
+        itemLista
+    ) {
 
-            const custoTotal =
-                itens.reduce(
-                    (total, item) => {
+        try {
 
-                        const quantidade =
-                            Number(
-                                item.quantidade
-                            ) || 0;
+            setErro("");
 
-                        const valor =
-                            Number(
-                                item.valor_unitario
-                            ) || 0;
+            setErroModal("");
 
-                        return (
-                            total
-                            +
-                            quantidade * valor
-                        );
-                    },
-                    0
+            setMensagem("");
+
+            setCarregandoModal(
+                true
+            );
+
+
+            const dados =
+                await buscarCustoProduto(
+                    itemLista.produto_id
                 );
 
 
-            const rend =
-                Number(rendimento) || 0;
+            setProdutoModal({
+                ...dados.produto,
+                possui_ficha:
+                    itemLista.possui_ficha
+            });
 
 
-            const custoUnitario =
-                rend > 0
-                    ? custoTotal / rend
-                    : 0;
+            setRendimento(
+                dados.ficha?.rendimento
+                || 1
+            );
 
 
-            const preco =
-                Number(
-                    produto?.preco_venda
-                ) || 0;
+            setItens(
+                Array.isArray(
+                    dados.itens
+                )
+                &&
+                dados.itens.length > 0
+
+                    ? dados.itens.map(
+                        (item) => ({
+                            tipo:
+                                item.tipo,
+
+                            produto_estoque_id:
+                                item.produto_estoque_id
+                                || "",
+
+                            descricao:
+                                item.descricao
+                                || "",
+
+                            quantidade:
+                                item.quantidade,
+
+                            unidade:
+                                item.unidade,
+
+                            valor_unitario:
+                                item.valor_unitario
+                        })
+                    )
+
+                    : []
+            );
+
+        } catch (error) {
+
+            setErro(
+                error.response
+                    ?.data
+                    ?.erro
+                ||
+                "Não foi possível abrir "
+                + "a ficha de custo."
+            );
+
+        } finally {
+
+            setCarregandoModal(
+                false
+            );
+        }
+    }
 
 
-            const lucro =
-                preco - custoUnitario;
+    function fecharFicha() {
 
+        if (
+            salvando
+        ) {
 
-            const margem =
-                preco > 0
-                    ? (
-                        lucro
-                        / preco
-                    ) * 100
-                    : 0;
-
-
-            return {
-                custoTotal,
-                custoUnitario,
-                preco,
-                lucro,
-                margem
-            };
-
-        },
-        [
-            itens,
-            rendimento,
-            produto
-        ]
-    );
-
-
-    async function salvar() {
-
-        if (!produtoSelecionado) {
             return;
         }
 
 
+        setProdutoModal(
+            null
+        );
+
+        setRendimento(
+            1
+        );
+
+        setItens([]);
+
+        setErroModal("");
+    }
+
+
+    function abrirExclusao(
+        item
+    ) {
+
         setErro("");
+
+        setErroModal("");
+
         setMensagem("");
-        setSalvando(true);
+
+        setProdutoExcluir(
+            item
+        );
+    }
+
+
+    function fecharExclusao() {
+
+        if (
+            removendo
+        ) {
+
+            return;
+        }
+
+
+        setProdutoExcluir(
+            null
+        );
+
+        setErroModal("");
+    }
+
+
+    const resumo =
+        useMemo(
+            () => {
+
+                const custoTotal =
+                    itens.reduce(
+                        (
+                            total,
+                            item
+                        ) => {
+
+                            const quantidade =
+                                Number(
+                                    item.quantidade
+                                )
+                                || 0;
+
+
+                            const valor =
+                                Number(
+                                    item.valor_unitario
+                                )
+                                || 0;
+
+
+                            return (
+                                total
+                                +
+                                quantidade
+                                *
+                                valor
+                            );
+                        },
+                        0
+                    );
+
+
+                const rend =
+                    Number(
+                        rendimento
+                    )
+                    || 0;
+
+
+                const custoUnitario =
+                    rend > 0
+                        ? custoTotal / rend
+                        : 0;
+
+
+                const preco =
+                    Number(
+                        produtoModal
+                            ?.preco_venda
+                    )
+                    || 0;
+
+
+                const lucro =
+                    preco
+                    -
+                    custoUnitario;
+
+
+                const margem =
+                    preco > 0
+                        ? (
+                            lucro
+                            /
+                            preco
+                        )
+                        *
+                        100
+                        : 0;
+
+
+                return {
+                    custoTotal,
+                    custoUnitario,
+                    preco,
+                    lucro,
+                    margem
+                };
+
+            },
+            [
+                itens,
+                rendimento,
+                produtoModal
+            ]
+        );
+
+
+    const resumoGeral =
+        useMemo(
+            () => {
+
+                const total =
+                    produtos.length;
+
+
+                const comFicha =
+                    produtos.filter(
+                        (item) =>
+                            item.possui_ficha
+                    ).length;
+
+
+                const semFicha =
+                    total
+                    -
+                    comFicha;
+
+
+                const margens =
+                    produtos
+                        .filter(
+                            (item) =>
+                                item.margem_percentual
+                                !== null
+                                &&
+                                item.margem_percentual
+                                !== undefined
+                        )
+                        .map(
+                            (item) =>
+                                Number(
+                                    item.margem_percentual
+                                )
+                        )
+                        .filter(
+                            (valor) =>
+                                Number.isFinite(
+                                    valor
+                                )
+                        );
+
+
+                const margemMedia =
+                    margens.length > 0
+                        ? margens.reduce(
+                            (
+                                soma,
+                                valor
+                            ) =>
+                                soma + valor,
+                            0
+                        )
+                        /
+                        margens.length
+                        : 0;
+
+
+                return {
+                    total,
+                    comFicha,
+                    semFicha,
+                    margemMedia
+                };
+
+            },
+            [
+                produtos
+            ]
+        );
+
+
+    const produtosFiltrados =
+        useMemo(
+            () => {
+
+                const termo =
+                    busca
+                        .trim()
+                        .toLowerCase();
+
+
+                return produtos.filter(
+                    (item) => {
+
+                        const texto =
+                            `${item.nome || ""} ${item.sabor || ""}`
+                                .toLowerCase();
+
+
+                        const combinaBusca =
+                            !termo
+                            ||
+                            texto.includes(
+                                termo
+                            );
+
+
+                        const combinaFicha =
+                            filtroFicha === "TODOS"
+                            ||
+                            (
+                                filtroFicha
+                                === "COM_FICHA"
+                                &&
+                                item.possui_ficha
+                            )
+                            ||
+                            (
+                                filtroFicha
+                                === "SEM_FICHA"
+                                &&
+                                !item.possui_ficha
+                            );
+
+
+                        const combinaTipo =
+                            filtroTipo === "TODOS"
+                            ||
+                            item.tipo
+                            === filtroTipo;
+
+
+                        return (
+                            combinaBusca
+                            &&
+                            combinaFicha
+                            &&
+                            combinaTipo
+                        );
+                    }
+                );
+
+            },
+            [
+                produtos,
+                busca,
+                filtroFicha,
+                filtroTipo
+            ]
+        );
+
+
+    const totalItens =
+        produtosFiltrados.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const produtosPaginados =
+        produtosFiltrados.slice(
+            indiceInicial,
+            indiceInicial
+            +
+            itensPorPagina
+        );
+
+
+    function alterarBusca(
+        event
+    ) {
+
+        setBusca(
+            event.target.value
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function alterarFiltroFicha(
+        valor
+    ) {
+
+        setFiltroFicha(
+            valor
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function alterarFiltroTipo(
+        valor
+    ) {
+
+        setFiltroTipo(
+            valor
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+
+        setPaginaAtual(
+            1
+        );
+    }
+
+
+    async function salvar() {
+
+        if (
+            !produtoModal
+        ) {
+
+            return;
+        }
+
+
+        setErroModal("");
+
+        setSalvando(
+            true
+        );
 
 
         try {
 
             await salvarCustoProduto(
-                produtoSelecionado,
+                produtoModal.id,
                 {
                     rendimento,
                     itens
@@ -350,21 +819,31 @@ function CustosProdutos() {
 
 
             setMensagem(
-                "Ficha de custo salva "
-                + "com sucesso."
+                produtoModal.possui_ficha
+                    ? "Ficha de custo atualizada com sucesso."
+                    : "Ficha de custo criada com sucesso."
             );
+
+
+            setProdutoModal(
+                null
+            );
+
+            setRendimento(
+                1
+            );
+
+            setItens([]);
 
 
             await carregarLista();
 
-            await selecionarProduto(
-                produtoSelecionado
-            );
-
         } catch (error) {
 
-            setErro(
-                error.response?.data?.erro
+            setErroModal(
+                error.response
+                    ?.data
+                    ?.erro
                 ||
                 "Não foi possível salvar "
                 + "a ficha de custo."
@@ -372,77 +851,83 @@ function CustosProdutos() {
 
         } finally {
 
-            setSalvando(false);
+            setSalvando(
+                false
+            );
         }
     }
 
 
-    async function removerFicha() {
+    async function confirmarRemocaoFicha() {
 
-        if (!produtoSelecionado) {
-            return;
-        }
+        if (
+            !produtoExcluir
+        ) {
 
-
-        const confirmar =
-            window.confirm(
-                "Deseja remover a ficha "
-                + "de custo deste produto?"
-            );
-
-
-        if (!confirmar) {
             return;
         }
 
 
         try {
 
+            setRemovendo(
+                true
+            );
+
+            setErroModal("");
+
+
             await removerCustoProduto(
-                produtoSelecionado
+                produtoExcluir.produto_id
             );
 
 
             setMensagem(
-                "Ficha removida com sucesso."
+                "Ficha removida "
+                + "com sucesso."
             );
 
-            setRendimento(1);
-            setItens([]);
+
+            setProdutoExcluir(
+                null
+            );
+
 
             await carregarLista();
 
         } catch (error) {
 
-            setErro(
-                error.response?.data?.erro
+            setErroModal(
+                error.response
+                    ?.data
+                    ?.erro
                 ||
                 "Não foi possível remover "
                 + "a ficha."
+            );
+
+        } finally {
+
+            setRemovendo(
+                false
             );
         }
     }
 
 
-    function moeda(valor) {
-
-        return Number(
-            valor || 0
-        ).toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-    }
-
-
     return (
 
-        <div className={styles.page}>
+        <div
+            className={
+                styles.page
+            }
+        >
 
-            <div className={styles.header}>
+            <div
+                className={
+                    styles.header
+                }
+            >
 
                 <div>
 
@@ -451,7 +936,7 @@ function CustosProdutos() {
                     </h1>
 
                     <p>
-                        Ficha técnica, custo,
+                        Fichas técnicas, custos,
                         lucro e margem.
                     </p>
 
@@ -460,9 +945,288 @@ function CustosProdutos() {
             </div>
 
 
+            <div
+                className={
+                    styles.topCards
+                }
+            >
+
+                <div
+                    className={
+                        styles.topCard
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.cardIcon
+                        }
+                    >
+                        <Calculator
+                            size={19}
+                        />
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Produtos
+                        </span>
+
+                        <strong>
+                            {
+                                resumoGeral.total
+                            }
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.topCard
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.cardIcon
+                        }
+                    >
+                        <PackageCheck
+                            size={19}
+                        />
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Com ficha
+                        </span>
+
+                        <strong>
+                            {
+                                resumoGeral.comFicha
+                            }
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.topCard
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.cardIcon
+                        }
+                    >
+                        <PackageX
+                            size={19}
+                        />
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Sem ficha
+                        </span>
+
+                        <strong>
+                            {
+                                resumoGeral.semFicha
+                            }
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.topCard
+                    }
+                >
+
+                    <div
+                        className={
+                            styles.cardIcon
+                        }
+                    >
+                        <CircleDollarSign
+                            size={19}
+                        />
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Margem média
+                        </span>
+
+                        <strong>
+                            {
+                                resumoGeral
+                                    .margemMedia
+                                    .toFixed(
+                                        2
+                                    )
+                            }%
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                className={
+                    styles.toolbar
+                }
+            >
+
+                <div
+                    className={
+                        styles.searchBox
+                    }
+                >
+
+                    <Search
+                        size={17}
+                    />
+
+
+                    <input
+                        value={busca}
+                        onChange={
+                            alterarBusca
+                        }
+                        placeholder={
+                            "Buscar produto ou sabor..."
+                        }
+                    />
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.filterGroup
+                    }
+                >
+
+                    <button
+                        type="button"
+                        className={
+                            filtroFicha
+                            === "TODOS"
+                                ? styles.filterActive
+                                : styles.filterButton
+                        }
+                        onClick={() =>
+                            alterarFiltroFicha(
+                                "TODOS"
+                            )
+                        }
+                    >
+                        Todos
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            filtroFicha
+                            === "COM_FICHA"
+                                ? styles.filterActive
+                                : styles.filterButton
+                        }
+                        onClick={() =>
+                            alterarFiltroFicha(
+                                "COM_FICHA"
+                            )
+                        }
+                    >
+                        Com ficha
+                    </button>
+
+
+                    <button
+                        type="button"
+                        className={
+                            filtroFicha
+                            === "SEM_FICHA"
+                                ? styles.filterActive
+                                : styles.filterButton
+                        }
+                        onClick={() =>
+                            alterarFiltroFicha(
+                                "SEM_FICHA"
+                            )
+                        }
+                    >
+                        Sem ficha
+                    </button>
+
+                </div>
+
+
+                <div
+                    className={
+                        styles.typeFilter
+                    }
+                >
+
+                    <select
+                        value={
+                            filtroTipo
+                        }
+                        onChange={
+                            (event) =>
+                                alterarFiltroTipo(
+                                    event.target.value
+                                )
+                        }
+                    >
+                        <option
+                            value="TODOS"
+                        >
+                            Todos os tipos
+                        </option>
+
+                        <option
+                            value="PRODUCAO"
+                        >
+                            Produção
+                        </option>
+
+                        <option
+                            value="REVENDA"
+                        >
+                            Revenda
+                        </option>
+                    </select>
+
+                </div>
+
+            </div>
+
+
             {
-                erro && (
-                    <div className={styles.error}>
+                erro
+                && (
+
+                    <div
+                        className={
+                            styles.error
+                        }
+                    >
                         {erro}
                     </div>
                 )
@@ -470,604 +1234,1149 @@ function CustosProdutos() {
 
 
             {
-                mensagem && (
-                    <div className={styles.success}>
+                mensagem
+                && (
+
+                    <div
+                        className={
+                            styles.success
+                        }
+                    >
                         {mensagem}
                     </div>
                 )
             }
 
 
-            <div className={styles.layout}>
+            <section
+                className={
+                    styles.productsCard
+                }
+            >
 
-                <aside className={styles.products}>
-
-                    <h3>
-                        Produtos
-                    </h3>
-
-
-                    {
-                        produtos.map(
-                            (item) => (
-
-                                <button
-                                    key={
-                                        item.produto_id
-                                    }
-                                    className={
-                                        produtoSelecionado
-                                        === item.produto_id
-                                            ? styles.productActive
-                                            : styles.product
-                                    }
-                                    onClick={() =>
-                                        selecionarProduto(
-                                            item.produto_id
-                                        )
-                                    }
-                                >
-
-                                    <strong>
-                                        {item.nome}
-                                    </strong>
-
-                                    <span>
-                                        {item.sabor || "Sem sabor"}
-                                    </span>
-
-                                    <small>
-
-                                        {
-                                            item.possui_ficha
-                                                ? (
-                                                    item.custo_unitario
-                                                    !== null
-                                                        ? `Custo: ${moeda(
-                                                            item.custo_unitario
-                                                        )}`
-                                                        : "Ficha cadastrada"
-                                                )
-                                                : "Sem ficha de custo"
-                                        }
-
-                                    </small>
-
-                                </button>
-                            )
-                        )
+                <div
+                    className={
+                        styles.tableWrapper
                     }
+                >
 
-                </aside>
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Ficha</th>
+                                <th>Custo unit.</th>
+                                <th>Preço</th>
+                                <th>Lucro unit.</th>
+                                <th>Margem</th>
+                                <th>Ações</th>
+                            </tr>
+
+                        </thead>
 
 
-                <section className={styles.editor}>
+                        <tbody>
 
-                    {
-                        !produto
-                            ? (
-                                <p>
-                                    Cadastre um produto
-                                    de venda primeiro.
-                                </p>
-                            )
-                            : (
+                            {
+                                produtosPaginados.length
+                                === 0
 
-                                <>
+                                    ? (
+
+                                        <tr>
+
+                                            <td
+                                                colSpan="8"
+                                                className={
+                                                    styles.empty
+                                                }
+                                            >
+                                                Nenhum produto
+                                                encontrado.
+                                            </td>
+
+                                        </tr>
+                                    )
+
+                                    : produtosPaginados.map(
+                                        (item) => (
+
+                                            <tr
+                                                key={
+                                                    item.produto_id
+                                                }
+                                            >
+
+                                                <td>
+
+                                                    <div
+                                                        className={
+                                                            styles.productName
+                                                        }
+                                                    >
+
+                                                        <strong>
+                                                            {
+                                                                item.nome
+                                                            }
+                                                        </strong>
+
+                                                        <span>
+                                                            {
+                                                                item.sabor
+                                                                || "Sem sabor"
+                                                            }
+                                                        </span>
+
+                                                    </div>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <span
+                                                        className={
+                                                            item.tipo
+                                                            === "PRODUCAO"
+                                                                ? styles.badgeProducao
+                                                                : styles.badgeRevenda
+                                                        }
+                                                    >
+                                                        {
+                                                            item.tipo
+                                                            === "PRODUCAO"
+                                                                ? "Produção"
+                                                                : "Revenda"
+                                                        }
+                                                    </span>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <span
+                                                        className={
+                                                            item.possui_ficha
+                                                                ? styles.badgeOk
+                                                                : styles.badgePending
+                                                        }
+                                                    >
+                                                        {
+                                                            item.possui_ficha
+                                                                ? "Cadastrada"
+                                                                : "Pendente"
+                                                        }
+                                                    </span>
+
+                                                </td>
+
+
+                                                <td>
+                                                    {
+                                                        item.custo_unitario
+                                                        !== null
+                                                            ? moeda(
+                                                                item.custo_unitario
+                                                            )
+                                                            : "-"
+                                                    }
+                                                </td>
+
+
+                                                <td>
+                                                    {
+                                                        moeda(
+                                                            item.preco_venda
+                                                        )
+                                                    }
+                                                </td>
+
+
+                                                <td>
+                                                    {
+                                                        item.lucro_unitario
+                                                        !== null
+                                                            ? moeda(
+                                                                item.lucro_unitario
+                                                            )
+                                                            : "-"
+                                                    }
+                                                </td>
+
+
+                                                <td>
+                                                    {
+                                                        item.margem_percentual
+                                                        !== null
+                                                            ? `${Number(
+                                                                item.margem_percentual
+                                                            ).toFixed(
+                                                                2
+                                                            )}%`
+                                                            : "-"
+                                                    }
+                                                </td>
+
+
+                                                <td>
+
+                                                    <div
+                                                        className={
+                                                            styles.rowActions
+                                                        }
+                                                    >
+
+                                                        {
+                                                            item.possui_ficha
+
+                                                                ? (
+                                                                    <>
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                styles.editButton
+                                                                            }
+                                                                            onClick={() =>
+                                                                                abrirFicha(
+                                                                                    item
+                                                                                )
+                                                                            }
+                                                                            title="Editar ficha"
+                                                                        >
+                                                                            <Pencil
+                                                                                size={14}
+                                                                            />
+
+                                                                            
+                                                                        </button>
+
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                styles.deleteButton
+                                                                            }
+                                                                            onClick={() =>
+                                                                                abrirExclusao(
+                                                                                    item
+                                                                                )
+                                                                            }
+                                                                            title="Excluir ficha"
+                                                                        >
+                                                                            <Trash2
+                                                                                size={14}
+                                                                            />
+
+                                                                            
+                                                                        </button>
+                                                                    </>
+                                                                )
+
+                                                                : (
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            styles.createButton
+                                                                        }
+                                                                        onClick={() =>
+                                                                            abrirFicha(
+                                                                                item
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Plus
+                                                                            size={14}
+                                                                        />
+
+                                                                        Criar ficha
+                                                                    </button>
+                                                                )
+                                                        }
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+                                        )
+                                    )
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        setPaginaAtual
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
+
+            </section>
+
+
+            {
+                carregandoModal
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.loadingModal
+                            }
+                        >
+                            Carregando ficha...
+                        </div>
+
+                    </div>
+                )
+            }
+
+
+            {
+                produtoModal
+                && (
+                    !carregandoModal
+                )
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.editorModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
+
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
 
                                     <div
                                         className={
-                                            styles.productHeader
+                                            styles.modalTitleLine
                                         }
                                     >
 
-                                        <div>
-
-                                            <h2>
-                                                {produto.nome}
-
-                                                {
-                                                    produto.sabor
-                                                    &&
-                                                    ` - ${produto.sabor}`
-                                                }
-                                            </h2>
-
-                                            <span>
-                                                {
-                                                    produto.tipo
-                                                    === "PRODUCAO"
-                                                        ? "Produção"
-                                                        : "Revenda"
-                                                }
-                                            </span>
-
-                                        </div>
-
-
-                                        <button
-                                            className={
-                                                styles.deleteFicha
+                                        <h2>
+                                            {
+                                                produtoModal.possui_ficha
+                                                    ? "Editar Ficha de Custo"
+                                                    : "Criar Ficha de Custo"
                                             }
-                                            onClick={
-                                                removerFicha
+                                        </h2>
+
+
+                                        <span
+                                            className={
+                                                produtoModal.tipo
+                                                === "PRODUCAO"
+                                                    ? styles.badgeProducao
+                                                    : styles.badgeRevenda
                                             }
                                         >
-                                            <Trash2 size={15} />
-
-                                            Remover ficha
-                                        </button>
-
-                                    </div>
-
-
-                                    <div
-                                        className={
-                                            styles.rendimento
-                                        }
-                                    >
-
-                                        <label>
-                                            Rendimento *
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            min="0.001"
-                                            step="0.001"
-                                            value={
-                                                rendimento
+                                            {
+                                                produtoModal.tipo
+                                                === "PRODUCAO"
+                                                    ? "Produção"
+                                                    : "Revenda"
                                             }
-                                            onChange={
-                                                (event) =>
-                                                    setRendimento(
-                                                        event.target.value
-                                                    )
-                                            }
-                                        />
-
-                                        <span>
-                                            Quantas unidades
-                                            este custo produz.
                                         </span>
 
                                     </div>
 
 
-                                    <div
-                                        className={
-                                            styles.itemsHeader
+                                    <p>
+                                        {
+                                            produtoModal.nome
                                         }
-                                    >
+
+                                        {
+                                            produtoModal.sabor
+                                            &&
+                                            ` - ${produtoModal.sabor}`
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharFicha
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                    title="Fechar"
+                                >
+                                    <X
+                                        size={19}
+                                    />
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.editorModalBody
+                                }
+                            >
+
+                                {
+                                    erroModal
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erroModal}
+                                        </div>
+                                    )
+                                }
+
+
+                                <div
+                                    className={
+                                        styles.modalSummary
+                                    }
+                                >
+
+                                    <div>
+                                        <span>
+                                            Custo total
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                moeda(
+                                                    resumo.custoTotal
+                                                )
+                                            }
+                                        </strong>
+                                    </div>
+
+
+                                    <div>
+                                        <span>
+                                            Custo unitário
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                moeda(
+                                                    resumo.custoUnitario
+                                                )
+                                            }
+                                        </strong>
+                                    </div>
+
+
+                                    <div>
+                                        <span>
+                                            Preço de venda
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                moeda(
+                                                    resumo.preco
+                                                )
+                                            }
+                                        </strong>
+                                    </div>
+
+
+                                    <div>
+                                        <span>
+                                            Lucro unitário
+                                        </span>
+
+                                        <strong
+                                            className={
+                                                resumo.lucro < 0
+                                                    ? styles.negative
+                                                    : ""
+                                            }
+                                        >
+                                            {
+                                                moeda(
+                                                    resumo.lucro
+                                                )
+                                            }
+                                        </strong>
+                                    </div>
+
+
+                                    <div>
+                                        <span>
+                                            Margem
+                                        </span>
+
+                                        <strong
+                                            className={
+                                                resumo.margem < 0
+                                                    ? styles.negative
+                                                    : ""
+                                            }
+                                        >
+                                            {
+                                                resumo.margem
+                                                    .toFixed(
+                                                        2
+                                                    )
+                                            }%
+                                        </strong>
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.rendimento
+                                    }
+                                >
+
+                                    <div>
+
+                                        <label>
+                                            Rendimento *
+                                        </label>
+
+                                        <span>
+                                            Quantas unidades
+                                            esta ficha produz.
+                                        </span>
+
+                                    </div>
+
+
+                                    <input
+                                        type="number"
+                                        min="0.001"
+                                        step="0.001"
+                                        value={
+                                            rendimento
+                                        }
+                                        onChange={
+                                            (event) =>
+                                                setRendimento(
+                                                    event.target.value
+                                                )
+                                        }
+                                    />
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.itemsHeader
+                                    }
+                                >
+
+                                    <div>
 
                                         <h3>
                                             Itens de custo
                                         </h3>
 
-                                        <button
-                                            onClick={
-                                                adicionarItem
-                                            }
-                                        >
-                                            <Plus size={15} />
-
-                                            Adicionar item
-                                        </button>
+                                        <span>
+                                            Ingredientes,
+                                            embalagens ou
+                                            custos manuais.
+                                        </span>
 
                                     </div>
 
 
-                                    <div
-                                        className={
-                                            styles.tableWrapper
+                                    <button
+                                        type="button"
+                                        onClick={
+                                            adicionarItem
                                         }
                                     >
 
-                                        <table>
+                                        <Plus
+                                            size={15}
+                                        />
 
-                                            <thead>
+                                        Adicionar item
 
-                                                <tr>
-                                                    <th>Tipo</th>
-                                                    <th>Item</th>
-                                                    <th>Qtd.</th>
-                                                    <th>Unidade</th>
-                                                    <th>Valor unit.</th>
-                                                    <th>Subtotal</th>
-                                                    <th></th>
-                                                </tr>
+                                    </button>
 
-                                            </thead>
+                                </div>
 
 
-                                            <tbody>
+                                <div
+                                    className={
+                                        styles.tableWrapper
+                                    }
+                                >
 
-                                                {
-                                                    itens.length === 0
-                                                        ? (
-
-                                                            <tr>
-
-                                                                <td
-                                                                    colSpan="7"
-                                                                    className={
-                                                                        styles.empty
-                                                                    }
-                                                                >
-                                                                    Adicione os
-                                                                    componentes
-                                                                    do custo.
-                                                                </td>
-
-                                                            </tr>
-                                                        )
-
-                                                        : itens.map(
-                                                            (
-                                                                item,
-                                                                indice
-                                                            ) => {
-
-                                                                const subtotal =
-                                                                    (
-                                                                        Number(
-                                                                            item.quantidade
-                                                                        ) || 0
-                                                                    )
-                                                                    *
-                                                                    (
-                                                                        Number(
-                                                                            item.valor_unitario
-                                                                        ) || 0
-                                                                    );
-
-
-                                                                return (
-
-                                                                    <tr
-                                                                        key={
-                                                                            indice
-                                                                        }
-                                                                    >
-
-                                                                        <td>
-
-                                                                            <select
-                                                                                value={
-                                                                                    item.tipo
-                                                                                }
-                                                                                onChange={
-                                                                                    (event) =>
-                                                                                        alterarItem(
-                                                                                            indice,
-                                                                                            "tipo",
-                                                                                            event.target.value
-                                                                                        )
-                                                                                }
-                                                                            >
-                                                                                <option value="ESTOQUE">
-                                                                                    Estoque
-                                                                                </option>
-
-                                                                                <option value="MANUAL">
-                                                                                    Manual
-                                                                                </option>
-                                                                            </select>
-
-                                                                        </td>
-
-
-                                                                        <td>
-
-                                                                            {
-                                                                                item.tipo
-                                                                                === "ESTOQUE"
-                                                                                    ? (
-
-                                                                                        <select
-                                                                                            value={
-                                                                                                item.produto_estoque_id
-                                                                                            }
-                                                                                            onChange={
-                                                                                                (event) =>
-                                                                                                    alterarItem(
-                                                                                                        indice,
-                                                                                                        "produto_estoque_id",
-                                                                                                        event.target.value
-                                                                                                    )
-                                                                                            }
-                                                                                        >
-
-                                                                                            <option value="">
-                                                                                                Selecione
-                                                                                            </option>
-
-                                                                                            {
-                                                                                                produtosEstoque.map(
-                                                                                                    (estoque) => (
-
-                                                                                                        <option
-                                                                                                            key={
-                                                                                                                estoque.id
-                                                                                                            }
-                                                                                                            value={
-                                                                                                                estoque.id
-                                                                                                            }
-                                                                                                        >
-                                                                                                            {
-                                                                                                                estoque.nome
-                                                                                                            }
-                                                                                                        </option>
-                                                                                                    )
-                                                                                                )
-                                                                                            }
-
-                                                                                        </select>
-                                                                                    )
-                                                                                    : (
-
-                                                                                        <input
-                                                                                            value={
-                                                                                                item.descricao
-                                                                                            }
-                                                                                            placeholder="Ex.: Entrega"
-                                                                                            onChange={
-                                                                                                (event) =>
-                                                                                                    alterarItem(
-                                                                                                        indice,
-                                                                                                        "descricao",
-                                                                                                        event.target.value
-                                                                                                    )
-                                                                                            }
-                                                                                        />
-                                                                                    )
-                                                                            }
-
-                                                                        </td>
-
-
-                                                                        <td>
-
-                                                                            <input
-                                                                                type="number"
-                                                                                min="0.0001"
-                                                                                step="0.0001"
-                                                                                value={
-                                                                                    item.quantidade
-                                                                                }
-                                                                                onChange={
-                                                                                    (event) =>
-                                                                                        alterarItem(
-                                                                                            indice,
-                                                                                            "quantidade",
-                                                                                            event.target.value
-                                                                                        )
-                                                                                }
-                                                                            />
-
-                                                                        </td>
-
-
-                                                                        <td>
-
-                                                                            <select
-                                                                                value={
-                                                                                    item.unidade
-                                                                                }
-                                                                                onChange={
-                                                                                    (event) =>
-                                                                                        alterarItem(
-                                                                                            indice,
-                                                                                            "unidade",
-                                                                                            event.target.value
-                                                                                        )
-                                                                                }
-                                                                            >
-                                                                                <option value="UN">UN</option>
-                                                                                <option value="KG">KG</option>
-                                                                                <option value="G">G</option>
-                                                                                <option value="L">L</option>
-                                                                                <option value="ML">ML</option>
-                                                                                <option value="CX">CX</option>
-                                                                                <option value="PCT">PCT</option>
-                                                                            </select>
-
-                                                                        </td>
-
-
-                                                                        <td>
-
-                                                                            <input
-                                                                                type="number"
-                                                                                min="0"
-                                                                                step="0.01"
-                                                                                value={
-                                                                                    item.valor_unitario
-                                                                                }
-                                                                                onChange={
-                                                                                    (event) =>
-                                                                                        alterarItem(
-                                                                                            indice,
-                                                                                            "valor_unitario",
-                                                                                            event.target.value
-                                                                                        )
-                                                                                }
-                                                                            />
-
-                                                                        </td>
-
-
-                                                                        <td>
-                                                                            {
-                                                                                moeda(
-                                                                                    subtotal
-                                                                                )
-                                                                            }
-                                                                        </td>
-
-
-                                                                        <td>
-
-                                                                            <button
-                                                                                className={
-                                                                                    styles.removeItem
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    excluirItem(
-                                                                                        indice
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                <Trash2
-                                                                                    size={14}
-                                                                                />
-                                                                            </button>
-
-                                                                        </td>
-
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                        )
-                                                }
-
-                                            </tbody>
-
-                                        </table>
-
-                                    </div>
-
-
-                                    <div
+                                    <table
                                         className={
-                                            styles.summary
+                                            styles.itemsTable
                                         }
                                     >
 
-                                        <div>
-                                            <span>
-                                                Custo total
-                                            </span>
+                                        <thead>
 
-                                            <strong>
-                                                {
-                                                    moeda(
-                                                        resumo.custoTotal
-                                                    )
-                                                }
-                                            </strong>
-                                        </div>
+                                            <tr>
+                                                <th>Tipo</th>
+                                                <th>Item</th>
+                                                <th>Qtd.</th>
+                                                <th>Unidade</th>
+                                                <th>Valor unit.</th>
+                                                <th>Subtotal</th>
+                                                <th></th>
+                                            </tr>
 
-
-                                        <div>
-                                            <span>
-                                                Rendimento
-                                            </span>
-
-                                            <strong>
-                                                {rendimento || 0}
-                                            </strong>
-                                        </div>
+                                        </thead>
 
 
-                                        <div>
-                                            <span>
-                                                Custo unitário
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    moeda(
-                                                        resumo.custoUnitario
-                                                    )
-                                                }
-                                            </strong>
-                                        </div>
-
-
-                                        <div>
-                                            <span>
-                                                Preço de venda
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    moeda(
-                                                        resumo.preco
-                                                    )
-                                                }
-                                            </strong>
-                                        </div>
-
-
-                                        <div>
-                                            <span>
-                                                Lucro unitário
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    moeda(
-                                                        resumo.lucro
-                                                    )
-                                                }
-                                            </strong>
-                                        </div>
-
-
-                                        <div>
-                                            <span>
-                                                Margem
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    resumo.margem
-                                                    .toFixed(2)
-                                                }%
-                                            </strong>
-                                        </div>
-
-                                    </div>
-
-
-                                    <div
-                                        className={
-                                            styles.actions
-                                        }
-                                    >
-
-                                        <button
-                                            className={
-                                                styles.saveButton
-                                            }
-                                            onClick={
-                                                salvar
-                                            }
-                                            disabled={
-                                                salvando
-                                            }
-                                        >
-
-                                            <Save size={16} />
+                                        <tbody>
 
                                             {
-                                                salvando
-                                                    ? "Salvando..."
-                                                    : "Salvar ficha"
+                                                itens.length
+                                                === 0
+
+                                                    ? (
+
+                                                        <tr>
+
+                                                            <td
+                                                                colSpan="7"
+                                                                className={
+                                                                    styles.empty
+                                                                }
+                                                            >
+                                                                Adicione os
+                                                                componentes
+                                                                do custo.
+                                                            </td>
+
+                                                        </tr>
+                                                    )
+
+                                                    : itens.map(
+                                                        (
+                                                            item,
+                                                            indice
+                                                        ) => {
+
+                                                            const subtotal =
+                                                                (
+                                                                    Number(
+                                                                        item.quantidade
+                                                                    )
+                                                                    || 0
+                                                                )
+                                                                *
+                                                                (
+                                                                    Number(
+                                                                        item.valor_unitario
+                                                                    )
+                                                                    || 0
+                                                                );
+
+
+                                                            return (
+
+                                                                <tr
+                                                                    key={
+                                                                        indice
+                                                                    }
+                                                                >
+
+                                                                    <td>
+
+                                                                        <select
+                                                                            value={
+                                                                                item.tipo
+                                                                            }
+                                                                            onChange={
+                                                                                (event) =>
+                                                                                    alterarItem(
+                                                                                        indice,
+                                                                                        "tipo",
+                                                                                        event.target.value
+                                                                                    )
+                                                                            }
+                                                                        >
+
+                                                                            <option
+                                                                                value="ESTOQUE"
+                                                                            >
+                                                                                Estoque
+                                                                            </option>
+
+                                                                            <option
+                                                                                value="MANUAL"
+                                                                            >
+                                                                                Manual
+                                                                            </option>
+
+                                                                        </select>
+
+                                                                    </td>
+
+
+                                                                    <td>
+
+                                                                        {
+                                                                            item.tipo
+                                                                            === "ESTOQUE"
+
+                                                                                ? (
+
+                                                                                    <select
+                                                                                        value={
+                                                                                            item.produto_estoque_id
+                                                                                        }
+                                                                                        onChange={
+                                                                                            (event) =>
+                                                                                                alterarItem(
+                                                                                                    indice,
+                                                                                                    "produto_estoque_id",
+                                                                                                    event.target.value
+                                                                                                )
+                                                                                        }
+                                                                                    >
+
+                                                                                        <option
+                                                                                            value=""
+                                                                                        >
+                                                                                            Selecione
+                                                                                        </option>
+
+
+                                                                                        {
+                                                                                            produtosEstoque.map(
+                                                                                                (estoque) => (
+
+                                                                                                    <option
+                                                                                                        key={
+                                                                                                            estoque.id
+                                                                                                        }
+                                                                                                        value={
+                                                                                                            estoque.id
+                                                                                                        }
+                                                                                                    >
+                                                                                                        {
+                                                                                                            estoque.nome
+                                                                                                        }
+                                                                                                    </option>
+                                                                                                )
+                                                                                            )
+                                                                                        }
+
+                                                                                    </select>
+                                                                                )
+
+                                                                                : (
+
+                                                                                    <input
+                                                                                        value={
+                                                                                            item.descricao
+                                                                                        }
+                                                                                        placeholder={
+                                                                                            "Ex.: Entrega"
+                                                                                        }
+                                                                                        onChange={
+                                                                                            (event) =>
+                                                                                                alterarItem(
+                                                                                                    indice,
+                                                                                                    "descricao",
+                                                                                                    event.target.value
+                                                                                                )
+                                                                                        }
+                                                                                    />
+                                                                                )
+                                                                        }
+
+                                                                    </td>
+
+
+                                                                    <td>
+
+                                                                        <input
+                                                                            type="number"
+                                                                            min="0.0001"
+                                                                            step="0.0001"
+                                                                            value={
+                                                                                item.quantidade
+                                                                            }
+                                                                            onChange={
+                                                                                (event) =>
+                                                                                    alterarItem(
+                                                                                        indice,
+                                                                                        "quantidade",
+                                                                                        event.target.value
+                                                                                    )
+                                                                            }
+                                                                        />
+
+                                                                    </td>
+
+
+                                                                    <td>
+
+                                                                        <select
+                                                                            value={
+                                                                                item.unidade
+                                                                            }
+                                                                            onChange={
+                                                                                (event) =>
+                                                                                    alterarItem(
+                                                                                        indice,
+                                                                                        "unidade",
+                                                                                        event.target.value
+                                                                                    )
+                                                                            }
+                                                                        >
+                                                                            <option value="UN">UN</option>
+                                                                            <option value="KG">KG</option>
+                                                                            <option value="G">G</option>
+                                                                            <option value="L">L</option>
+                                                                            <option value="ML">ML</option>
+                                                                            <option value="CX">CX</option>
+                                                                            <option value="PCT">PCT</option>
+                                                                        </select>
+
+                                                                    </td>
+
+
+                                                                    <td>
+
+                                                                        <input
+                                                                            type="number"
+                                                                            min="0"
+                                                                            step="0.01"
+                                                                            value={
+                                                                                item.valor_unitario
+                                                                            }
+                                                                            onChange={
+                                                                                (event) =>
+                                                                                    alterarItem(
+                                                                                        indice,
+                                                                                        "valor_unitario",
+                                                                                        event.target.value
+                                                                                    )
+                                                                            }
+                                                                        />
+
+                                                                    </td>
+
+
+                                                                    <td
+                                                                        className={
+                                                                            styles.subtotal
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            moeda(
+                                                                                subtotal
+                                                                            )
+                                                                        }
+                                                                    </td>
+
+
+                                                                    <td>
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className={
+                                                                                styles.removeItem
+                                                                            }
+                                                                            onClick={() =>
+                                                                                excluirItem(
+                                                                                    indice
+                                                                                )
+                                                                            }
+                                                                            title={
+                                                                                "Remover item"
+                                                                            }
+                                                                        >
+                                                                            <Trash2
+                                                                                size={14}
+                                                                            />
+                                                                        </button>
+
+                                                                    </td>
+
+                                                                </tr>
+                                                            );
+                                                        }
+                                                    )
                                             }
 
-                                        </button>
+                                        </tbody>
 
-                                    </div>
+                                    </table>
 
-                                </>
-                            )
-                    }
+                                </div>
 
-                </section>
+                            </div>
 
-            </div>
+
+                            <div
+                                className={
+                                    styles.modalFooter
+                                }
+                            >
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.cancelButton
+                                    }
+                                    onClick={
+                                        fecharFicha
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+                                    Cancelar
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.saveButton
+                                    }
+                                    onClick={
+                                        salvar
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+
+                                    <Save
+                                        size={16}
+                                    />
+
+                                    {
+                                        salvando
+                                            ? "Salvando..."
+                                            : produtoModal.possui_ficha
+                                                ? "Salvar alterações"
+                                                : "Criar ficha"
+                                    }
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
+
+
+            {
+                produtoExcluir
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                    >
+
+                        <div
+                            className={
+                                styles.confirmModal
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                        >
+
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
+
+                                <div>
+
+                                    <h2>
+                                        Excluir Ficha de Custo
+                                    </h2>
+
+                                    <p>
+                                        Confirme a exclusão
+                                        da ficha.
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    onClick={
+                                        fecharExclusao
+                                    }
+                                    disabled={
+                                        removendo
+                                    }
+                                    title="Fechar"
+                                >
+                                    <X
+                                        size={19}
+                                    />
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.confirmBody
+                                }
+                            >
+
+                                {
+                                    erroModal
+                                    && (
+
+                                        <div
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {erroModal}
+                                        </div>
+                                    )
+                                }
+
+
+                                <p>
+                                    Deseja realmente excluir
+                                    a ficha de custo de:
+                                </p>
+
+
+                                <strong>
+                                    {
+                                        produtoExcluir.nome
+                                    }
+
+                                    {
+                                        produtoExcluir.sabor
+                                        &&
+                                        ` - ${produtoExcluir.sabor}`
+                                    }
+                                </strong>
+
+
+                                <span>
+                                    A ficha atual será
+                                    desativada.
+                                </span>
+
+
+                                <div
+                                    className={
+                                        styles.confirmActions
+                                    }
+                                >
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.cancelButton
+                                        }
+                                        onClick={
+                                            fecharExclusao
+                                        }
+                                        disabled={
+                                            removendo
+                                        }
+                                    >
+                                        Cancelar
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.confirmDelete
+                                        }
+                                        onClick={
+                                            confirmarRemocaoFicha
+                                        }
+                                        disabled={
+                                            removendo
+                                        }
+                                    >
+                                        {
+                                            removendo
+                                                ? "Excluindo..."
+                                                : "Excluir ficha"
+                                        }
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )
+            }
 
         </div>
     );

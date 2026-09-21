@@ -108,7 +108,9 @@ class DesperdicioRepository:
     @staticmethod
     def listar(
         busca=None,
-        motivo=None
+        motivo=None,
+        data_inicio=None,
+        data_fim=None
     ):
 
         connection = get_connection()
@@ -164,6 +166,25 @@ class DesperdicioRepository:
                     parametros.append(
                         motivo
                     )
+
+
+                if (
+                    data_inicio
+                    and data_fim
+                ):
+
+                    sql += """
+                        AND d.data_desperdicio
+                            >= %s
+
+                        AND d.data_desperdicio
+                            < %s
+                    """
+
+                    parametros.extend([
+                        data_inicio,
+                        data_fim
+                    ])
 
 
                 sql += """

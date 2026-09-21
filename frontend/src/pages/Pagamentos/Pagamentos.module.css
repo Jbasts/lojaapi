@@ -1,3 +1,4 @@
+
 .page {
     width: 100%;
 }
@@ -127,8 +128,7 @@
 }
 
 
-.card,
-.paymentCard {
+.card {
     border:
         1px solid
         var(--color-border);
@@ -259,30 +259,73 @@ th {
 }
 
 
-.paymentCard {
-    padding: 22px;
-}
+.modalOverlay {
+    position: fixed;
 
+    inset: 0;
 
-.paymentHeader {
+    z-index: 1000;
+
     display: flex;
 
     align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(30, 24, 21, 0.48);
+}
+
+
+.modal {
+    width: min(620px, 100%);
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.18);
+}
+
+
+.modalHeader {
+    display: flex;
+
+    align-items: flex-start;
     justify-content: space-between;
 
-    margin-bottom: 20px;
+    gap: 20px;
+
+    padding: 20px 22px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
 }
 
 
-.paymentHeader h2 {
+.modalHeader h2 {
     margin: 0;
 
-    font-size: 17px;
+    font-size: 18px;
 }
 
 
-.paymentHeader p {
-    margin: 4px 0 0;
+.modalHeader p {
+    margin: 5px 0 0;
 
     color:
         var(--color-text-light);
@@ -291,11 +334,202 @@ th {
 }
 
 
-.paymentHeader > strong {
-    font-size: 21px;
+.closeModal {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.closeModal:hover {
+    border-color:
+        var(--color-primary);
 
     color:
         var(--color-primary);
+}
+
+
+.closeModal:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+.modalBody {
+    padding: 22px;
+}
+
+
+.paymentValue {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+    padding: 14px 16px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: #faf8f6;
+}
+
+
+.paymentValue span {
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.paymentValue strong {
+    color:
+        var(--color-primary);
+
+    font-size: 20px;
+}
+
+
+.modalActions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 16px 22px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    background: #faf8f6;
+}
+
+
+.reverseWarning {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 11px;
+
+    margin-bottom: 18px;
+
+    padding: 14px;
+
+    border:
+        1px solid #efd0d0;
+
+    border-radius: 6px;
+
+    background: #fdf4f4;
+
+    color:
+        var(--color-danger);
+}
+
+
+.reverseWarning svg {
+    flex-shrink: 0;
+
+    margin-top: 1px;
+}
+
+
+.reverseWarning strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+}
+
+
+.reverseWarning p {
+    margin: 0;
+
+    color:
+        var(--color-text);
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+.reverseDetails {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+
+.reverseDetails > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+
+.reverseDetails span {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.reverseDetails strong {
+    font-size: 11px;
+
+    word-break: break-word;
 }
 
 
@@ -362,24 +596,16 @@ th {
 }
 
 
-.paymentActions {
-    display: flex;
-
-    justify-content: flex-end;
-
-    gap: 8px;
-
-    margin-top: 20px;
-}
-
-
 .cancelButton,
-.confirmButton {
+.confirmButton,
+.confirmReverseButton {
     height: 38px;
 
     padding: 0 15px;
 
     border-radius: 5px;
+
+    cursor: pointer;
 }
 
 
@@ -399,6 +625,25 @@ th {
         var(--color-primary);
 
     color: white;
+}
+
+
+.confirmReverseButton {
+    border: 0;
+
+    background:
+        var(--color-danger);
+
+    color: white;
+}
+
+
+.cancelButton:disabled,
+.confirmButton:disabled,
+.confirmReverseButton:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
 }
 
 
@@ -466,4 +711,146 @@ th {
     .observation {
         grid-column: auto;
     }
+
+
+    .modalOverlay {
+        padding: 10px;
+    }
+
+
+    .modalHeader,
+    .modalBody,
+    .modalActions {
+        padding-left: 15px;
+
+        padding-right: 15px;
+    }
+
+
+    .paymentValue {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .reverseDetails {
+        grid-template-columns:
+            1fr;
+    }
 }
+
+
+/* ==========================================
+   PERÍODO - DIA / MÊS / ANO
+   ========================================== */
+
+.periodTabs {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    margin-bottom: 12px;
+}
+
+
+.periodTabs button {
+    height: 35px;
+
+    padding: 0 16px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.periodTabs button:hover {
+    border-color:
+        var(--color-primary);
+}
+
+
+.periodTabs .activeTab {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodFilter {
+    width: fit-content;
+    height: 39px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    padding: 0 11px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+}
+
+
+.periodFilter input {
+    height: 30px;
+
+    border: 0;
+
+    outline: none;
+
+    background: transparent;
+
+    color:
+        var(--color-text);
+}
+
+
+@media (
+    max-width: 700px
+) {
+
+    .periodFilter {
+        width: 100%;
+    }
+
+
+    .periodTabs {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+}
+

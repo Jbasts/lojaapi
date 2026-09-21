@@ -4,7 +4,7 @@
 
 
 .header {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 }
 
 
@@ -18,26 +18,40 @@
 .header p {
     margin: 5px 0 0;
 
-    color: var(--color-text-light);
+    color:
+        var(--color-text-light);
 
     font-size: 13px;
 }
 
 
-.layout {
+.topCards {
     display: grid;
 
     grid-template-columns:
-        220px 1fr;
+        repeat(
+            4,
+            minmax(
+                0,
+                1fr
+            )
+        );
 
-    gap: 18px;
+    gap: 12px;
+
+    margin-bottom: 18px;
 }
 
 
-.products,
-.editor {
-    background:
-        var(--color-surface);
+.topCard {
+    min-height: 88px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
 
     border:
         1px solid
@@ -45,70 +59,33 @@
 
     border-radius:
         var(--border-radius);
+
+    background:
+        var(--color-surface);
 }
 
 
-.products {
-    padding: 12px;
-
-    height: fit-content;
-}
-
-
-.products h3 {
-    margin:
-        5px
-        7px
-        12px;
-
-    font-size: 13px;
-}
-
-
-.product,
-.productActive {
-    width: 100%;
+.cardIcon {
+    width: 40px;
+    height: 40px;
 
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-    align-items: flex-start;
+    flex: 0 0 auto;
 
-    padding: 11px;
+    border-radius: 9px;
 
-    margin-bottom: 5px;
+    background: #f5eee8;
 
-    border: 0;
-
-    border-radius: 6px;
-
-    text-align: left;
+    color:
+        var(--color-primary);
 }
 
 
-.product {
-    background: transparent;
-}
-
-
-.product:hover {
-    background: #faf7f4;
-}
-
-
-.productActive {
-    background: #f3e8df;
-}
-
-
-.product strong {
-    font-size: 12px;
-}
-
-
-.product span,
-.productActive span {
-    margin-top: 3px;
+.topCard span {
+    display: block;
 
     color:
         var(--color-text-light);
@@ -117,155 +94,138 @@
 }
 
 
-.product small,
-.productActive small {
-    margin-top: 6px;
+.topCard strong {
+    display: block;
 
-    color:
-        var(--color-primary);
+    margin-top: 4px;
 
-    font-size: 9px;
+    font-size: 20px;
 }
 
 
-.editor {
-    padding: 22px;
-
-    min-width: 0;
-}
-
-
-.productHeader {
+.toolbar {
     display: flex;
-    justify-content: space-between;
-
-    align-items: flex-start;
-
-    margin-bottom: 22px;
-}
-
-
-.productHeader h2 {
-    margin: 0;
-
-    font-size: 19px;
-}
-
-
-.productHeader span {
-    display: inline-block;
-
-    margin-top: 5px;
-
-    color:
-        var(--color-text-light);
-
-    font-size: 11px;
-}
-
-
-.deleteFicha {
-    display: flex;
-
     align-items: center;
 
-    gap: 6px;
-
-    padding: 8px 10px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 5px;
-
-    background: white;
-
-    color:
-        var(--color-danger);
-
-    font-size: 11px;
-}
-
-
-.rendimento {
-    display: flex;
-
-    align-items: center;
+    flex-wrap: wrap;
 
     gap: 10px;
 
-    padding: 15px;
-
-    margin-bottom: 20px;
-
-    background: #faf8f6;
-
-    border-radius: 6px;
+    margin-bottom: 18px;
 }
 
 
-.rendimento label {
-    font-size: 11px;
+.searchBox {
+    width: 320px;
+    height: 39px;
 
-    font-weight: 600;
-}
+    display: flex;
+    align-items: center;
 
+    gap: 8px;
 
-.rendimento input {
-    width: 110px;
-
-    height: 36px;
-
-    padding: 0 9px;
+    padding: 0 12px;
 
     border:
         1px solid
         var(--color-border);
 
-    border-radius: 5px;
-}
+    border-radius: 6px;
 
+    background:
+        var(--color-surface);
 
-.rendimento span {
     color:
         var(--color-text-light);
-
-    font-size: 10px;
 }
 
 
-.itemsHeader {
-    display: flex;
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 10px;
-}
-
-
-.itemsHeader h3 {
-    margin: 0;
-
-    font-size: 14px;
-}
-
-
-.itemsHeader button {
-    display: flex;
-    align-items: center;
-
-    gap: 5px;
+.searchBox input {
+    width: 100%;
 
     border: 0;
 
-    background: transparent;
+    outline: none;
 
-    color:
-        var(--color-primary);
+    background: transparent;
+}
+
+
+.filterGroup {
+    display: flex;
+
+    gap: 5px;
+}
+
+
+.filterButton,
+.filterActive {
+    height: 39px;
+
+    padding: 0 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    cursor: pointer;
 
     font-size: 11px;
+}
+
+
+.filterButton {
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.filterActive {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.typeFilter select {
+    height: 39px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 11px;
+}
+
+
+.productsCard {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius:
+        var(--border-radius);
+
+    background:
+        var(--color-surface);
 }
 
 
@@ -274,16 +234,19 @@
 }
 
 
-table {
+.productsCard table,
+.itemsTable {
     width: 100%;
 
     border-collapse: collapse;
 }
 
 
-th,
-td {
-    padding: 9px 7px;
+.productsCard th,
+.productsCard td {
+    padding:
+        12px
+        14px;
 
     border-bottom:
         1px solid
@@ -291,92 +254,44 @@ td {
 
     text-align: left;
 
+    white-space: nowrap;
+
+    font-size: 11px;
+}
+
+
+.productsCard th,
+.itemsTable th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+
     font-size: 10px;
+
+    font-weight: 600;
 }
 
 
-th {
-    background: #faf8f6;
-
-    color:
-        var(--color-text-light);
+.productsCard tbody tr:hover {
+    background: #fcfaf8;
 }
 
 
-td input,
-td select {
-    width: 100%;
-
-    min-width: 90px;
-
-    height: 33px;
-
-    padding: 0 7px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 4px;
-
-    background: white;
-}
-
-
-.removeItem {
-    width: 28px;
-    height: 28px;
-
+.productName {
     display: flex;
-    align-items: center;
-    justify-content: center;
 
-    border: 0;
-
-    background: transparent;
-
-    color:
-        var(--color-danger);
+    flex-direction: column;
 }
 
 
-.empty {
-    padding: 25px;
-
-    text-align: center;
-
-    color:
-        var(--color-text-light);
+.productName strong {
+    font-size: 12px;
 }
 
 
-.summary {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 10px;
-
-    margin-top: 22px;
-}
-
-
-.summary div {
-    padding: 13px;
-
-    border:
-        1px solid
-        var(--color-border);
-
-    border-radius: 6px;
-
-    background: #faf8f6;
-}
-
-
-.summary span {
-    display: block;
+.productName span {
+    margin-top: 3px;
 
     color:
         var(--color-text-light);
@@ -385,43 +300,112 @@ td select {
 }
 
 
-.summary strong {
-    display: block;
-
-    margin-top: 5px;
-
-    font-size: 15px;
-}
-
-
-.actions {
-    display: flex;
-
-    justify-content: flex-end;
-
-    margin-top: 20px;
-}
-
-
-.saveButton {
-    height: 38px;
-
-    display: flex;
+.badgeProducao,
+.badgeRevenda,
+.badgeOk,
+.badgePending {
+    display: inline-flex;
 
     align-items: center;
 
-    gap: 7px;
+    padding:
+        4px
+        8px;
 
-    padding: 0 16px;
+    border-radius: 20px;
 
-    border: 0;
+    font-size: 9px;
 
-    border-radius: 6px;
+    font-weight: 600;
+}
 
-    background:
+
+.badgeProducao {
+    background: #e8f3eb;
+
+    color: #34734a;
+}
+
+
+.badgeRevenda {
+    background: #f5ede5;
+
+    color:
         var(--color-primary);
+}
 
-    color: white;
+
+.badgeOk {
+    background: #e8f3eb;
+
+    color: #34734a;
+}
+
+
+.badgePending {
+    background: #f6efe3;
+
+    color: #8a6427;
+}
+
+
+.rowActions {
+    display: flex;
+
+    gap: 6px;
+}
+
+
+.createButton,
+.editButton,
+.deleteButton {
+    height: 30px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 0 9px;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    font-size: 10px;
+}
+
+
+.createButton,
+.editButton {
+    border:
+        1px solid
+        var(--color-border);
+
+    background: white;
+
+    color:
+        var(--color-primary);
+}
+
+
+.createButton:hover,
+.editButton:hover {
+    border-color:
+        var(--color-primary);
+}
+
+
+.deleteButton {
+    border:
+        1px solid
+        #efd0d0;
+
+    background: white;
+
+    color:
+        var(--color-danger);
 }
 
 
@@ -453,18 +437,659 @@ td select {
 }
 
 
+.empty {
+    padding: 28px !important;
+
+    text-align: center !important;
+
+    color:
+        var(--color-text-light);
+}
+
+
+.modalOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background:
+        rgba(0, 0, 0, 0.46);
+}
+
+
+.loadingModal {
+    padding:
+        22px
+        28px;
+
+    border-radius: 9px;
+
+    background: white;
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.22);
+
+    font-size: 12px;
+}
+
+
+.editorModal {
+    width:
+        min(
+            1120px,
+            100%
+        );
+
+    max-height:
+        calc(100vh - 36px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 11px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.24);
+}
+
+
+.confirmModal {
+    width:
+        min(
+            470px,
+            100%
+        );
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 10px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.22);
+}
+
+
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        17px
+        20px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.modalTitleLine {
+    display: flex;
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
+
+
+.modalHeader h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.modalHeader p {
+    margin:
+        4px
+        0
+        0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.closeModal {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.editorModalBody {
+    overflow-y: auto;
+
+    padding: 20px;
+}
+
+
+.modalSummary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.modalSummary > div {
+    padding: 13px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 7px;
+
+    background: #faf8f6;
+}
+
+
+.modalSummary span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.modalSummary strong {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 15px;
+}
+
+
+.negative {
+    color:
+        var(--color-danger);
+}
+
+
+.rendimento {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 14px;
+
+    margin-bottom: 20px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 7px;
+
+    background: #fcfaf8;
+}
+
+
+.rendimento > div {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.rendimento label {
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.rendimento span {
+    margin-top: 3px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.rendimento input {
+    width: 130px;
+    height: 36px;
+
+    padding: 0 9px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+}
+
+
+.itemsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+
+.itemsHeader h3 {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+
+.itemsHeader span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+}
+
+
+.itemsHeader button {
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 0 11px;
+
+    border: 0;
+
+    border-radius: 5px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 10px;
+}
+
+
+.itemsTable th,
+.itemsTable td {
+    padding:
+        9px
+        7px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    font-size: 10px;
+}
+
+
+.itemsTable td input,
+.itemsTable td select {
+    width: 100%;
+
+    min-width: 90px;
+
+    height: 33px;
+
+    padding: 0 7px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 4px;
+
+    background: white;
+
+    outline: none;
+}
+
+
+.subtotal {
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+.removeItem {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color:
+        var(--color-danger);
+
+    cursor: pointer;
+}
+
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding:
+        14px
+        20px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    background: #fcfaf8;
+}
+
+
+.cancelButton,
+.saveButton,
+.confirmDelete {
+    min-width: 108px;
+    height: 37px;
+
+    padding: 0 14px;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+
+.cancelButton {
+    border:
+        1px solid
+        var(--color-border);
+
+    background: white;
+
+    color:
+        var(--color-text);
+}
+
+
+.saveButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    border: 0;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.confirmBody {
+    padding: 20px;
+}
+
+
+.confirmBody p {
+    margin:
+        0
+        0
+        8px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.confirmBody strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 15px;
+}
+
+
+.confirmBody span {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.confirmActions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+
+.confirmDelete {
+    border: 0;
+
+    background:
+        var(--color-danger);
+
+    color: white;
+}
+
+
+.cancelButton:disabled,
+.saveButton:disabled,
+.confirmDelete:disabled,
+.closeModal:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
 @media (
-    max-width: 1000px
+    max-width: 1100px
 ) {
 
-    .layout {
+    .topCards {
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+
+
+    .modalSummary {
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+}
+
+
+@media (
+    max-width: 700px
+) {
+
+    .topCards {
         grid-template-columns:
             1fr;
     }
 
 
-    .summary {
+    .toolbar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .searchBox {
+        width: 100%;
+    }
+
+
+    .filterGroup {
+        display: grid;
+
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+
+    .typeFilter select {
+        width: 100%;
+    }
+
+
+    .modalOverlay {
+        padding: 8px;
+    }
+
+
+    .editorModal {
+        max-height:
+            calc(100vh - 16px);
+    }
+
+
+    .modalSummary {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .rendimento,
+    .itemsHeader {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .rendimento input,
+    .itemsHeader button {
+        width: 100%;
+    }
+
+
+    .rowActions {
+        min-width: 165px;
+    }
+
+
+    .modalFooter,
+    .confirmActions {
+        flex-direction: column-reverse;
+    }
+
+
+    .cancelButton,
+    .saveButton,
+    .confirmDelete {
+        width: 100%;
     }
 }

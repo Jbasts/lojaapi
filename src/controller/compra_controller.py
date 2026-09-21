@@ -1,3 +1,4 @@
+
 from flask import jsonify, request
 
 from flask_jwt_extended import (
@@ -8,6 +9,10 @@ from src.service.compra_service import (
     CompraService,
     CompraEmUsoError,
     ValidadeNaoInformadaError
+)
+
+from src.service.nota_fiscal_service import (
+    NotaFiscalService
 )
 
 
@@ -58,6 +63,47 @@ class CompraController:
             return jsonify({
                 "erro": str(erro)
             }), 404
+
+
+    @staticmethod
+    def ler_nota():
+
+        try:
+
+            arquivo = request.files.get(
+                "arquivo"
+            )
+
+            resultado = (
+                NotaFiscalService
+                .ler(
+                    arquivo
+                )
+            )
+
+            return jsonify(
+                resultado
+            ), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro":
+                    str(erro)
+            }), 400
+
+        except Exception as erro:
+
+            print(
+                "Erro ao ler nota fiscal: "
+                f"{erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno ao ler "
+                    "a nota fiscal."
+            }), 500
 
 
     @staticmethod
@@ -215,3 +261,4 @@ class CompraController:
                 "erro":
                     "Erro interno do servidor."
             }), 500
+

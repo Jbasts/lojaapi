@@ -5,9 +5,11 @@ import {
 } from "react";
 
 import {
+    CalendarDays,
     CircleCheck,
     RotateCcw,
-    Search
+    Search,
+    X
 } from "lucide-react";
 
 import {
@@ -16,8 +18,38 @@ import {
     pagarPedido
 } from "../../services/pagamentoService";
 
+import Paginacao
+    from "../../components/Paginacao/Paginacao";
+
 import styles
     from "./Pagamentos.module.css";
+
+
+function dataLocalAtual() {
+
+    const data = new Date();
+
+    const ano =
+        data.getFullYear();
+
+    const mes =
+        String(
+            data.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+    const dia =
+        String(
+            data.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+    return `${ano}-${mes}-${dia}`;
+}
 
 
 const formasPagamento = {
@@ -31,6 +63,49 @@ const formasPagamento = {
 
 
 function Pagamentos() {
+
+    const hoje =
+        useMemo(
+            () => dataLocalAtual(),
+            []
+        );
+
+
+    const [
+        periodo,
+        setPeriodo
+    ] = useState("DIARIO");
+
+
+    const [
+        dia,
+        setDia
+    ] = useState(
+        hoje
+    );
+
+
+    const [
+        mes,
+        setMes
+    ] = useState(
+        hoje.substring(
+            0,
+            7
+        )
+    );
+
+
+    const [
+        ano,
+        setAno
+    ] = useState(
+        hoje.substring(
+            0,
+            4
+        )
+    );
+
 
     const [
         registros,
@@ -49,6 +124,11 @@ function Pagamentos() {
     ] = useState(null);
 
     const [
+        estornoSelecionado,
+        setEstornoSelecionado
+    ] = useState(null);
+
+    const [
         forma,
         setForma
     ] = useState("PIX");
@@ -64,6 +144,22 @@ function Pagamentos() {
 
     const [salvando, setSalvando] =
         useState(false);
+
+
+    // ==========================================
+    // PAGINAÇÃO
+    // ==========================================
+
+    const [
+        paginaAtual,
+        setPaginaAtual
+    ] = useState(1);
+
+
+    const [
+        itensPorPagina,
+        setItensPorPagina
+    ] = useState(6);
 
 
     async function carregar(
@@ -135,6 +231,34 @@ function Pagamentos() {
     }
 
 
+    function resetarPaginacaoPeriodo() {
+
+        setPaginaAtual(
+            1
+        );
+
+        setPedidoSelecionado(
+            null
+        );
+
+        setEstornoSelecionado(
+            null
+        );
+    }
+
+
+    function alterarPeriodo(
+        novoPeriodo
+    ) {
+
+        setPeriodo(
+            novoPeriodo
+        );
+
+        resetarPaginacaoPeriodo();
+    }
+
+
     async function handleBusca(
         event
     ) {
@@ -143,6 +267,16 @@ function Pagamentos() {
             event.target.value;
 
         setBusca(valor);
+
+        setPaginaAtual(1);
+
+        setPedidoSelecionado(
+            null
+        );
+
+        setEstornoSelecionado(
+            null
+        );
 
         await carregar(
             valor,
@@ -160,6 +294,16 @@ function Pagamentos() {
 
         setStatus(valor);
 
+        setPaginaAtual(1);
+
+        setPedidoSelecionado(
+            null
+        );
+
+        setEstornoSelecionado(
+            null
+        );
+
         await carregar(
             busca,
             valor
@@ -170,6 +314,10 @@ function Pagamentos() {
     function abrirPagamento(
         registro
     ) {
+
+        setEstornoSelecionado(
+            null
+        );
 
         setPedidoSelecionado(
             registro
@@ -203,26 +351,6 @@ function Pagamentos() {
     async function confirmarPagamento() {
 
         if (!pedidoSelecionado) {
-            return;
-        }
-
-
-        const confirmar =
-            window.confirm(
-                `Confirmar pagamento do `
-                + `pedido #${
-                    pedidoSelecionado
-                        .numero_pedido
-                } no valor de ${
-                    moeda(
-                        pedidoSelecionado
-                            .valor_pedido
-                    )
-                }?`
-            );
-
-
-        if (!confirmar) {
             return;
         }
 
@@ -270,37 +398,58 @@ function Pagamentos() {
         }
     }
 
-
-    async function estornar(
+    function abrirEstorno(
         registro
     ) {
 
-        const confirmar =
-            window.confirm(
-                `Estornar o pagamento `
-                + `do pedido #${
-                    registro.numero_pedido
-                }?`
-            );
+        setPedidoSelecionado(
+            null
+        );
+
+        setEstornoSelecionado(
+            registro
+        );
+
+        setErro("");
+        setMensagem("");
+    }
 
 
-        if (!confirmar) {
+    function cancelarEstorno() {
+
+        setEstornoSelecionado(
+            null
+        );
+    }
+
+
+    async function confirmarEstorno() {
+
+        if (!estornoSelecionado) {
             return;
         }
 
 
         try {
 
+            setSalvando(true);
+            setErro("");
+            setMensagem("");
+
+
             await estornarPagamento(
-                registro.pagamento_id
+                estornoSelecionado.pagamento_id
             );
 
 
             setMensagem(
-                "Pagamento estornado "
-                + "com sucesso."
+                `Pagamento do pedido #${
+                    estornoSelecionado.numero_pedido
+                } estornado com sucesso.`
             );
 
+
+            cancelarEstorno();
 
             await carregar();
 
@@ -312,15 +461,91 @@ function Pagamentos() {
                 "Não foi possível estornar "
                 + "o pagamento."
             );
+
+        } finally {
+
+            setSalvando(false);
         }
     }
+
+    const registrosFiltradosPeriodo =
+        useMemo(
+            () => {
+
+                return registros.filter(
+                    (item) => {
+
+                        if (
+                            !item.data_pedido
+                        ) {
+                            return false;
+                        }
+
+
+                        const dataPedido =
+                            String(
+                                item.data_pedido
+                            ).substring(
+                                0,
+                                10
+                            );
+
+
+                        if (
+                            periodo
+                            === "DIARIO"
+                        ) {
+
+                            return (
+                                dataPedido
+                                === dia
+                            );
+                        }
+
+
+                        if (
+                            periodo
+                            === "MENSAL"
+                        ) {
+
+                            return (
+                                dataPedido.substring(
+                                    0,
+                                    7
+                                )
+                                === mes
+                            );
+                        }
+
+
+                        return (
+                            dataPedido.substring(
+                                0,
+                                4
+                            )
+                            === String(
+                                ano
+                            )
+                        );
+                    }
+                );
+
+            },
+            [
+                registros,
+                periodo,
+                dia,
+                mes,
+                ano
+            ]
+        );
 
 
     const resumo =
         useMemo(
             () => {
 
-                return registros.reduce(
+                return registrosFiltradosPeriodo.reduce(
                     (
                         acumulador,
                         item
@@ -366,8 +591,77 @@ function Pagamentos() {
                 );
 
             },
-            [registros]
+            [registrosFiltradosPeriodo]
         );
+
+
+    // ==========================================
+    // PAGINAÇÃO
+    // ==========================================
+
+    const totalItens =
+        registrosFiltradosPeriodo.length;
+
+
+    const totalPaginas =
+        Math.max(
+            1,
+            Math.ceil(
+                totalItens
+                /
+                itensPorPagina
+            )
+        );
+
+
+    const paginaSegura =
+        Math.min(
+            paginaAtual,
+            totalPaginas
+        );
+
+
+    const indiceInicial =
+        (
+            paginaSegura - 1
+        )
+        *
+        itensPorPagina;
+
+
+    const indiceFinal =
+        indiceInicial
+        +
+        itensPorPagina;
+
+
+    const registrosPaginados =
+        registrosFiltradosPeriodo.slice(
+            indiceInicial,
+            indiceFinal
+        );
+
+
+    function alterarItensPorPagina(
+        quantidade
+    ) {
+
+        setItensPorPagina(
+            quantidade
+        );
+
+        setPaginaAtual(
+            1
+        );
+
+        setPedidoSelecionado(
+            null
+        );
+
+        setEstornoSelecionado(
+            null
+        );
+    }
 
 
     return (
@@ -410,6 +704,146 @@ function Pagamentos() {
                     </div>
                 )
             }
+
+
+            <div
+                className={
+                    styles.periodTabs
+                }
+            >
+
+                <button
+                    type="button"
+                    className={
+                        periodo === "DIARIO"
+                            ? styles.activeTab
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarPeriodo(
+                            "DIARIO"
+                        )
+                    }
+                >
+                    Dia
+                </button>
+
+
+                <button
+                    type="button"
+                    className={
+                        periodo === "MENSAL"
+                            ? styles.activeTab
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarPeriodo(
+                            "MENSAL"
+                        )
+                    }
+                >
+                    Mês
+                </button>
+
+
+                <button
+                    type="button"
+                    className={
+                        periodo === "ANUAL"
+                            ? styles.activeTab
+                            : ""
+                    }
+                    onClick={() =>
+                        alterarPeriodo(
+                            "ANUAL"
+                        )
+                    }
+                >
+                    Ano
+                </button>
+
+            </div>
+
+
+            <div
+                className={
+                    styles.periodFilter
+                }
+            >
+
+                <CalendarDays
+                    size={17}
+                />
+
+
+                {
+                    periodo === "DIARIO"
+                    && (
+
+                        <input
+                            type="date"
+                            value={dia}
+                            onChange={
+                                (event) => {
+
+                                    setDia(
+                                        event.target.value
+                                    );
+
+                                    resetarPaginacaoPeriodo();
+                                }
+                            }
+                        />
+                    )
+                }
+
+
+                {
+                    periodo === "MENSAL"
+                    && (
+
+                        <input
+                            type="month"
+                            value={mes}
+                            onChange={
+                                (event) => {
+
+                                    setMes(
+                                        event.target.value
+                                    );
+
+                                    resetarPaginacaoPeriodo();
+                                }
+                            }
+                        />
+                    )
+                }
+
+
+                {
+                    periodo === "ANUAL"
+                    && (
+
+                        <input
+                            type="number"
+                            min="2000"
+                            max="2100"
+                            value={ano}
+                            onChange={
+                                (event) => {
+
+                                    setAno(
+                                        event.target.value
+                                    );
+
+                                    resetarPaginacaoPeriodo();
+                                }
+                            }
+                        />
+                    )
+                }
+
+            </div>
 
 
             <div className={styles.summary}>
@@ -562,7 +996,7 @@ function Pagamentos() {
                         <tbody>
 
                             {
-                                registros.length
+                                registrosPaginados.length
                                 === 0
                                     ? (
 
@@ -580,7 +1014,7 @@ function Pagamentos() {
                                         </tr>
                                     )
 
-                                    : registros.map(
+                                    : registrosPaginados.map(
                                         (item) => (
 
                                             <tr
@@ -740,7 +1174,7 @@ function Pagamentos() {
                                                                         styles.reverseButton
                                                                     }
                                                                     onClick={() =>
-                                                                        estornar(
+                                                                        abrirEstorno(
                                                                             item
                                                                         )
                                                                     }
@@ -769,204 +1203,567 @@ function Pagamentos() {
 
                 </div>
 
+
+                <Paginacao
+                    paginaAtual={
+                        paginaSegura
+                    }
+                    totalItens={
+                        totalItens
+                    }
+                    itensPorPagina={
+                        itensPorPagina
+                    }
+                    onPaginaChange={
+                        (pagina) => {
+
+                            setPaginaAtual(
+                                pagina
+                            );
+
+                            setPedidoSelecionado(
+                                null
+                            );
+
+                            setEstornoSelecionado(
+                                null
+                            );
+                        }
+                    }
+                    onItensPorPaginaChange={
+                        alterarItensPorPagina
+                    }
+                />
+
             </section>
 
 
             {
-                pedidoSelecionado && (
+                pedidoSelecionado
+                && (
 
-                    <section
+                    <div
                         className={
-                            styles.paymentCard
+                            styles.modalOverlay
+                        }
+                        role="presentation"
+                        onMouseDown={
+                            (event) => {
+
+                                if (
+                                    event.target
+                                    === event.currentTarget
+                                    &&
+                                    !salvando
+                                ) {
+
+                                    cancelarPagamento();
+                                }
+                            }
                         }
                     >
 
-                        <div
+                        <section
                             className={
-                                styles.paymentHeader
+                                styles.modal
                             }
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="tituloPagamento"
                         >
 
-                            <div>
-
-                                <h2>
-                                    Registrar Pagamento
-                                </h2>
-
-                                <p>
-                                    Pedido #
-                                    {
-                                        pedidoSelecionado
-                                            .numero_pedido
-                                    }
-                                </p>
-
-                            </div>
-
-
-                            <strong>
-                                {
-                                    moeda(
-                                        pedidoSelecionado
-                                            .valor_pedido
-                                    )
+                            <div
+                                className={
+                                    styles.modalHeader
                                 }
-                            </strong>
+                            >
 
-                        </div>
+                                <div>
+
+                                    <h2
+                                        id="tituloPagamento"
+                                    >
+                                        Registrar Pagamento
+                                    </h2>
+
+                                    <p>
+                                        Pedido #
+                                        {
+                                            pedidoSelecionado
+                                                .numero_pedido
+                                        }
+                                    </p>
+
+                                </div>
 
 
-                        <div
-                            className={
-                                styles.paymentGrid
-                            }
-                        >
-
-                            <div>
-
-                                <label>
-                                    Cliente
-                                </label>
-
-                                <input
-                                    value={
-                                        pedidoSelecionado
-                                            .cliente_nome
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
                                     }
-                                    disabled
-                                />
-
-                            </div>
-
-
-                            <div>
-
-                                <label>
-                                    Forma de pagamento *
-                                </label>
-
-                                <select
-                                    value={
-                                        forma
+                                    title="Fechar"
+                                    onClick={
+                                        cancelarPagamento
                                     }
-                                    onChange={
-                                        (event) =>
-                                            setForma(
-                                                event.target.value
-                                            )
+                                    disabled={
+                                        salvando
                                     }
                                 >
 
-                                    {
-                                        Object.entries(
-                                            formasPagamento
-                                        ).map(
-                                            ([
-                                                valor,
-                                                descricao
-                                            ]) => (
+                                    <X
+                                        size={18}
+                                    />
 
-                                                <option
-                                                    key={valor}
-                                                    value={valor}
-                                                >
-                                                    {
-                                                        descricao
-                                                    }
-                                                </option>
-                                            )
-                                        )
-                                    }
-
-                                </select>
+                                </button>
 
                             </div>
 
 
                             <div
                                 className={
-                                    styles.observation
+                                    styles.modalBody
                                 }
                             >
 
-                                <label>
-                                    Observação
-                                </label>
+                                <div
+                                    className={
+                                        styles.paymentValue
+                                    }
+                                >
 
-                                <input
-                                    value={
-                                        observacao
-                                    }
-                                    onChange={
-                                        (event) =>
-                                            setObservacao(
-                                                event
-                                                    .target
-                                                    .value
+                                    <span>
+                                        Valor do pedido
+                                    </span>
+
+                                    <strong>
+                                        {
+                                            moeda(
+                                                pedidoSelecionado
+                                                    .valor_pedido
                                             )
+                                        }
+                                    </strong>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.paymentGrid
                                     }
-                                    placeholder={
-                                        "Opcional"
+                                >
+
+                                    <div>
+
+                                        <label>
+                                            Cliente
+                                        </label>
+
+                                        <input
+                                            value={
+                                                pedidoSelecionado
+                                                    .cliente_nome
+                                            }
+                                            disabled
+                                        />
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <label>
+                                            Forma de pagamento *
+                                        </label>
+
+                                        <select
+                                            value={
+                                                forma
+                                            }
+                                            onChange={
+                                                (event) =>
+                                                    setForma(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                            }
+                                        >
+
+                                            {
+                                                Object.entries(
+                                                    formasPagamento
+                                                ).map(
+                                                    ([
+                                                        valor,
+                                                        descricao
+                                                    ]) => (
+
+                                                        <option
+                                                            key={valor}
+                                                            value={valor}
+                                                        >
+                                                            {
+                                                                descricao
+                                                            }
+                                                        </option>
+                                                    )
+                                                )
+                                            }
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div
+                                        className={
+                                            styles.observation
+                                        }
+                                    >
+
+                                        <label>
+                                            Observação
+                                        </label>
+
+                                        <input
+                                            value={
+                                                observacao
+                                            }
+                                            onChange={
+                                                (event) =>
+                                                    setObservacao(
+                                                        event
+                                                            .target
+                                                            .value
+                                                    )
+                                            }
+                                            placeholder="Opcional"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+
+                                <p
+                                    className={
+                                        styles.dateInfo
                                     }
-                                />
+                                >
+                                    A data do pagamento será
+                                    registrada automaticamente.
+                                </p>
 
                             </div>
 
-                        </div>
 
-
-                        <p
-                            className={
-                                styles.dateInfo
-                            }
-                        >
-                            A data do pagamento
-                            será registrada
-                            automaticamente.
-                        </p>
-
-
-                        <div
-                            className={
-                                styles.paymentActions
-                            }
-                        >
-
-                            <button
+                            <div
                                 className={
-                                    styles.cancelButton
-                                }
-                                onClick={
-                                    cancelarPagamento
-                                }
-                            >
-                                Cancelar
-                            </button>
-
-
-                            <button
-                                className={
-                                    styles.confirmButton
-                                }
-                                onClick={
-                                    confirmarPagamento
-                                }
-                                disabled={
-                                    salvando
+                                    styles.modalActions
                                 }
                             >
 
-                                {
-                                    salvando
-                                        ? "Salvando..."
-                                        : "Confirmar Pagamento"
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.cancelButton
+                                    }
+                                    onClick={
+                                        cancelarPagamento
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+                                    Cancelar
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.confirmButton
+                                    }
+                                    onClick={
+                                        confirmarPagamento
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+
+                                    {
+                                        salvando
+                                            ? "Salvando..."
+                                            : "Confirmar Pagamento"
+                                    }
+
+                                </button>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+                )
+            }
+
+
+            {
+                estornoSelecionado
+                && (
+
+                    <div
+                        className={
+                            styles.modalOverlay
+                        }
+                        role="presentation"
+                        onMouseDown={
+                            (event) => {
+
+                                if (
+                                    event.target
+                                    === event.currentTarget
+                                    &&
+                                    !salvando
+                                ) {
+
+                                    cancelarEstorno();
                                 }
+                            }
+                        }
+                    >
 
-                            </button>
+                        <section
+                            className={
+                                `${styles.modal} `
+                                + `${styles.reverseModal}`
+                            }
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="tituloEstorno"
+                        >
 
-                        </div>
+                            <div
+                                className={
+                                    styles.modalHeader
+                                }
+                            >
 
-                    </section>
+                                <div>
+
+                                    <h2
+                                        id="tituloEstorno"
+                                    >
+                                        Estornar Pagamento
+                                    </h2>
+
+                                    <p>
+                                        Pedido #
+                                        {
+                                            estornoSelecionado
+                                                .numero_pedido
+                                        }
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.closeModal
+                                    }
+                                    title="Fechar"
+                                    onClick={
+                                        cancelarEstorno
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+
+                                    <X
+                                        size={18}
+                                    />
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.modalBody
+                                }
+                            >
+
+                                <div
+                                    className={
+                                        styles.reverseWarning
+                                    }
+                                >
+
+                                    <RotateCcw
+                                        size={18}
+                                    />
+
+                                    <div>
+
+                                        <strong>
+                                            Confirmar estorno
+                                        </strong>
+
+                                        <p>
+                                            O pagamento será
+                                            marcado como estornado
+                                            e o pedido voltará a
+                                            aparecer como pendente.
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    className={
+                                        styles.reverseDetails
+                                    }
+                                >
+
+                                    <div>
+
+                                        <span>
+                                            Cliente
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                estornoSelecionado
+                                                    .cliente_nome
+                                            }
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Valor pago
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                moeda(
+                                                    estornoSelecionado
+                                                        .valor
+                                                    ??
+                                                    estornoSelecionado
+                                                        .valor_pedido
+                                                )
+                                            }
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Forma
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                formasPagamento[
+                                                    estornoSelecionado
+                                                        .forma
+                                                ]
+                                                ||
+                                                estornoSelecionado
+                                                    .forma
+                                                ||
+                                                "-"
+                                            }
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            Data do pagamento
+                                        </span>
+
+                                        <strong>
+                                            {
+                                                dataBR(
+                                                    estornoSelecionado
+                                                        .data_pagamento
+                                                )
+                                            }
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.modalActions
+                                }
+                            >
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.cancelButton
+                                    }
+                                    onClick={
+                                        cancelarEstorno
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+                                    Cancelar
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.confirmReverseButton
+                                    }
+                                    onClick={
+                                        confirmarEstorno
+                                    }
+                                    disabled={
+                                        salvando
+                                    }
+                                >
+
+                                    {
+                                        salvando
+                                            ? "Estornando..."
+                                            : "Confirmar Estorno"
+                                    }
+
+                                </button>
+
+                            </div>
+
+                        </section>
+
+                    </div>
                 )
             }
 
@@ -976,3 +1773,4 @@ function Pagamentos() {
 
 
 export default Pagamentos;
+

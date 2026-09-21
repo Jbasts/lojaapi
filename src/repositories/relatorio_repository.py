@@ -557,8 +557,6 @@ class RelatorioRepository:
                     ORDER BY
                         quantidade DESC,
                         valor_bruto DESC
-
-                    LIMIT 10
                     """,
                     (
                         data_referencia,
@@ -609,6 +607,41 @@ class RelatorioRepository:
                                 or 0
                             )
                     })
+
+
+                menos_produtos = sorted(
+                    top_produtos,
+                    key=lambda produto: (
+                        float(
+                            produto.get(
+                                "quantidade",
+                                0
+                            )
+                            or 0
+                        ),
+                        float(
+                            produto.get(
+                                "valor_bruto",
+                                0
+                            )
+                            or 0
+                        ),
+                        str(
+                            produto.get(
+                                "produto",
+                                ""
+                            )
+                        ).lower(),
+                        str(
+                            produto.get(
+                                "sabor",
+                                ""
+                            )
+                            or ""
+                        ).lower()
+                    )
+                )
+
 
                 # =================================
                 # 8. CÁLCULOS FINAIS
@@ -731,7 +764,11 @@ class RelatorioRepository:
 
 
                     "top_produtos":
-                        top_produtos
+                        top_produtos,
+
+
+                    "menos_produtos":
+                        menos_produtos
                 }
 
 

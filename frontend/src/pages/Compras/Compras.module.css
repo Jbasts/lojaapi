@@ -1,8 +1,15 @@
+
 .page {
     width: 100%;
 }
 
 .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
     margin-bottom: 22px;
 }
 
@@ -25,7 +32,7 @@
     align-items: center;
     gap: 8px;
 
-    margin-bottom: 18px;
+    margin-bottom: 0;
     padding: 0 12px;
 
     border: 1px solid var(--color-border);
@@ -50,6 +57,11 @@
 
 .card {
     margin-bottom: 22px;
+    overflow: hidden;
+}
+
+
+.tableWrapper {
     overflow-x: auto;
 }
 
@@ -337,5 +349,1947 @@
     .footer {
         flex-direction: column;
         align-items: stretch;
+    }
+}
+
+
+.headerActions {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.hiddenFileInput {
+    display: none;
+}
+
+
+.readInvoiceButton {
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 15px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background:
+        var(--color-primary);
+
+    color: white;
+
+    cursor: pointer;
+}
+
+
+.readInvoiceButton:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+.modalOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px;
+
+    background:
+        rgba(0, 0, 0, 0.46);
+}
+
+
+.invoiceModal {
+    width:
+        min(
+            1180px,
+            100%
+        );
+
+    max-height:
+        calc(100vh - 36px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 11px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.24);
+}
+
+
+.modalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 17px 20px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.modalHeader h2 {
+    margin: 0;
+
+    font-size: 17px;
+}
+
+
+.modalHeader p {
+    margin: 4px 0 0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.closeModal {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+}
+
+
+.invoiceModalBody {
+    overflow-y: auto;
+
+    padding: 20px;
+}
+
+
+.invoiceNotice {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 9px;
+
+    padding: 11px 13px;
+
+    margin-bottom: 15px;
+
+    border:
+        1px solid
+        #eadcc5;
+
+    border-radius: 6px;
+
+    background: #fbf7ef;
+
+    color: #77592e;
+
+    font-size: 10px;
+}
+
+
+.invoiceNotice svg {
+    flex: 0 0 auto;
+}
+
+
+.invoiceTableWrapper {
+    overflow-x: auto;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 7px;
+}
+
+
+.invoiceTable {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+
+.invoiceTable th,
+.invoiceTable td {
+    padding: 10px 11px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+
+.invoiceTable th {
+    background: #faf8f6;
+
+    color:
+        var(--color-text-light);
+}
+
+
+.invoiceTable input[type="number"],
+.invoiceTable input[type="date"] {
+    min-width: 105px;
+    height: 34px;
+
+    padding: 0 8px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+}
+
+
+.invoiceTable input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+
+.unregisteredRow {
+    background: #fff9f7;
+}
+
+
+.registeredBadge,
+.unregisteredBadge {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 8px;
+
+    border-radius: 20px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.registeredBadge {
+    background: #e7f5ec;
+
+    color: #277347;
+}
+
+
+.unregisteredBadge {
+    background: #fbe8e8;
+
+    color:
+        var(--color-danger);
+}
+
+
+.notAvailable {
+    color:
+        var(--color-danger);
+
+    font-size: 9px;
+}
+
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 14px 20px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    background: #fcfaf8;
+}
+
+
+@media (max-width: 700px) {
+
+    .header {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .headerActions,
+    .readInvoiceButton {
+        width: 100%;
+    }
+
+
+    .readInvoiceButton {
+        justify-content: center;
+    }
+
+
+    .modalOverlay {
+        padding: 8px;
+    }
+
+
+    .invoiceModal {
+        max-height:
+            calc(100vh - 16px);
+    }
+
+
+    .modalFooter {
+        flex-direction: column-reverse;
+    }
+
+
+    .modalFooter .cancelButton,
+    .modalFooter .saveButton {
+        width: 100%;
+    }
+}
+
+
+/* ==========================================
+   NOVA COMPRA EM POPUP
+   ========================================== */
+
+.choiceModal {
+    width: min(620px, 100%);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 11px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.24);
+}
+
+
+.choiceOptions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    padding: 20px;
+}
+
+
+.choiceOption {
+    min-height: 150px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 20px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 9px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s,
+        background 0.2s,
+        transform 0.2s;
+}
+
+
+.choiceOption:hover:not(:disabled) {
+    border-color:
+        var(--color-primary);
+
+    background: #faf8f6;
+
+    transform:
+        translateY(-1px);
+}
+
+
+.choiceOption:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+.choiceOption svg {
+    color:
+        var(--color-primary);
+}
+
+
+.choiceOption strong {
+    font-size: 14px;
+}
+
+
+.choiceOption span {
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+
+    line-height: 1.45;
+}
+
+
+.purchaseModal {
+    width:
+        min(
+            1120px,
+            100%
+        );
+
+    max-height:
+        calc(100vh - 36px);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 11px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0 18px 55px
+        rgba(0, 0, 0, 0.24);
+}
+
+
+.purchaseModal .formCard {
+    border: 0;
+
+    padding: 0;
+}
+
+
+.purchaseModal .footer {
+    padding-bottom: 2px;
+}
+
+
+/* ==========================================
+   CÓDIGO EDITÁVEL DA NOTA
+   ========================================== */
+
+.invoiceCodeEdit {
+    min-width: 190px;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(135px, 1fr)
+        34px;
+
+    gap: 5px;
+
+    align-items: center;
+}
+
+
+.invoiceCodeEdit input {
+    min-width: 135px;
+    width: 100%;
+    height: 34px;
+
+    padding: 0 8px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 10px;
+}
+
+
+.invoiceCodeEdit input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.invoiceCodeEdit button {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+}
+
+
+.invoiceCodeEdit button:hover:not(:disabled) {
+    border-color:
+        var(--color-primary);
+
+    background: #faf8f6;
+}
+
+
+.invoiceCodeEdit button:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+.codeWarning {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--color-danger);
+
+    font-size: 9px;
+}
+
+
+@media (max-width: 700px) {
+
+    .choiceOptions {
+        grid-template-columns: 1fr;
+    }
+
+    .choiceOption {
+        min-height: 120px;
+    }
+}
+
+
+/* ==========================================
+   FILTROS DA LISTA DE COMPRAS
+   ========================================== */
+
+.listControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    margin-bottom: 12px;
+}
+
+
+.periodArea {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.periodButtons {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.periodButtons button {
+    min-width: 54px;
+    height: 36px;
+
+    padding: 0 11px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text-light);
+
+    cursor: pointer;
+
+    font-size: 11px;
+}
+
+
+.periodButtons button:hover {
+    border-color:
+        var(--color-primary);
+
+    color:
+        var(--color-primary);
+}
+
+
+.periodButtons .activePeriod {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--color-primary);
+
+    color: white;
+}
+
+
+.periodButtons .activePeriod:hover {
+    color: white;
+}
+
+
+.periodReference {
+    height: 36px;
+
+    padding: 0 9px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+.periodReference:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+.filteredSummary {
+    min-height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 12px;
+
+    padding: 8px 12px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        #faf8f6;
+
+    font-size: 11px;
+}
+
+
+.filteredSummary span {
+    color:
+        var(--color-text-light);
+}
+
+
+.filteredSummary strong {
+    color:
+        var(--color-text);
+
+    font-size: 12px;
+}
+
+
+/* ==========================================
+   PAGINAÇÃO - MESMO PADRÃO DO ESTOQUE
+   ========================================== */
+
+.pagination {
+    min-height: 60px;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr auto 1fr;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding:
+        12px
+        16px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    background: white;
+}
+
+
+.paginationInfo {
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationInfo strong {
+    color:
+        var(--color-text);
+}
+
+
+.paginationControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+}
+
+
+.paginationButton {
+    width: 31px;
+    height: 31px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-text);
+
+    cursor: pointer;
+
+    font-size: 17px;
+}
+
+
+.paginationButton:hover:not(:disabled) {
+    border-color:
+        var(--color-primary);
+
+    color:
+        var(--color-primary);
+
+    background:
+        #faf8f6;
+}
+
+
+.paginationButton:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.35;
+}
+
+
+.paginationPage {
+    min-width: 105px;
+
+    text-align: center;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationPage strong {
+    color:
+        var(--color-text);
+}
+
+
+.paginationSize {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+
+.paginationSize label {
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+}
+
+
+.paginationSize input {
+    width: 65px;
+    height: 31px;
+
+    padding:
+        0
+        8px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    outline: none;
+
+    font-size: 11px;
+}
+
+
+.paginationSize input:focus {
+    border-color:
+        var(--color-primary);
+}
+
+
+/* ==========================================
+   EXCLUIR ITEM LIDO DA NOTA
+   ========================================== */
+
+.deleteInvoiceItem {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+
+    color:
+        var(--color-danger);
+
+    cursor: pointer;
+}
+
+
+.deleteInvoiceItem:hover {
+    border-color:
+        var(--color-danger);
+
+    background:
+        #fff7f7;
+}
+
+
+@media (max-width: 1000px) {
+
+    .listControls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+
+    .searchBox {
+        width: 100%;
+    }
+
+
+    .periodArea {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .periodButtons {
+        width: 100%;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, 1fr);
+    }
+
+
+    .periodButtons button {
+        min-width: 0;
+        width: 100%;
+    }
+
+
+    .periodReference {
+        width: 100%;
+    }
+
+
+    .filteredSummary {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+
+    .pagination {
+        grid-template-columns: 1fr;
+
+        justify-items: center;
+    }
+
+
+    .paginationInfo {
+        text-align: center;
+    }
+
+
+    .paginationSize {
+        justify-content: center;
+    }
+}
+
+
+/* ==========================================
+   CARREGAMENTO DA LEITURA DA NOTA
+   ========================================== */
+
+.readingOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background:
+        rgba(
+            25,
+            16,
+            11,
+            0.55
+        );
+
+    backdrop-filter:
+        blur(5px);
+}
+
+
+.readingCard {
+    width: min(
+        520px,
+        100%
+    );
+
+    display: grid;
+
+    grid-template-columns:
+        92px
+        1fr;
+
+    gap: 22px;
+
+    padding: 28px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.6
+        );
+
+    border-radius: 14px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0
+        24px
+        70px
+        rgba(
+            22,
+            12,
+            7,
+            0.28
+        );
+
+    animation:
+        readingCardIn
+        0.22s
+        ease-out;
+}
+
+
+.readingIconArea {
+    position: relative;
+
+    width: 84px;
+    height: 84px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.readingSpinner {
+    position: absolute;
+
+    inset: 0;
+
+    border:
+        3px solid
+        #eee5de;
+
+    border-top-color:
+        var(--color-primary);
+
+    border-right-color:
+        #d7b79f;
+
+    border-radius: 50%;
+
+    animation:
+        readingSpin
+        1s
+        linear
+        infinite;
+}
+
+
+.readingFileIcon {
+    width: 56px;
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        #f4ece6;
+
+    color:
+        var(--color-primary);
+
+    box-shadow:
+        inset
+        0
+        0
+        0
+        1px
+        var(--color-border);
+}
+
+
+.readingContent {
+    min-width: 0;
+}
+
+
+.readingEyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color:
+        var(--color-primary);
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+}
+
+
+.readingContent h2 {
+    margin:
+        0
+        0
+        7px;
+
+    color:
+        var(--color-text);
+
+    font-size: 20px;
+}
+
+
+.readingContent > p {
+    margin:
+        0
+        0
+        14px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 11px;
+
+    line-height: 1.55;
+}
+
+
+.readingFileName {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 14px;
+
+    padding:
+        8px
+        10px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        #faf8f6;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+}
+
+
+.readingFileName span {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.readingProgress {
+    position: relative;
+
+    height: 5px;
+
+    overflow: hidden;
+
+    margin-bottom: 18px;
+
+    border-radius: 20px;
+
+    background:
+        #eee7e1;
+}
+
+
+.readingProgressBar {
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    width: 42%;
+
+    border-radius: 20px;
+
+    background:
+        var(--color-primary);
+
+    animation:
+        readingProgressMove
+        1.25s
+        ease-in-out
+        infinite;
+}
+
+
+.readingSteps {
+    display: grid;
+
+    gap: 11px;
+}
+
+
+.readingStep {
+    display: grid;
+
+    grid-template-columns:
+        10px
+        1fr;
+
+    align-items: start;
+
+    gap: 9px;
+}
+
+
+.stepDot {
+    width: 8px;
+    height: 8px;
+
+    margin-top: 4px;
+
+    border-radius: 50%;
+
+    background:
+        var(--color-primary);
+
+    box-shadow:
+        0
+        0
+        0
+        4px
+        #f3e9e2;
+
+    animation:
+        readingDotPulse
+        1.4s
+        ease-in-out
+        infinite;
+}
+
+
+.readingStep:nth-child(2)
+.stepDot {
+    animation-delay:
+        0.2s;
+}
+
+
+.readingStep:nth-child(3)
+.stepDot {
+    animation-delay:
+        0.4s;
+}
+
+
+.readingStep strong {
+    display: block;
+
+    margin-bottom: 1px;
+
+    color:
+        var(--color-text);
+
+    font-size: 11px;
+}
+
+
+.readingStep small {
+    display: block;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+
+.readingHint {
+    display: block;
+
+    margin-top: 17px;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+
+    text-align: center;
+}
+
+
+@keyframes readingSpin {
+
+    to {
+        transform:
+            rotate(
+                360deg
+            );
+    }
+}
+
+
+@keyframes readingProgressMove {
+
+    0% {
+        left: -45%;
+    }
+
+    50% {
+        left: 48%;
+    }
+
+    100% {
+        left: 105%;
+    }
+}
+
+
+@keyframes readingDotPulse {
+
+    0%,
+    100% {
+        opacity: 0.45;
+
+        transform:
+            scale(
+                0.82
+            );
+    }
+
+    50% {
+        opacity: 1;
+
+        transform:
+            scale(
+                1
+            );
+    }
+}
+
+
+@keyframes readingCardIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(
+                8px
+            )
+            scale(
+                0.985
+            );
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(
+                0
+            )
+            scale(
+                1
+            );
+    }
+}
+
+
+@media (max-width: 620px) {
+
+    .readingCard {
+        grid-template-columns:
+            1fr;
+
+        justify-items: center;
+
+        padding: 24px 20px;
+    }
+
+
+    .readingContent {
+        width: 100%;
+
+        text-align: center;
+    }
+
+
+    .readingFileName,
+    .readingStep {
+        text-align: left;
+    }
+
+
+    .readingIconArea {
+        width: 72px;
+        height: 72px;
+    }
+
+
+    .readingFileIcon {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+
+@media (
+    prefers-reduced-motion:
+    reduce
+) {
+
+    .readingSpinner,
+    .readingProgressBar,
+    .stepDot,
+    .readingCard {
+        animation-duration:
+            0.01ms;
+
+        animation-iteration-count:
+            1;
+    }
+}
+
+
+/* ==========================================
+   CADASTRO RÁPIDO DE PRODUTO PELA NOTA
+   ========================================== */
+
+.invoiceProductName {
+    color:
+        var(--color-text);
+
+    font-size: 10px;
+}
+
+
+.unregisteredProductCell {
+    min-width: 165px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 6px;
+}
+
+
+.unregisteredProductCell > span {
+    color:
+        var(--color-danger);
+
+    font-size: 9px;
+}
+
+
+.quickRegisterButton {
+    min-height: 29px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding:
+        0
+        9px;
+
+    border:
+        1px solid
+        var(--color-primary);
+
+    border-radius: 5px;
+
+    background:
+        white;
+
+    color:
+        var(--color-primary);
+
+    cursor: pointer;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+.quickRegisterButton:hover {
+    background:
+        #f7f1ec;
+}
+
+
+.quickRegisterOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 10020;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(
+            25,
+            16,
+            11,
+            0.58
+        );
+
+    backdrop-filter:
+        blur(4px);
+}
+
+
+.quickRegisterModal {
+    width:
+        min(
+            470px,
+            100%
+        );
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 12px;
+
+    background:
+        var(--color-surface);
+
+    box-shadow:
+        0
+        24px
+        70px
+        rgba(
+            20,
+            12,
+            8,
+            0.30
+        );
+
+    animation:
+        quickRegisterIn
+        0.18s
+        ease-out;
+}
+
+
+.quickRegisterHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding:
+        20px
+        20px
+        16px;
+
+    border-bottom:
+        1px solid
+        var(--color-border);
+}
+
+
+.quickRegisterHeader > div > span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color:
+        var(--color-primary);
+
+    font-size: 8px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+
+.quickRegisterHeader h2 {
+    margin: 0;
+
+    color:
+        var(--color-text);
+
+    font-size: 18px;
+}
+
+
+.quickRegisterHeader p {
+    margin:
+        5px
+        0
+        0;
+
+    color:
+        var(--color-text-light);
+
+    font-size: 10px;
+
+    line-height: 1.45;
+}
+
+
+.quickRegisterBody {
+    display: grid;
+
+    gap: 15px;
+
+    padding: 20px;
+}
+
+
+.quickRegisterError {
+    padding:
+        10px
+        12px;
+
+    border-radius: 6px;
+
+    background:
+        #fbe8e8;
+
+    color:
+        var(--color-danger);
+
+    font-size: 10px;
+}
+
+
+.quickRegisterField {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+
+.quickRegisterField label {
+    color:
+        var(--color-text);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+.quickRegisterField input {
+    width: 100%;
+    height: 39px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        var(--color-border);
+
+    border-radius: 6px;
+
+    background:
+        white;
+
+    color:
+        var(--color-text);
+
+    outline: none;
+
+    font-size: 11px;
+}
+
+
+.quickRegisterField input:focus {
+    border-color:
+        var(--color-primary);
+
+    box-shadow:
+        0
+        0
+        0
+        2px
+        rgba(
+            120,
+            79,
+            51,
+            0.08
+        );
+}
+
+
+.quickRegisterField input:disabled {
+    background:
+        #f5f2ef;
+
+    cursor:
+        not-allowed;
+}
+
+
+.quickRegisterField small {
+    color:
+        var(--color-text-light);
+
+    font-size: 9px;
+
+    line-height: 1.4;
+}
+
+
+.quickRegisterPreview {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    padding:
+        10px
+        11px;
+
+    border:
+        1px solid
+        #d8eadf;
+
+    border-radius: 6px;
+
+    background:
+        #f0f8f3;
+
+    color:
+        #277347;
+
+    font-size: 9px;
+
+    line-height: 1.45;
+}
+
+
+.quickRegisterPreview svg {
+    flex:
+        0
+        0
+        auto;
+}
+
+
+.quickRegisterFooter {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding:
+        14px
+        20px;
+
+    border-top:
+        1px solid
+        var(--color-border);
+
+    background:
+        #fcfaf8;
+}
+
+
+.quickRegisterFooter
+.cancelButton,
+.quickRegisterFooter
+.saveButton {
+    min-width: 120px;
+}
+
+
+@keyframes quickRegisterIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(
+                7px
+            )
+            scale(
+                0.985
+            );
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(
+                0
+            )
+            scale(
+                1
+            );
+    }
+}
+
+
+@media (max-width: 560px) {
+
+    .quickRegisterOverlay {
+        padding: 10px;
+    }
+
+
+    .quickRegisterFooter {
+        flex-direction:
+            column-reverse;
+    }
+
+
+    .quickRegisterFooter
+    .cancelButton,
+    .quickRegisterFooter
+    .saveButton {
+        width: 100%;
     }
 }

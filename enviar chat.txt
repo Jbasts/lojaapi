@@ -1,0 +1,2896 @@
+import {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import {
+    ChevronDown,
+    ChevronUp,
+    Pencil,
+    Plus,
+    Search,
+    Trash2
+} from "lucide-react";
+
+import {
+    atualizarCompra,
+    buscarCompra,
+    criarCompra,
+    excluirCompra,
+    listarCompras
+} from "../../services/compraService";
+
+import {
+    buscarProdutoPorCodigo
+} from "../../services/produtoEstoqueService";
+
+import styles from "./Compras.module.css";
+
+
+const itemInicial = {
+    codigo_barras: "",
+    produto: null,
+    quantidade: "",
+    valor_unitario: "",
+    validade: ""
+};
+
+
+function Compras() {
+
+    const [compras, setCompras] =
+        useState([]);
+
+    const [busca, setBusca] =
+        useState("");
+
+    const [itemForm, setItemForm] =
+        useState(itemInicial);
+
+    const [itens, setItens] =
+        useState([]);
+
+    const [compraEditando, setCompraEditando] =
+        useState(null);
+
+    const [detalhes, setDetalhes] =
+        useState({});
+
+    const [aberta, setAberta] =
+        useState(null);
+
+    const [erro, setErro] =
+        useState("");
+
+    const [mensagem, setMensagem] =
+        useState("");
+
+    const [salvando, setSalvando] =
+        useState(false);
+
+
+    async function carregarCompras(
+        texto = ""
+    ) {
+
+        try {
+            const dados =
+                await listarCompras(texto);
+
+            setCompras(dados);
+
+        } catch {
+            setErro(
+                "Não foi possível carregar as compras."
+            );
+        }
+    }
+
+
+    useEffect(() => {
+
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        carregarCompras();
+
+    }, []);
+
+
+    function moeda(valor) {
+
+        return Number(
+            valor || 0
+        ).toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+    }
+
+
+    function dataBR(data) {
+
+        if (!data) {
+            return "-";
+        }
+
+        const [
+            ano,
+            mes,
+            dia
+        ] = data
+            .substring(0, 10)
+            .split("-");
+
+        return `${dia}/${mes}/${ano}`;
+    }
+
+
+    async function handleBusca(event) {
+
+        const valor =
+            event.target.value;
+
+        setBusca(valor);
+
+        await carregarCompras(
+            valor
+        );
+    }
+
+
+    function alterarItemForm(
+        event
+    ) {
+
+        const {
+            name,
+            value
+        } = event.target;
+
+        setItemForm(
+            (anterior) => ({
+                ...anterior,
+                [name]: value
+            })
+        );
+    }
+
+
+    async function procurarCodigo() {
+
+        setErro("");
+
+        if (
+            !itemForm.codigo_barras.trim()
+        ) {
+            setErro(
+                "Digite o código de barras."
+            );
+
+            return;
+        }
+
+
+        try {
+            const produto =
+                await buscarProdutoPorCodigo(
+                    itemForm.codigo_barras
+                );
+
+            setItemForm(
+                (anterior) => ({
+                    ...anterior,
+                    produto
+                })
+            );
+
+        } catch {
+
+            setItemForm(
+                (anterior) => ({
+                    ...anterior,
+                    produto: null
+                })
+            );
+
+            setErro(
+                "Produto de estoque não registrado, " +
+                "vá em produto_estoque e registre " +
+                "o produto antes."
+            );
+        }
+    }
+
+
+    function adicionarItem() {
+
+        setErro("");
+
+        if (!itemForm.produto) {
+
+            setErro(
+                "Pesquise um produto pelo código de barras."
+            );
+
+            return;
+        }
+
+
+        if (
+            Number(
+                itemForm.quantidade
+            ) <= 0
+        ) {
+
+            setErro(
+                "Quantidade deve ser maior que zero."
+            );
+
+            return;
+        }
+
+
+        if (
+            itemForm.valor_unitario === ""
+            ||
+            Number(
+                itemForm.valor_unitario
+            ) < 0
+        ) {
+
+            setErro(
+                "Informe um valor unitário válido."
+            );
+
+            return;
+        }
+
+
+        setItens(
+            (anteriores) => [
+                ...anteriores,
+                {
+                    produto_estoque_id:
+                        itemForm.produto.id,
+
+                    produto_nome:
+                        itemForm.produto.nome,
+
+                    codigo_barras:
+                        itemForm.produto.codigo_barras,
+
+                    quantidade:
+                        Number(
+                            itemForm.quantidade
+                        ),
+
+                    valor_unitario:
+                        Number(
+                            itemForm.valor_unitario
+                        ),
+
+                    validade:
+                        itemForm.validade || null
+                }
+            ]
+        );
+
+
+        setItemForm(
+            itemInicial
+        );
+    }
+
+
+    function removerItem(indice) {
+
+        setItens(
+            (anteriores) =>
+                anteriores.filter(
+                    (_, i) =>
+                        i !== indice
+                )
+        );
+    }
+
+
+    const totalCompra = useMemo(
+        () => {
+
+            return itens.reduce(
+                (total, item) => (
+                    total
+                    +
+                    Number(item.quantidade)
+                    *
+                    Number(item.valor_unitario)
+                ),
+                0
+            );
+
+        },
+        [itens]
+    );
+
+
+    async function enviarCompra(
+        confirmarSemValidade = false
+    ) {
+
+        const dados = {
+            confirmar_sem_validade:
+                confirmarSemValidade,
+
+            itens: itens.map(
+                (item) => ({
+                    produto_estoque_id:
+                        item.produto_estoque_id,
+
+                    quantidade:
+                        item.quantidade,
+
+                    valor_unitario:
+                        item.valor_unitario,
+
+                    validade:
+                        item.validade || null
+                })
+            )
+        };
+
+
+        if (compraEditando) {
+
+            return atualizarCompra(
+                compraEditando,
+                dados
+            );
+        }
+
+
+        return criarCompra(
+            dados
+        );
+    }
+
+
+    async function salvarCompra() {
+
+        if (itens.length === 0) {
+
+            setErro(
+                "Adicione pelo menos um item."
+            );
+
+            return;
+        }
+
+
+        setErro("");
+        setMensagem("");
+        setSalvando(true);
+
+
+        try {
+
+            await enviarCompra(false);
+
+            setMensagem(
+                compraEditando
+                    ? "Compra atualizada com sucesso."
+                    : "Compra registrada com sucesso."
+            );
+
+            limparFormulario();
+
+            await carregarCompras(
+                busca
+            );
+
+        } catch (error) {
+
+            if (
+                error.response?.status === 409
+                &&
+                error.response?.data?.codigo
+                === "VALIDADE_NAO_INFORMADA"
+            ) {
+
+                const confirmar =
+                    window.confirm(
+                        "Produto sem validade, " +
+                        "deseja prosseguir?"
+                    );
+
+
+                if (confirmar) {
+
+                    try {
+
+                        await enviarCompra(
+                            true
+                        );
+
+                        setMensagem(
+                            compraEditando
+                                ? "Compra atualizada com sucesso."
+                                : "Compra registrada com sucesso."
+                        );
+
+                        limparFormulario();
+
+                        await carregarCompras(
+                            busca
+                        );
+
+                    } catch (novoErro) {
+
+                        setErro(
+                            novoErro.response
+                                ?.data
+                                ?.erro
+                            ||
+                            "Não foi possível salvar a compra."
+                        );
+                    }
+                }
+
+            } else {
+
+                setErro(
+                    error.response
+                        ?.data
+                        ?.erro
+                    ||
+                    "Não foi possível salvar a compra."
+                );
+            }
+
+        } finally {
+
+            setSalvando(false);
+        }
+    }
+
+
+    function limparFormulario() {
+
+        setCompraEditando(null);
+        setItemForm(itemInicial);
+        setItens([]);
+    }
+
+
+    async function editarCompra(
+        compra
+    ) {
+
+        try {
+
+            setErro("");
+            setMensagem("");
+
+            const dados =
+                await buscarCompra(
+                    compra.id
+                );
+
+            setCompraEditando(
+                compra.id
+            );
+
+            setItens(
+                dados.itens.map(
+                    (item) => ({
+                        produto_estoque_id:
+                            item.produto_estoque_id,
+
+                        produto_nome:
+                            item.produto_nome,
+
+                        codigo_barras:
+                            item.codigo_barras,
+
+                        quantidade:
+                            item.quantidade,
+
+                        valor_unitario:
+                            item.valor_unitario,
+
+                        validade:
+                            item.validade
+                            || null
+                    })
+                )
+            );
+
+        } catch (error) {
+
+            setErro(
+                error.response
+                    ?.data
+                    ?.erro
+                ||
+                "Não foi possível carregar a compra."
+            );
+        }
+    }
+
+
+    async function apagarCompra(
+        compra
+    ) {
+
+        const confirmar =
+            window.confirm(
+                `Deseja excluir a compra #${compra.numero}?`
+            );
+
+        if (!confirmar) {
+            return;
+        }
+
+
+        try {
+
+            await excluirCompra(
+                compra.id
+            );
+
+            setMensagem(
+                "Compra excluída com sucesso."
+            );
+
+            await carregarCompras(
+                busca
+            );
+
+        } catch (error) {
+
+            setErro(
+                error.response
+                    ?.data
+                    ?.erro
+                ||
+                "Não foi possível excluir a compra."
+            );
+        }
+    }
+
+
+    async function alternarDetalhes(
+        compra
+    ) {
+
+        if (aberta === compra.id) {
+
+            setAberta(null);
+
+            return;
+        }
+
+
+        try {
+
+            if (!detalhes[compra.id]) {
+
+                const dados =
+                    await buscarCompra(
+                        compra.id
+                    );
+
+                setDetalhes(
+                    (anterior) => ({
+                        ...anterior,
+                        [compra.id]: dados
+                    })
+                );
+            }
+
+            setAberta(
+                compra.id
+            );
+
+        } catch {
+
+            setErro(
+                "Não foi possível carregar " +
+                "os detalhes da compra."
+            );
+        }
+    }
+
+
+    return (
+
+        <div className={styles.page}>
+
+            <div className={styles.header}>
+
+                <div>
+                    <h1>
+                        Compras
+                    </h1>
+
+                    <p>
+                        Entrada de produtos e
+                        matérias-primas no estoque.
+                    </p>
+                </div>
+
+            </div>
+
+
+            {erro && (
+                <div className={styles.error}>
+                    {erro}
+                </div>
+            )}
+
+
+            {mensagem && (
+                <div className={styles.success}>
+                    {mensagem}
+                </div>
+            )}
+
+
+            <div className={styles.searchBox}>
+
+                <Search size={17} />
+
+                <input
+                    placeholder={
+                        "Buscar compra, produto ou código..."
+                    }
+                    value={busca}
+                    onChange={handleBusca}
+                />
+
+            </div>
+
+
+            <section className={styles.card}>
+
+                <table className={styles.table}>
+
+                    <thead>
+                        <tr>
+                            <th>Nº Compra</th>
+                            <th>Itens</th>
+                            <th>Valor total</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        {compras.length === 0
+                            ? (
+                                <tr>
+                                    <td
+                                        colSpan="6"
+                                        className={
+                                            styles.empty
+                                        }
+                                    >
+                                        Nenhuma compra registrada.
+                                    </td>
+                                </tr>
+                            )
+                            : compras.map(
+                                (compra) => (
+
+                                    <>
+                                        <tr key={compra.id}>
+
+                                            <td>
+                                                #{compra.numero}
+                                            </td>
+
+                                            <td>
+                                                {
+                                                    compra.quantidade_itens
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <strong>
+                                                    {
+                                                        moeda(
+                                                            compra.valor_total
+                                                        )
+                                                    }
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                {
+                                                    dataBR(
+                                                        compra.data_compra
+                                                    )
+                                                }
+                                            </td>
+
+                                            <td>
+                                                Confirmada
+                                            </td>
+
+                                            <td>
+
+                                                <div
+                                                    className={
+                                                        styles.actions
+                                                    }
+                                                >
+
+                                                    <button
+                                                        title="Detalhes"
+                                                        onClick={() =>
+                                                            alternarDetalhes(
+                                                                compra
+                                                            )
+                                                        }
+                                                    >
+                                                        {
+                                                            aberta
+                                                            === compra.id
+                                                                ? (
+                                                                    <ChevronUp
+                                                                        size={15}
+                                                                    />
+                                                                )
+                                                                : (
+                                                                    <ChevronDown
+                                                                        size={15}
+                                                                    />
+                                                                )
+                                                        }
+                                                    </button>
+
+
+                                                    <button
+                                                        title="Editar"
+                                                        onClick={() =>
+                                                            editarCompra(
+                                                                compra
+                                                            )
+                                                        }
+                                                    >
+                                                        <Pencil
+                                                            size={15}
+                                                        />
+                                                    </button>
+
+
+                                                    <button
+                                                        title="Excluir"
+                                                        onClick={() =>
+                                                            apagarCompra(
+                                                                compra
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2
+                                                            size={15}
+                                                        />
+                                                    </button>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+
+                                        {
+                                            aberta === compra.id
+                                            &&
+                                            detalhes[compra.id]
+                                            && (
+
+                                                <tr
+                                                    key={
+                                                        `${compra.id}-detalhes`
+                                                    }
+                                                >
+
+                                                    <td
+                                                        colSpan="6"
+                                                        className={
+                                                            styles.details
+                                                        }
+                                                    >
+
+                                                        <table
+                                                            className={
+                                                                styles.innerTable
+                                                            }
+                                                        >
+
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Produto</th>
+                                                                    <th>Código</th>
+                                                                    <th>Qtd.</th>
+                                                                    <th>Valor unit.</th>
+                                                                    <th>Total</th>
+                                                                    <th>Validade</th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody>
+
+                                                                {
+                                                                    detalhes[
+                                                                        compra.id
+                                                                    ]
+                                                                    .itens
+                                                                    .map(
+                                                                        (item) => (
+
+                                                                            <tr
+                                                                                key={
+                                                                                    item.id
+                                                                                }
+                                                                            >
+                                                                                <td>
+                                                                                    {
+                                                                                        item.produto_nome
+                                                                                    }
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    {
+                                                                                        item.codigo_barras
+                                                                                    }
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    {
+                                                                                        item.quantidade
+                                                                                    }
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    {
+                                                                                        moeda(
+                                                                                            item.valor_unitario
+                                                                                        )
+                                                                                    }
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    {
+                                                                                        moeda(
+                                                                                            item.valor_total
+                                                                                        )
+                                                                                    }
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    {
+                                                                                        item.validade
+                                                                                            ? dataBR(
+                                                                                                item.validade
+                                                                                            )
+                                                                                            : "Sem validade"
+                                                                                    }
+                                                                                </td>
+                                                                            </tr>
+                                                                        )
+                                                                    )
+                                                                }
+
+                                                            </tbody>
+
+                                                        </table>
+
+                                                    </td>
+
+                                                </tr>
+                                            )
+                                        }
+
+                                    </>
+                                )
+                            )
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </section>
+
+
+            <section className={styles.formCard}>
+
+                <div className={styles.formHeader}>
+
+                    <h2>
+                        {
+                            compraEditando
+                                ? "Editar Compra"
+                                : "Nova Compra"
+                        }
+                    </h2>
+
+                    {
+                        compraEditando
+                        && (
+                            <button
+                                className={
+                                    styles.cancelButton
+                                }
+                                onClick={
+                                    limparFormulario
+                                }
+                            >
+                                Cancelar edição
+                            </button>
+                        )
+                    }
+
+                </div>
+
+
+                <div className={styles.barcodeArea}>
+
+                    <div>
+                        <label>
+                            Código de barras *
+                        </label>
+
+                        <input
+                            name="codigo_barras"
+                            value={
+                                itemForm.codigo_barras
+                            }
+                            onChange={
+                                alterarItemForm
+                            }
+                            inputMode="numeric"
+                            placeholder={
+                                "Digite ou leia o código"
+                            }
+                        />
+                    </div>
+
+
+                    <button
+                        onClick={
+                            procurarCodigo
+                        }
+                    >
+                        <Search size={15} />
+
+                        Buscar
+                    </button>
+
+                </div>
+
+
+                {
+                    itemForm.produto
+                    && (
+
+                        <div
+                            className={
+                                styles.productFound
+                            }
+                        >
+                            Produto encontrado:
+
+                            <strong>
+                                {
+                                    itemForm.produto.nome
+                                }
+                            </strong>
+                        </div>
+                    )
+                }
+
+
+                <div className={styles.itemGrid}>
+
+                    <div>
+                        <label>
+                            Quantidade *
+                        </label>
+
+                        <input
+                            type="number"
+                            name="quantidade"
+                            min="0.001"
+                            step="0.001"
+                            value={
+                                itemForm.quantidade
+                            }
+                            onChange={
+                                alterarItemForm
+                            }
+                        />
+                    </div>
+
+
+                    <div>
+                        <label>
+                            Valor unitário *
+                        </label>
+
+                        <input
+                            type="number"
+                            name="valor_unitario"
+                            min="0"
+                            step="0.01"
+                            value={
+                                itemForm.valor_unitario
+                            }
+                            onChange={
+                                alterarItemForm
+                            }
+                        />
+                    </div>
+
+
+                    <div>
+                        <label>
+                            Validade
+                        </label>
+
+                        <input
+                            type="date"
+                            name="validade"
+                            value={
+                                itemForm.validade
+                            }
+                            onChange={
+                                alterarItemForm
+                            }
+                        />
+                    </div>
+
+
+                    <button
+                        className={
+                            styles.addItem
+                        }
+                        onClick={
+                            adicionarItem
+                        }
+                    >
+                        <Plus size={15} />
+
+                        Adicionar item
+                    </button>
+
+                </div>
+
+
+                <div className={styles.itemsArea}>
+
+                    <h3>
+                        Itens da compra
+                    </h3>
+
+
+                    <table className={styles.table}>
+
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Código</th>
+                                <th>Qtd.</th>
+                                <th>Valor unit.</th>
+                                <th>Total</th>
+                                <th>Validade</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+
+                        <tbody>
+
+                            {
+                                itens.length === 0
+                                    ? (
+                                        <tr>
+                                            <td
+                                                colSpan="7"
+                                                className={
+                                                    styles.empty
+                                                }
+                                            >
+                                                Nenhum item adicionado.
+                                            </td>
+                                        </tr>
+                                    )
+                                    : itens.map(
+                                        (item, indice) => (
+
+                                            <tr key={indice}>
+
+                                                <td>
+                                                    {
+                                                        item.produto_nome
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        item.codigo_barras
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        item.quantidade
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        moeda(
+                                                            item.valor_unitario
+                                                        )
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        moeda(
+                                                            item.quantidade
+                                                            *
+                                                            item.valor_unitario
+                                                        )
+                                                    }
+                                                </td>
+
+                                                <td>
+                                                    {
+                                                        item.validade
+                                                            ? dataBR(
+                                                                item.validade
+                                                            )
+                                                            : "Sem validade"
+                                                    }
+                                                </td>
+
+                                                <td>
+
+                                                    <button
+                                                        className={
+                                                            styles.removeItem
+                                                        }
+                                                        onClick={() =>
+                                                            removerItem(
+                                                                indice
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2
+                                                            size={14}
+                                                        />
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+                                        )
+                                    )
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div className={styles.footer}>
+
+                    <div>
+                        <span>
+                            Total da compra
+                        </span>
+
+                        <strong>
+                            {
+                                moeda(
+                                    totalCompra
+                                )
+                            }
+                        </strong>
+                    </div>
+
+
+                    <button
+                        className={
+                            styles.saveButton
+                        }
+                        onClick={
+                            salvarCompra
+                        }
+                        disabled={
+                            salvando
+                        }
+                    >
+                        {
+                            salvando
+                                ? "Salvando..."
+                                : (
+                                    compraEditando
+                                        ? "Atualizar Compra"
+                                        : "Salvar Compra"
+                                )
+                        }
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+    );
+}
+
+
+export default Compras;
+
+-------------------------------
+
+.page {
+    width: 100%;
+}
+
+.header {
+    margin-bottom: 22px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header p {
+    margin: 5px 0 0;
+    color: var(--color-text-light);
+    font-size: 13px;
+}
+
+.searchBox {
+    width: 390px;
+    height: 39px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 18px;
+    padding: 0 12px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+
+    background: var(--color-surface);
+}
+
+.searchBox input {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+}
+
+.card,
+.formCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+}
+
+.card {
+    margin-bottom: 22px;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 12px 14px;
+
+    border-bottom:
+        1px solid var(--color-border);
+
+    text-align: left;
+    font-size: 11px;
+}
+
+.table th {
+    background: #faf8f6;
+    color: var(--color-text-light);
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+.actions button,
+.removeItem {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+    color: var(--color-primary);
+}
+
+.formCard {
+    padding: 22px;
+}
+
+.formHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.formHeader h2 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.barcodeArea {
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 450px)
+        auto;
+
+    gap: 10px;
+
+    align-items: end;
+
+    margin-bottom: 12px;
+}
+
+.barcodeArea div,
+.itemGrid div {
+    display: flex;
+    flex-direction: column;
+}
+
+.barcodeArea label,
+.itemGrid label {
+    margin-bottom: 6px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.barcodeArea input,
+.itemGrid input {
+    height: 38px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+    outline: none;
+}
+
+.barcodeArea button,
+.addItem {
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 5px;
+
+    background: var(--color-primary);
+    color: white;
+}
+
+.productFound {
+    margin-bottom: 16px;
+
+    padding: 11px;
+
+    border-radius: 5px;
+
+    background: #f3ece6;
+
+    font-size: 11px;
+}
+
+.productFound strong {
+    margin-left: 5px;
+}
+
+.itemGrid {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr auto;
+
+    gap: 12px;
+
+    align-items: end;
+
+    margin-bottom: 25px;
+}
+
+.itemsArea h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+.footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 30px;
+
+    margin-top: 20px;
+}
+
+.footer div {
+    display: flex;
+    flex-direction: column;
+
+    text-align: right;
+}
+
+.footer span {
+    color: var(--color-text-light);
+    font-size: 10px;
+}
+
+.footer strong {
+    margin-top: 4px;
+    font-size: 20px;
+}
+
+.saveButton {
+    height: 40px;
+
+    padding: 0 18px;
+
+    border: 0;
+    border-radius: 5px;
+
+    background: var(--color-primary);
+    color: white;
+}
+
+.cancelButton {
+    height: 34px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid var(--color-border);
+
+    border-radius: 5px;
+
+    background: white;
+}
+
+.details {
+    padding: 15px 25px !important;
+
+    background: #faf8f6;
+}
+
+.innerTable {
+    width: 100%;
+    border-collapse: collapse;
+
+    background: white;
+}
+
+.innerTable th,
+.innerTable td {
+    padding: 9px 12px;
+
+    border:
+        1px solid var(--color-border);
+
+    font-size: 10px;
+
+    text-align: left;
+}
+
+.empty {
+    padding: 30px !important;
+
+    text-align: center !important;
+
+    color: var(--color-text-light);
+}
+
+.error,
+.success {
+    margin-bottom: 15px;
+
+    padding: 11px 14px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+}
+
+.error {
+    background: #fbe8e8;
+    color: var(--color-danger);
+}
+
+.success {
+    background: #e7f5ec;
+    color: var(--color-success);
+}
+
+@media (max-width: 900px) {
+
+    .itemGrid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .barcodeArea,
+    .itemGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+-----------------------------------
+
+import api from "./api";
+
+
+export async function listarCompras(
+    busca = ""
+) {
+
+    const response = await api.get(
+        "/compras",
+        {
+            params: {
+                busca
+            }
+        }
+    );
+
+    return response.data;
+}
+
+
+export async function buscarCompra(id) {
+
+    const response = await api.get(
+        `/compras/${id}`
+    );
+
+    return response.data;
+}
+
+
+export async function criarCompra(dados) {
+
+    const response = await api.post(
+        "/compras",
+        dados
+    );
+
+    return response.data;
+}
+
+
+export async function atualizarCompra(
+    id,
+    dados
+) {
+
+    const response = await api.put(
+        `/compras/${id}`,
+        dados
+    );
+
+    return response.data;
+}
+
+
+export async function excluirCompra(id) {
+
+    const response = await api.delete(
+        `/compras/${id}`
+    );
+
+    return response.data;
+}
+
+--------------------------------------
+
+from flask import jsonify, request
+
+from flask_jwt_extended import (
+    get_jwt_identity
+)
+
+from src.service.compra_service import (
+    CompraService,
+    CompraEmUsoError,
+    ValidadeNaoInformadaError
+)
+
+
+class CompraController:
+
+    @staticmethod
+    def listar():
+
+        try:
+            busca = request.args.get(
+                "busca"
+            )
+
+            compras = CompraService.listar(
+                busca
+            )
+
+            return jsonify(
+                compras
+            ), 200
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao listar compras: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+    @staticmethod
+    def buscar(compra_id):
+
+        try:
+            compra = CompraService.buscar(
+                compra_id
+            )
+
+            return jsonify(
+                compra.to_dict()
+            ), 200
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 404
+
+
+    @staticmethod
+    def criar():
+
+        try:
+            dados = request.get_json(
+                silent=True
+            ) or {}
+
+            usuario_id = int(
+                get_jwt_identity()
+            )
+
+            compra = CompraService.criar(
+                usuario_id,
+                dados
+            )
+
+            return jsonify({
+                "mensagem":
+                    "Compra registrada com sucesso.",
+
+                "compra":
+                    compra.to_dict()
+            }), 201
+
+
+        except ValidadeNaoInformadaError as erro:
+
+            return jsonify({
+                "erro": str(erro),
+                "codigo":
+                    "VALIDADE_NAO_INFORMADA"
+            }), 409
+
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 400
+
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao registrar compra: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+    @staticmethod
+    def atualizar(compra_id):
+
+        try:
+            dados = request.get_json(
+                silent=True
+            ) or {}
+
+            compra = (
+                CompraService.atualizar(
+                    compra_id,
+                    dados
+                )
+            )
+
+            return jsonify({
+                "mensagem":
+                    "Compra atualizada com sucesso.",
+
+                "compra":
+                    compra.to_dict()
+            }), 200
+
+
+        except ValidadeNaoInformadaError as erro:
+
+            return jsonify({
+                "erro": str(erro),
+                "codigo":
+                    "VALIDADE_NAO_INFORMADA"
+            }), 409
+
+
+        except CompraEmUsoError as erro:
+
+            return jsonify({
+                "erro": str(erro),
+                "codigo":
+                    "COMPRA_EM_USO"
+            }), 409
+
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 400
+
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao atualizar compra: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+    @staticmethod
+    def excluir(compra_id):
+
+        try:
+            CompraService.excluir(
+                compra_id
+            )
+
+            return jsonify({
+                "mensagem":
+                    "Compra excluída com sucesso."
+            }), 200
+
+
+        except CompraEmUsoError as erro:
+
+            return jsonify({
+                "erro": str(erro),
+                "codigo":
+                    "COMPRA_EM_USO"
+            }), 409
+
+
+        except ValueError as erro:
+
+            return jsonify({
+                "erro": str(erro)
+            }), 404
+
+
+        except Exception as erro:
+
+            print(
+                f"Erro ao excluir compra: {erro}"
+            )
+
+            return jsonify({
+                "erro":
+                    "Erro interno do servidor."
+            }), 500
+
+
+------------------------------------
+
+class Compra:
+
+    def __init__(
+        self,
+        id=None,
+        numero=None,
+        usuario_id=None,
+        data_compra=None,
+        status="CONFIRMADA",
+        desconto=0,
+        observacao=None,
+        itens=None
+    ):
+        self.id = id
+        self.numero = numero
+        self.usuario_id = usuario_id
+        self.data_compra = data_compra
+        self.status = status
+        self.desconto = desconto
+        self.observacao = observacao
+        self.itens = itens or []
+
+    def to_dict(self):
+
+        total_itens = sum(
+            item.quantidade * item.valor_unitario
+            for item in self.itens
+        )
+
+        total = (
+            float(total_itens)
+            - float(self.desconto or 0)
+        )
+
+        return {
+            "id": self.id,
+            "numero": self.numero,
+            "usuario_id": self.usuario_id,
+            "data_compra": (
+                self.data_compra.isoformat()
+                if self.data_compra
+                else None
+            ),
+            "status": self.status,
+            "desconto": float(
+                self.desconto or 0
+            ),
+            "valor_total": round(
+                max(total, 0),
+                2
+            ),
+            "itens": [
+                item.to_dict()
+                for item in self.itens
+            ]
+        }
+
+
+-----------------------------
+
+from psycopg2.extras import RealDictCursor
+
+from src.database import get_connection
+from src.entities.compra import Compra
+from src.entities.item_compra import ItemCompra
+
+
+class CompraRepository:
+
+    @staticmethod
+    def listar(busca=None):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor(
+                cursor_factory=RealDictCursor
+            ) as cursor:
+
+                sql = """
+                    SELECT
+                        c.id,
+                        c.numero,
+                        c.data_compra,
+                        c.status,
+                        c.desconto,
+
+                        COUNT(ic.id) AS quantidade_itens,
+
+                        COALESCE(
+                            SUM(
+                                ic.quantidade
+                                * ic.valor_unitario
+                            ),
+                            0
+                        ) - c.desconto
+                            AS valor_total
+
+                    FROM compras c
+
+                    LEFT JOIN itens_compra ic
+                        ON ic.compra_id = c.id
+
+                    WHERE c.status <> 'CANCELADA'
+                """
+
+                parametros = []
+
+                if busca:
+                    termo = f"%{busca}%"
+
+                    sql += """
+                        AND (
+                            CAST(c.numero AS TEXT)
+                                ILIKE %s
+
+                            OR EXISTS (
+                                SELECT 1
+
+                                FROM itens_compra ic2
+
+                                INNER JOIN produtos_estoque pe
+                                    ON pe.id =
+                                    ic2.produto_estoque_id
+
+                                WHERE
+                                    ic2.compra_id = c.id
+
+                                AND (
+                                    pe.nome ILIKE %s
+                                    OR pe.codigo_barras
+                                        ILIKE %s
+                                )
+                            )
+                        )
+                    """
+
+                    parametros.extend([
+                        termo,
+                        termo,
+                        termo
+                    ])
+
+                sql += """
+                    GROUP BY
+                        c.id,
+                        c.numero,
+                        c.data_compra,
+                        c.status,
+                        c.desconto
+
+                    ORDER BY
+                        c.data_compra DESC,
+                        c.id DESC
+                """
+
+                cursor.execute(
+                    sql,
+                    parametros
+                )
+
+                registros = cursor.fetchall()
+
+                return [
+                    {
+                        "id": r["id"],
+                        "numero": r["numero"],
+                        "data_compra":
+                            r["data_compra"].isoformat(),
+                        "status": r["status"],
+                        "quantidade_itens":
+                            r["quantidade_itens"],
+                        "valor_total":
+                            float(r["valor_total"] or 0)
+                    }
+                    for r in registros
+                ]
+
+        finally:
+            connection.close()
+
+
+    @staticmethod
+    def buscar_por_id(compra_id):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor(
+                cursor_factory=RealDictCursor
+            ) as cursor:
+
+                cursor.execute(
+                    """
+                    SELECT
+                        id,
+                        numero,
+                        usuario_id,
+                        data_compra,
+                        status,
+                        desconto,
+                        observacao
+
+                    FROM compras
+
+                    WHERE id = %s
+                    LIMIT 1
+                    """,
+                    (compra_id,)
+                )
+
+                registro = cursor.fetchone()
+
+                if not registro:
+                    return None
+
+                compra = Compra(
+                    id=registro["id"],
+                    numero=registro["numero"],
+                    usuario_id=registro["usuario_id"],
+                    data_compra=registro["data_compra"],
+                    status=registro["status"],
+                    desconto=registro["desconto"],
+                    observacao=registro["observacao"]
+                )
+
+                cursor.execute(
+                    """
+                    SELECT
+                        ic.id,
+                        ic.compra_id,
+                        ic.produto_estoque_id,
+
+                        pe.nome AS produto_nome,
+                        pe.codigo_barras,
+
+                        ic.quantidade,
+                        ic.valor_unitario,
+                        ic.validade,
+                        ic.criado_em
+
+                    FROM itens_compra ic
+
+                    INNER JOIN produtos_estoque pe
+                        ON pe.id =
+                        ic.produto_estoque_id
+
+                    WHERE ic.compra_id = %s
+
+                    ORDER BY ic.id
+                    """,
+                    (compra_id,)
+                )
+
+                registros_itens = cursor.fetchall()
+
+                compra.itens = [
+                    ItemCompra(
+                        id=r["id"],
+                        compra_id=r["compra_id"],
+                        produto_estoque_id=(
+                            r["produto_estoque_id"]
+                        ),
+                        produto_nome=r["produto_nome"],
+                        codigo_barras=r["codigo_barras"],
+                        quantidade=r["quantidade"],
+                        valor_unitario=r["valor_unitario"],
+                        validade=r["validade"],
+                        criado_em=r["criado_em"]
+                    )
+                    for r in registros_itens
+                ]
+
+                return compra
+
+        finally:
+            connection.close()
+
+
+    @staticmethod
+    def pode_alterar(compra_id):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor(
+                cursor_factory=RealDictCursor
+            ) as cursor:
+
+                cursor.execute(
+                    """
+                    SELECT EXISTS (
+
+                        SELECT 1
+
+                        FROM itens_compra ic
+
+                        WHERE ic.compra_id = %s
+
+                        AND (
+                            NOT EXISTS (
+                                SELECT 1
+
+                                FROM lotes_estoque l
+
+                                WHERE
+                                    l.item_compra_id = ic.id
+                            )
+
+                            OR EXISTS (
+                                SELECT 1
+
+                                FROM lotes_estoque l
+
+                                WHERE
+                                    l.item_compra_id = ic.id
+
+                                AND (
+                                    l.quantidade_atual
+                                        <>
+                                    l.quantidade_inicial
+
+                                    OR EXISTS (
+                                        SELECT 1
+
+                                        FROM movimentacoes_estoque m
+
+                                        WHERE
+                                            m.lote_id = l.id
+
+                                        AND m.tipo
+                                            <>
+                                            'ENTRADA_COMPRA'
+                                    )
+                                )
+                            )
+                        )
+                    ) AS bloqueada
+                    """,
+                    (compra_id,)
+                )
+
+                resultado = cursor.fetchone()
+
+                return not resultado["bloqueada"]
+
+        finally:
+            connection.close()
+
+
+    @staticmethod
+    def _inserir_itens_e_estoque(
+        cursor,
+        compra_id,
+        itens
+    ):
+
+        for item in itens:
+
+            cursor.execute(
+                """
+                INSERT INTO itens_compra
+                (
+                    compra_id,
+                    produto_estoque_id,
+                    quantidade,
+                    valor_unitario,
+                    validade
+                )
+
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+
+                RETURNING id
+                """,
+                (
+                    compra_id,
+                    item["produto_estoque_id"],
+                    item["quantidade"],
+                    item["valor_unitario"],
+                    item["validade"]
+                )
+            )
+
+            item_compra_id = (
+                cursor.fetchone()["id"]
+            )
+
+
+            cursor.execute(
+                """
+                INSERT INTO lotes_estoque
+                (
+                    item_compra_id,
+                    produto_estoque_id,
+                    quantidade_inicial,
+                    quantidade_atual,
+                    custo_unitario,
+                    validade
+                )
+
+                VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+
+                RETURNING id
+                """,
+                (
+                    item_compra_id,
+                    item["produto_estoque_id"],
+                    item["quantidade"],
+                    item["quantidade"],
+                    item["valor_unitario"],
+                    item["validade"]
+                )
+            )
+
+            lote_id = cursor.fetchone()["id"]
+
+
+            cursor.execute(
+                """
+                INSERT INTO movimentacoes_estoque
+                (
+                    lote_id,
+                    tipo,
+                    quantidade,
+                    origem_tipo,
+                    origem_id,
+                    observacao
+                )
+
+                VALUES
+                (
+                    %s,
+                    'ENTRADA_COMPRA',
+                    %s,
+                    'COMPRA',
+                    %s,
+                    'Entrada gerada pela compra'
+                )
+                """,
+                (
+                    lote_id,
+                    item["quantidade"],
+                    compra_id
+                )
+            )
+
+
+    @staticmethod
+    def criar(
+        usuario_id,
+        itens
+    ):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor(
+                cursor_factory=RealDictCursor
+            ) as cursor:
+
+                cursor.execute(
+                    """
+                    INSERT INTO compras
+                    (
+                        usuario_id,
+                        status,
+                        desconto
+                    )
+
+                    VALUES
+                    (
+                        %s,
+                        'CONFIRMADA',
+                        0
+                    )
+
+                    RETURNING id
+                    """,
+                    (usuario_id,)
+                )
+
+                compra_id = (
+                    cursor.fetchone()["id"]
+                )
+
+                CompraRepository \
+                    ._inserir_itens_e_estoque(
+                        cursor,
+                        compra_id,
+                        itens
+                    )
+
+                connection.commit()
+
+                return compra_id
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            connection.close()
+
+
+    @staticmethod
+    def _remover_estoque_compra(
+        cursor,
+        compra_id
+    ):
+
+        cursor.execute(
+            """
+            DELETE FROM movimentacoes_estoque
+
+            WHERE lote_id IN (
+                SELECT l.id
+
+                FROM lotes_estoque l
+
+                INNER JOIN itens_compra ic
+                    ON ic.id =
+                    l.item_compra_id
+
+                WHERE ic.compra_id = %s
+            )
+            """,
+            (compra_id,)
+        )
+
+
+        cursor.execute(
+            """
+            DELETE FROM lotes_estoque
+
+            WHERE item_compra_id IN (
+                SELECT id
+
+                FROM itens_compra
+
+                WHERE compra_id = %s
+            )
+            """,
+            (compra_id,)
+        )
+
+
+        cursor.execute(
+            """
+            DELETE FROM itens_compra
+            WHERE compra_id = %s
+            """,
+            (compra_id,)
+        )
+
+
+    @staticmethod
+    def atualizar(
+        compra_id,
+        itens
+    ):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor() as cursor:
+
+                cursor.execute(
+                    """
+                    SELECT id
+
+                    FROM compras
+
+                    WHERE id = %s
+
+                    FOR UPDATE
+                    """,
+                    (compra_id,)
+                )
+
+                if not cursor.fetchone():
+                    raise ValueError(
+                        "Compra não encontrada."
+                    )
+
+                CompraRepository \
+                    ._remover_estoque_compra(
+                        cursor,
+                        compra_id
+                    )
+
+                CompraRepository \
+                    ._inserir_itens_e_estoque(
+                        cursor,
+                        compra_id,
+                        itens
+                    )
+
+                connection.commit()
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            connection.close()
+
+
+    @staticmethod
+    def excluir(compra_id):
+
+        connection = get_connection()
+
+        try:
+            with connection.cursor() as cursor:
+
+                CompraRepository \
+                    ._remover_estoque_compra(
+                        cursor,
+                        compra_id
+                    )
+
+                cursor.execute(
+                    """
+                    DELETE FROM compras
+                    WHERE id = %s
+                    """,
+                    (compra_id,)
+                )
+
+                alterados = cursor.rowcount
+
+                connection.commit()
+
+                return alterados > 0
+
+        except Exception:
+            connection.rollback()
+            raise
+
+        finally:
+            connection.close()
+
+
+----------------------------------
+
+from flask import Blueprint
+from flask_jwt_extended import jwt_required
+
+from src.controller.compra_controller import (
+    CompraController
+)
+
+
+compra_bp = Blueprint(
+    "compras",
+    __name__
+)
+
+
+@compra_bp.route(
+    "",
+    methods=["GET"]
+)
+@jwt_required()
+def listar():
+
+    return CompraController.listar()
+
+
+@compra_bp.route(
+    "/<int:compra_id>",
+    methods=["GET"]
+)
+@jwt_required()
+def buscar(compra_id):
+
+    return CompraController.buscar(
+        compra_id
+    )
+
+
+@compra_bp.route(
+    "",
+    methods=["POST"]
+)
+@jwt_required()
+def criar():
+
+    return CompraController.criar()
+
+
+@compra_bp.route(
+    "/<int:compra_id>",
+    methods=["PUT"]
+)
+@jwt_required()
+def atualizar(compra_id):
+
+    return CompraController.atualizar(
+        compra_id
+    )
+
+
+@compra_bp.route(
+    "/<int:compra_id>",
+    methods=["DELETE"]
+)
+@jwt_required()
+def excluir(compra_id):
+
+    return CompraController.excluir(
+        compra_id
+    )
+
+--------------------------------------
+
+from datetime import date
+from decimal import Decimal, InvalidOperation
+
+from src.repositories.compra_repository import (
+    CompraRepository
+)
+
+from src.repositories.produto_estoque_repository import (
+    ProdutoEstoqueRepository
+)
+
+
+class ValidadeNaoInformadaError(Exception):
+    pass
+
+
+class CompraEmUsoError(Exception):
+    pass
+
+
+class CompraService:
+
+    @staticmethod
+    def _decimal(valor, campo):
+
+        try:
+            return Decimal(
+                str(valor).replace(",", ".")
+            )
+
+        except (
+            InvalidOperation,
+            ValueError,
+            TypeError
+        ):
+            raise ValueError(
+                f"{campo} inválido."
+            )
+
+
+    @staticmethod
+    def listar(busca=None):
+
+        return CompraRepository.listar(
+            busca
+        )
+
+
+    @staticmethod
+    def buscar(compra_id):
+
+        compra = CompraRepository.buscar_por_id(
+            compra_id
+        )
+
+        if not compra:
+            raise ValueError(
+                "Compra não encontrada."
+            )
+
+        return compra
+
+
+    @staticmethod
+    def _validar_itens(dados):
+
+        itens_recebidos = (
+            dados.get("itens")
+            or []
+        )
+
+        if not itens_recebidos:
+            raise ValueError(
+                "Adicione pelo menos um item à compra."
+            )
+
+
+        confirmar_sem_validade = bool(
+            dados.get(
+                "confirmar_sem_validade",
+                False
+            )
+        )
+
+        possui_item_sem_validade = False
+
+        itens = []
+
+
+        for indice, item in enumerate(
+            itens_recebidos,
+            start=1
+        ):
+
+            produto_id = item.get(
+                "produto_estoque_id"
+            )
+
+            if not produto_id:
+                raise ValueError(
+                    f"Produto do item {indice} "
+                    "não informado."
+                )
+
+
+            produto = (
+                ProdutoEstoqueRepository
+                .buscar_por_id(produto_id)
+            )
+
+            if (
+                not produto
+                or not produto.ativo
+            ):
+                raise ValueError(
+                    "Produto de estoque não registrado, "
+                    "vá em produto_estoque e registre "
+                    "o produto antes."
+                )
+
+
+            quantidade = (
+                CompraService._decimal(
+                    item.get("quantidade"),
+                    f"Quantidade do item {indice}"
+                )
+            )
+
+            if quantidade <= 0:
+                raise ValueError(
+                    f"Quantidade do item {indice} "
+                    "deve ser maior que zero."
+                )
+
+
+            valor_unitario = (
+                CompraService._decimal(
+                    item.get("valor_unitario"),
+                    f"Valor unitário do item {indice}"
+                )
+            )
+
+            if valor_unitario < 0:
+                raise ValueError(
+                    f"Valor unitário do item {indice} "
+                    "não pode ser negativo."
+                )
+
+
+            validade_recebida = item.get(
+                "validade"
+            )
+
+            validade = None
+
+            if validade_recebida:
+
+                try:
+                    validade = date.fromisoformat(
+                        validade_recebida
+                    )
+
+                except ValueError:
+                    raise ValueError(
+                        f"Validade do item {indice} "
+                        "é inválida."
+                    )
+
+            else:
+                possui_item_sem_validade = True
+
+
+            itens.append({
+                "produto_estoque_id":
+                    produto_id,
+
+                "quantidade":
+                    quantidade,
+
+                "valor_unitario":
+                    valor_unitario,
+
+                "validade":
+                    validade
+            })
+
+
+        if (
+            possui_item_sem_validade
+            and not confirmar_sem_validade
+        ):
+            raise ValidadeNaoInformadaError(
+                "Produto sem validade, "
+                "deseja prosseguir?"
+            )
+
+
+        return itens
+
+
+    @staticmethod
+    def criar(
+        usuario_id,
+        dados
+    ):
+
+        itens = CompraService._validar_itens(
+            dados
+        )
+
+        compra_id = CompraRepository.criar(
+            usuario_id=usuario_id,
+            itens=itens
+        )
+
+        return CompraService.buscar(
+            compra_id
+        )
+
+
+    @staticmethod
+    def atualizar(
+        compra_id,
+        dados
+    ):
+
+        compra = CompraRepository.buscar_por_id(
+            compra_id
+        )
+
+        if not compra:
+            raise ValueError(
+                "Compra não encontrada."
+            )
+
+
+        if not CompraRepository.pode_alterar(
+            compra_id
+        ):
+            raise CompraEmUsoError(
+                "Esta compra não pode mais ser editada "
+                "porque algum produto deste lote já "
+                "foi utilizado ou movimentado."
+            )
+
+
+        itens = CompraService._validar_itens(
+            dados
+        )
+
+        CompraRepository.atualizar(
+            compra_id,
+            itens
+        )
+
+        return CompraService.buscar(
+            compra_id
+        )
+
+
+    @staticmethod
+    def excluir(compra_id):
+
+        compra = CompraRepository.buscar_por_id(
+            compra_id
+        )
+
+        if not compra:
+            raise ValueError(
+                "Compra não encontrada."
+            )
+
+
+        if not CompraRepository.pode_alterar(
+            compra_id
+        ):
+            raise CompraEmUsoError(
+                "Esta compra não pode ser excluída "
+                "porque algum produto deste lote "
+                "já foi utilizado ou movimentado."
+            )
+
+
+        CompraRepository.excluir(
+            compra_id
+        )

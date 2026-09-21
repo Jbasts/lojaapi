@@ -1203,10 +1203,87 @@ npm run dev
 admin@admin.com
 123456
 pip install python-dateutil
+senha database NEON: npg_HUwOfs4C1Fid
+postgresql://mardri:npg_HUwOfs4C1Fid@ep-royal-firefly-acsq742k.sa-east-1.aws.neon.tech/mardri?sslmode=require&channel_binding=require
 
-
-
+pg_restore --no-owner --no-acl -d 'postgresql://mardri:npg_HUwOfs4C1Fid@ep-royal-firefly-acsq742k.sa-east-1.aws.neon.tech/mardri?sslmode=require&channel_binding=require' backups/mardri_local.backup
 
 
 OBS: remover botar excluir dos usuários, pois ele não exclui do BANCO
 remover G e ML dos custos.
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;
+
+paginação  igual fez em estoque
+
+
+telas
+- Dashboard
+Mexer no filtro do gráfico, ter opções além de 6 meses.
+menos vendidos no:
+Produtos mais vendidos
+Ranking do mês selecionado. e ajustar o mes ano total
+
+vendas 
+pedir pra adicionar filtro maior e menor valor
+pedir pra adicionar filtro maior e menor item
+paginação  igual fez em estoque
+
+contas 
+pedir pra adicionar filtro maior e menor valor
+paginação  igual fez em estoque
+
+relatorio 
+tem os mais vendidos, quero os menos vendidos.
+paginação  igual fez em estoque
+
+pedido 
+novo pedido tem que arrumar a estilização pois a caixa desconto e botão adicionar estão saindo da caixa.
+no edita quero um popup pra editar escrito em cima "editar pedido#678462".
+preciso que tenha um botão que gere um pdf do pedido pra eu enviar para o cliente
+paginação  igual fez em estoque
+
+pagamento 
+paginação  igual fez em estoque
+
+compras
+paginação  igual fez em estoque
+Deixar por ultimo, tem outras alteraçõe spra fazer.
+
+- estoque
+
+duas formas de retirada, unitário e receita(chocolate branco)
+regra de negócio pra ajustar o "receita"
+sistema dar alerta para produtos próximos a validade
+
+desperdicio
+paginação  igual fez em estoque
+adicionar filtro mensal, anual e total.
+       
+usuario
+popup quando for editar
+bloquear telefone e cpf iguais
+paginação  igual fez em estoque
+
+produto estoque
+popup quando for editar
+paginação  igual fez em estoque
+
+produto venda
+popup quando for editar
+paginação  igual fez em estoque
+
+Custos do produtos 
+refazer essa pagina.
+paginação  igual fez em estoque
+
+despesas_extras
+popup quando for editar
+paginação  igual fez em estoque
+botar data->dia, mes, ano e total.
+
+Botar uma setinha em gestão, operação e cadastros
+
+gestão de usuários além do admin(pois mais pra frente vão ter funcionários na empresa, e não quero que eles tenham acesso na gestão e a outros recurso).
+podemos deixar gestão de usuários para o final.
+em todos quero que a mensagem de erro ou suceeso apareça. ex: ao adicionar um novo usuário, aparece um popup de exito ou erro, explicanod oq aconteceu.

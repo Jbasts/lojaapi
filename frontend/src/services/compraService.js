@@ -61,3 +61,33 @@ export async function excluirCompra(id) {
 
     return response.data;
 }
+
+
+export async function lerNotaFiscal(
+    arquivo
+) {
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "arquivo",
+        arquivo
+    );
+
+
+    const response =
+        await api.post(
+            "/compras/ler-nota",
+            formData,
+            {
+                headers: {
+                    "Content-Type":
+                        "multipart/form-data"
+                }
+            }
+        );
+
+
+    return response.data;
+}
